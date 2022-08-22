@@ -127,6 +127,11 @@ const styles = StyleSheet.create({
         fontFamily: "DancingScript_400Regular",
         fontSize: 30,
     },
+    loadingText: {
+        fontStyle: 'italic',
+        fontSize: 20,
+        fontWeight: '400',
+    },
 
 
 });
