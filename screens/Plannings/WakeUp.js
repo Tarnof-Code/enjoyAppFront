@@ -29,7 +29,7 @@ export default function Surveillance(props) {
     useEffect(() => {
         async function getWakeUp() {
             let brutResponse = await fetch(
-                "https://sheets.googleapis.com/v4/spreadsheets/1chd70zTnnbjv_6a5aRUolYaMDCKhKdg_HuLQQ_3rHFs/values/Levers!B1:R6?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=AIzaSyBZXkEFqMLe991haSx1XOJcA3oqPaJlI-Y "
+                "https://sheets.googleapis.com/v4/spreadsheets/1n9d2byYOIK2RsqgugZcD9l5WSd3zuAa3CIKOfVvlCHU/values/Levers!B1:R6?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=AIzaSyBZXkEFqMLe991haSx1XOJcA3oqPaJlI-Y "
             );
             let response = await brutResponse.json();
 
@@ -65,7 +65,7 @@ export default function Surveillance(props) {
 
     if (dateChoice === null) {
         let date = new Date()
-        if (date < new Date("2022-07-12")) {
+        if (date < new Date("2022-07-12") || date > new Date("2022-07-29")) {
             date = new Date("2022-07-12")
         }
         let todayDate = moment(date).format("DD/MM/YYYY")

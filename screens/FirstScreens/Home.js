@@ -22,7 +22,7 @@ function Home(props) {
     useEffect(() => {
         async function getInfos() {
             let brutResponse = await fetch(
-                "https://sheets.googleapis.com/v4/spreadsheets/189xQ1QyXNOwcx5Wua_UZOJiM8i71N8GBO4IWSQSIHbE/values/Infos!A1:A20?dateTimeRenderOption=FORMATTED_STRING&majorDimension=ROWS&valueRenderOption=FORMATTED_VALUE&key=AIzaSyBZXkEFqMLe991haSx1XOJcA3oqPaJlI-Y "
+                "https://sheets.googleapis.com/v4/spreadsheets/1WFXm3WLSahdpYGJcMmzzsYmLjTY2JA0GQGglr_JFHDs/values/Infos!A1:A20?dateTimeRenderOption=FORMATTED_STRING&majorDimension=ROWS&valueRenderOption=FORMATTED_VALUE&key=AIzaSyBZXkEFqMLe991haSx1XOJcA3oqPaJlI-Y "
             );
             let response = await brutResponse.json();
 

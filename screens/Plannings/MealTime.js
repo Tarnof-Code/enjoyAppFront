@@ -32,12 +32,12 @@ export default function FetchMeals(props) {
     useEffect(() => {
         async function getMeals() {
             let brutResponse = await fetch(
-                "https://sheets.googleapis.com/v4/spreadsheets/1CkQmtzlAjihUrYe5uD1U30UiYx4RomkFUNTy9YiUuZY/values/Repas!C1:T10?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=AIzaSyBZXkEFqMLe991haSx1XOJcA3oqPaJlI-Y "
+                "https://sheets.googleapis.com/v4/spreadsheets/19URxY0asBXbZ7NGSESH2anh6Oz5dtz98ITTU2dzm3vY/values/Repas!C1:T10?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=AIzaSyBZXkEFqMLe991haSx1XOJcA3oqPaJlI-Y "
             );
             let response = await brutResponse.json();
 
             let brutMenus = await fetch(
-                "https://sheets.googleapis.com/v4/spreadsheets/1NFaehdydHLoy92kiAoCuak3oRqg5PKY4U4E2ujIQkNU/values/menus_BDD!A1:S12?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=AIzaSyBZXkEFqMLe991haSx1XOJcA3oqPaJlI-Y"
+                "https://sheets.googleapis.com/v4/spreadsheets/13cquIRJ93PDO9YGr6_jwQEOux2Z-B8ZDl4GtrWzuyW8/values/menus_BDD!A1:S12?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=AIzaSyBZXkEFqMLe991haSx1XOJcA3oqPaJlI-Y"
             );
             let menus = await brutMenus.json();
 
@@ -117,7 +117,7 @@ export default function FetchMeals(props) {
 
     if (dateChoice === null) {
         let date = new Date()
-        if (date < new Date("2022-07-12")) {
+        if (date < new Date("2022-07-12") || date > new Date("2022-07-29")) {
             date = new Date("2022-07-12")
         }
         let todayDate = moment(date).format("DD/MM/YYYY")

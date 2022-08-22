@@ -32,7 +32,7 @@ export default function UsefulNumbers(props) {
     useEffect(() => {
         async function getData() {
             let brutResponse = await fetch(
-                "https://sheets.googleapis.com/v4/spreadsheets/1GQCO4RCKe1mfMVfXOBi5AVFmvJx6m5n8TEBdkCxEG40/values/numbers!A1:D40?dateTimeRenderOption=FORMATTED_STRING&majorDimension=ROWS&valueRenderOption=FORMATTED_VALUE&key=AIzaSyBZXkEFqMLe991haSx1XOJcA3oqPaJlI-Y"
+                "https://sheets.googleapis.com/v4/spreadsheets/1Jl7F-H5zvTaGEQ-5-xDzm8Ve-ASdct1QD39F56W9d3Q/values/numbers!A1:D40?dateTimeRenderOption=FORMATTED_STRING&majorDimension=ROWS&valueRenderOption=FORMATTED_VALUE&key=AIzaSyBZXkEFqMLe991haSx1XOJcA3oqPaJlI-Y"
             );
             let response = await brutResponse.json();
 

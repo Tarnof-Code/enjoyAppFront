@@ -19,7 +19,7 @@ export default function Laundry(props) {
     useEffect(() => {
         async function getData() {
             let brutResponse = await fetch(
-                "https://sheets.googleapis.com/v4/spreadsheets/1j7gUBnEqWy0IZxqrRZ9fFrJbqYDG3fmfTvSzYEp06v0/values/Lessives_BDD!A1:B7?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=AIzaSyBZXkEFqMLe991haSx1XOJcA3oqPaJlI-Y "
+                "https://sheets.googleapis.com/v4/spreadsheets/1yy3cxPQCLHyISPECuLDDNd2pZH9nxNKAJLJTYhtEsOs/values/Lessives_BDD!A1:B7?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=AIzaSyBZXkEFqMLe991haSx1XOJcA3oqPaJlI-Y "
             );
             let response = await brutResponse.json();
 
