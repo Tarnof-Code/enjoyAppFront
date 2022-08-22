@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { Text, View, Button } from 'react-native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 

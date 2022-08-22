@@ -4,8 +4,6 @@ import { StyleSheet, Text, View, Image, ScrollView } from 'react-native';
 import { useFonts, DancingScript_400Regular } from '@expo-google-fonts/dancing-script';
 import { Roboto_400Regular } from '@expo-google-fonts/roboto';
 
-// import DropdownDates from "../../Components/DropdownDates"
-
 import moment from 'moment'
 import 'moment/locale/fr'  // without this line it didn't work
 moment.locale('fr')

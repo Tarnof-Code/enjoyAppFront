@@ -5,7 +5,6 @@ export default function (animName = "", action) {
 
         return newAnimName;
     } else {
-
         return animName;
     }
 }

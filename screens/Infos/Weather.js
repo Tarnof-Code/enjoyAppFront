@@ -17,7 +17,7 @@ export default function Weather(props) {
     useEffect(() => {
         async function getData() {
             let brutResponse = await fetch(
-                "https://api.openweathermap.org/data/2.5/weather?q=ploemeur&appid=f12aa396c2e25f258328c84486c47f46&lang=fr&units=metric"
+                "https://api.openweathermap.org/data/2.5/weather?q=paris&appid=f12aa396c2e25f258328c84486c47f46&lang=fr&units=metric"
             );
             let response = await brutResponse.json();
 
@@ -40,7 +40,7 @@ export default function Weather(props) {
 
 
     let time = new Date().getHours();
-    console.log(time);
+
     let timeOfDay;
 
     if (time > 0 && time < 12) {

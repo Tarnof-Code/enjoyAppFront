@@ -5,10 +5,9 @@ import { StyleSheet, Text, View, ScrollView } from 'react-native';
 import { connect } from 'react-redux';
 
 
-import DropdownBedroom from './DropdownBedroom';
-import DropdownAnim from './DropdownAnim';
-import DropdownAnimDirection from './DropdownAnimDirection';
-import BirthdayOverlay from './BirthdayOverlay';
+import DropdownBedroom from '../../Components/DropdownBedroom';
+import DropdownAnimDirection from '../../Components/DropdownAnimDirection';
+import BirthdayOverlay from '../../Components/BirthdayOverlay';
 
 
 function FetchLists(props) {
@@ -41,18 +40,18 @@ function FetchLists(props) {
 
                 let grpeAvatar
                 if (response.values[i][6] === "CRABES") {
-                    grpeAvatar = require("../assets/LogosGroupes/Crabe.jpg");
+                    grpeAvatar = require("../../assets/LogosGroupes/Crabe.jpg");
                 } else if (response.values[i][6] === "REQUINS") {
-                    grpeAvatar = require("../assets/LogosGroupes/Requin.jpg");
+                    grpeAvatar = require("../../assets/LogosGroupes/Requin.jpg");
 
                 } else if (response.values[i][6] === "POULPES") {
-                    grpeAvatar = require("../assets/LogosGroupes/Poulpe.jpg");
+                    grpeAvatar = require("../../assets/LogosGroupes/Poulpe.jpg");
 
                 }
 
                 let cake
                 if (response.values[i][8] === "OUI") {
-                    cake = require("../assets/Gâteau.png")
+                    cake = require("../../assets/Gâteau.png")
                 }
 
 

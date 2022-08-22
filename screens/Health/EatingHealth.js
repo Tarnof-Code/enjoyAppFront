@@ -33,12 +33,7 @@ export default function GeneralHealth(props) {
             let temp = [];
 
             for (let i = 0; i < response.values.length; i++) {
-                let general = "";
                 let meal = "";
-                let morningMeds = "";
-                let middayMeds = "";
-                let eveningMeds = "";
-                let ifNeededMeds = "";
 
                 let grpeAvatar
                 if (response.values[i][7] === "CRABES") {
@@ -51,24 +46,9 @@ export default function GeneralHealth(props) {
 
                 }
 
-                // if (response.values[i][1] !== undefined) {
-                //     general = response.values[i][1];
-                // };
                 if (response.values[i][2] !== undefined) {
                     meal = response.values[i][2];
                 };
-                // if (response.values[i][3] !== undefined) {
-                //     morningMeds = response.values[i][3];
-                // };
-                // if (response.values[i][4] !== undefined) {
-                //     middayMeds = response.values[i][4];
-                // };
-                // if (response.values[i][5] !== undefined) {
-                //     eveningMeds = response.values[i][5];
-                // };
-                // if (response.values[i][6] !== undefined) {
-                //     ifNeededMeds = response.values[i][6];
-                // };
 
                 temp.push({
                     name: response.values[i][0],
@@ -76,10 +56,6 @@ export default function GeneralHealth(props) {
                     imageSrc: grpeAvatar,
                     meal: meal,
 
-                    // morningMeds: morningMeds,
-                    // middayMeds: middayMeds,
-                    // eveningMeds: eveningMeds,
-                    // ifNeededMeds: ifNeededMeds,
                 });
             };
 
@@ -171,18 +147,6 @@ export default function GeneralHealth(props) {
         filter = data.filter(child => (child.group.toLowerCase() === "poulpes") && (child.meal.toLowerCase() !== "")
         )
     }
-
-
-
-
-
-
-    // else if ((animGroupChoice !== null) && (animGroupChoice.toLowerCase() === "requins")) {
-    //     filter = data.filter(child => (child.group.toLowerCase() === "requins") && (child.meal !== ""))
-    // } else if ((animGroupChoice !== null) && (animGroupChoice.toLowerCase() === "poulpes")) {
-    //     filter = data.filter(child => (child.group.toLowerCase() === "poulpes") && (child.meal !== ""))
-    // }
-
 
 
     filteredData = filter.map((e, i) => (

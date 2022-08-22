@@ -54,7 +54,7 @@ export default function UsefulNumbers(props) {
 
     let filteredNumbers
     let choice
-    console.log(numberChoice)
+
     if (numberChoice === "Equipe" || numberChoice === null) {
         choice = data.filter((e) => e.label === "Equipe")
     } else if (numberChoice === "Administration") {

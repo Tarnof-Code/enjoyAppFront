@@ -5,7 +5,7 @@ import { StyleSheet, Text, View } from 'react-native';
 export default function Regulations(props) {
     return (
         <View style={styles.container}>
-            <Text style={{ fontSize: 50, color: "white" }}>Réglementation</Text>
+            <Text style={{ fontSize: 30, color: "white" }}>Réglementation</Text>
         </View>
     );
 }

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ListItem, Avatar } from 'react-native-elements'
+import { ListItem } from 'react-native-elements'
 import { StyleSheet, Text, View, ScrollView } from 'react-native';
 
 import moment from 'moment'

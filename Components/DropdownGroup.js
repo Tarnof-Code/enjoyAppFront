@@ -10,7 +10,7 @@ const data = [
     { label: "Poulpes", value: "Poulpes" },
 ];
 
-const DropdownAnim = (props) => {
+const DropdownGroup = (props) => {
     const [value, setValue] = useState(null);
     const [isFocus, setIsFocus] = useState(false);
 
@@ -52,7 +52,7 @@ const DropdownAnim = (props) => {
     );
 };
 
-export default DropdownAnim;
+export default DropdownGroup;
 
 const styles = StyleSheet.create({
     container: {

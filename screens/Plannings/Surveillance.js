@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { ListItem, Avatar } from 'react-native-elements'
-import { StyleSheet, Text, View, ScrollView } from 'react-native';
+import { ListItem } from 'react-native-elements'
+import { StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import moment from 'moment'

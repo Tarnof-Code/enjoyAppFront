@@ -1,4 +1,4 @@
-import FetchLists from "../../Components/FetchLists";
+import FetchLists from "./FetchLists";
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 
