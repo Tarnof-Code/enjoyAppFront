@@ -102,7 +102,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     title: {
-        fontSize: 100, color: "white",
+        fontSize: 100,
+        color: "white",
         fontFamily: 'DancingScript_400Regular',
         marginTop: 60,
         textAlign: "center"
