@@ -4,7 +4,9 @@
 
 Tous les messages de commit doivent être **en français**, en **une seule phrase synthétique**.
 
-Exemple : `Renommer les exports des écrans WakeUp, EatingHealth, Animators et Bedrooms`
+Commencer par un **nom**, pas un verbe : `Correction de…`, `Renommage de…`, `Migration vers…` — pas `Corriger…`, `Renommer…`, `Migrer…`.
+
+Exemple : `Renommage des exports des écrans WakeUp, EatingHealth, Animators et Bedrooms`
 
 ### Bouton ✨ « Generate commit message » (Source Control)
 
