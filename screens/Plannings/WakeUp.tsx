@@ -22,7 +22,7 @@ interface WakeUpRow {
   salleReveilB: string;
 }
 
-export default function Surveillance() {
+export default function WakeUp() {
   const [wakeUpList, setWakeUpList] = useState<WakeUpRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [dateChoice, setDateChoice] = useState<string | null>(null);

@@ -2,7 +2,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import FetchLists from './FetchLists';
 
-export default function Animator() {
+export default function Bedrooms() {
   return (
     <SafeAreaProvider>
       <FetchLists group="bedrooms" />

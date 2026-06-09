@@ -1,0 +1,31 @@
+#!/bin/sh
+# Valide que le message de commit est en français (une phrase).
+# Installation : git config core.hooksPath .githooks
+
+commit_msg_file="$1"
+msg=$(head -n 1 "$commit_msg_file" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+
+# Ignorer les merges et messages vides laissés à l'éditeur
+if [ -z "$msg" ] || [ "$msg" = "Merge branch"* ] || [ "$msg" = "Merge remote"* ]; then
+  exit 0
+fi
+
+# Rejeter les préfixes Conventional Commits anglais
+if printf '%s' "$msg" | grep -qiE '^(fix|feat|refactor|chore|docs|test|style|perf|ci|build|revert)(\([^)]+\))?:'; then
+  echo "❌ Message en anglais (Conventional Commits). Utilisez le français, une phrase." >&2
+  echo "   Exemple : Renommer les exports des écrans WakeUp et EatingHealth" >&2
+  exit 1
+fi
+
+# Rejeter les débuts typiques de messages anglais générés par Cursor
+if printf '%s' "$msg" | grep -qiE '^(Fix|Fixed|Update|Updated|Refactor|Add|Added|Remove|Removed|Implement|Change|Changed|Improve|Improved|Migrate|Migrated) '; then
+  echo "❌ Message en anglais détecté. Écrivez en français, une phrase synthétique." >&2
+  exit 1
+fi
+
+if printf '%s' "$msg" | grep -qiE '^(fix|update|refactor|add|remove|implement|change|improve|migrate) '; then
+  echo "❌ Message en anglais détecté. Écrivez en français, une phrase synthétique." >&2
+  exit 1
+fi
+
+exit 0

@@ -8,7 +8,7 @@ import DropdownAllGroup from '../../Components/DropdownAllGroup';
 import DropdownMeal from '../../Components/DropdownMeal';
 import type { GoogleSheetsValuesResponse, HealthSheetRow } from '../../types/sheets';
 
-export default function GeneralHealth() {
+export default function EatingHealth() {
   const [data, setData] = useState<HealthSheetRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [animGroupChoice, setAnimGroupChoice] = useState<string | null>(null);

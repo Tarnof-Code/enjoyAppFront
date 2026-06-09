@@ -78,23 +78,18 @@ export default function Treatment() {
     fetchData();
   }, []);
 
-  let filter: HealthSheetRow[] | undefined;
+  let filter: HealthSheetRow[];
   let filteredData: React.ReactNode;
 
-  if (treatmentChoice === null) {
-    filter = data;
-  } else if (treatmentChoice.toLowerCase() === 'quotidiens') {
-    filter = data.filter(
-      (child) => child.morningMeds !== '' || child.middayMeds !== '' || child.eveningMeds !== '',
-    );
-  } else if (treatmentChoice.toLowerCase() === 'si besoin') {
-    filter = data.filter((child) => child.ifNeededMeds !== '');
-  }
-
-  if (treatmentChoice === null) {
-    filter = data;
-  } else if (treatmentChoice.toLowerCase() === 'quotidiens') {
-    filteredData = (filter ?? []).map((e, i) => (
+  if (treatmentChoice === null || treatmentChoice.toLowerCase() === 'quotidiens') {
+    filter =
+      treatmentChoice === null
+        ? data
+        : data.filter(
+            (child) =>
+              child.morningMeds !== '' || child.middayMeds !== '' || child.eveningMeds !== '',
+          );
+    filteredData = filter.map((e, i) => (
       <ListItem key={i} bottomDivider>
         <Avatar source={e.imageSrc} />
         <ListItem.Content>
@@ -106,7 +101,8 @@ export default function Treatment() {
       </ListItem>
     ));
   } else if (treatmentChoice.toLowerCase() === 'si besoin') {
-    filteredData = (filter ?? []).map((e, i) => (
+    filter = data.filter((child) => child.ifNeededMeds !== '');
+    filteredData = filter.map((e, i) => (
       <ListItem key={i} bottomDivider>
         <Avatar source={e.imageSrc} />
         <ListItem.Content>

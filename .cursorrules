@@ -1,0 +1,18 @@
+When Cursor auto-generates a Git commit message for this repository (bouton ✨ du panneau Source Control, suggestions de commit, ou commits proposés par l’IA) :
+
+- Écrire UNIQUEMENT en français — jamais en anglais
+- Une seule phrase synthétique sur une ligne
+- Pas de préfixe Conventional Commits (pas de fix:, feat:, refactor:, chore:)
+- Pas de point final
+- Pas de titre + corps, pas de listes à puces
+- Verbe d’action : corriger, renommer, migrer, ajouter, typer, supprimer…
+- Décrire l’intention ou le résultat, pas énumérer chaque fichier
+
+Exemples valides :
+Renommer les exports des écrans WakeUp, EatingHealth, Animators et Bedrooms
+Corriger l’affichage vide de l’écran Traitements au chargement
+Migrer les navigateurs vers TypeScript
+
+Interdit :
+Refactor component names for clarity: updated EatingHealth...
+fix: rename exports in screens
