@@ -1,21 +1,18 @@
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import BottomTabNavigator from "./Navigators/BottomTabNavigator";
-import { Provider } from "react-redux";
-import { createStore, combineReducers } from 'redux';
+import { Provider } from 'react-redux';
 
-import OverlayReducer from './Reducers/OverlayReducer';
-import animName from './Reducers/animNameReducer'
-
-const store = createStore(combineReducers({ OverlayReducer, animName }));
+import BottomTabNavigator from './Navigators/BottomTabNavigator';
+import { store } from './store';
 
 export default function App() {
   return (
     <Provider store={store}>
-      <SafeAreaProvider>
-        <BottomTabNavigator />
-      </SafeAreaProvider>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <SafeAreaProvider>
+          <BottomTabNavigator />
+        </SafeAreaProvider>
+      </GestureHandlerRootView>
     </Provider>
   );
 }
-
-

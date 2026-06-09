@@ -4,15 +4,18 @@ import { StyleSheet, Text, View, Image, ScrollView } from 'react-native';
 import { useFonts, DancingScript_400Regular } from '@expo-google-fonts/dancing-script';
 import { Roboto_400Regular } from '@expo-google-fonts/roboto';
 
-import moment from 'moment'
-import 'moment/locale/fr'  // without this line it didn't work
-moment.locale('fr')
+import dayjs from 'dayjs'
+import 'dayjs/locale/fr'
+dayjs.locale('fr')
 
-import { connect } from 'react-redux';
+import { useSelector } from 'react-redux';
+
+import { GOOGLE_API_KEY } from '../../config/api';
 
 
 function Home(props) {
 
+    const animName = useSelector((state) => state.animName);
     const [imageSource, setImageSource] = useState("")
     const [infos, setInfos] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -20,7 +23,7 @@ function Home(props) {
     useEffect(() => {
         async function getInfos() {
             let brutResponse = await fetch(
-                "https://sheets.googleapis.com/v4/spreadsheets/1WFXm3WLSahdpYGJcMmzzsYmLjTY2JA0GQGglr_JFHDs/values/Infos!A1:A20?dateTimeRenderOption=FORMATTED_STRING&majorDimension=ROWS&valueRenderOption=FORMATTED_VALUE&key=AIzaSyBZXkEFqMLe991haSx1XOJcA3oqPaJlI-Y "
+                "https://sheets.googleapis.com/v4/spreadsheets/1WFXm3WLSahdpYGJcMmzzsYmLjTY2JA0GQGglr_JFHDs/values/Infos!A1:A20?dateTimeRenderOption=FORMATTED_STRING&majorDimension=ROWS&valueRenderOption=FORMATTED_VALUE&key=" + GOOGLE_API_KEY + " "
             );
             let response = await brutResponse.json();
 
@@ -39,36 +42,36 @@ function Home(props) {
 
         let img = require("../../assets/PhotosAnims/inconnu.jpg")
 
-        if (props.animName == "CANDICE") {
+        if (animName == "CANDICE") {
             img = require("../../assets/PhotosAnims/candice.jpg")
-        } else if (props.animName == "BASTIEN") {
+        } else if (animName == "BASTIEN") {
             img = require("../../assets/PhotosAnims/bastien.jpg")
-        } else if (props.animName == "CHRISTIAN") {
+        } else if (animName == "CHRISTIAN") {
             img = require("../../assets/PhotosAnims/christian.jpeg")
-        } else if (props.animName == "DERRIEN") {
+        } else if (animName == "DERRIEN") {
             img = require("../../assets/PhotosAnims/derrien.jpg")
-        } else if (props.animName == "EMY") {
+        } else if (animName == "EMY") {
             img = require("../../assets/PhotosAnims/emy.jpeg")
-        } else if (props.animName == "KHOUDEYI") {
+        } else if (animName == "KHOUDEYI") {
             img = require("../../assets/PhotosAnims/khoudeyi.jpeg")
-        } else if (props.animName == "MAËVA") {
+        } else if (animName == "MAËVA") {
             img = require("../../assets/PhotosAnims/maeva.jpeg")
-        } else if (props.animName == "NICOLAS") {
+        } else if (animName == "NICOLAS") {
             img = require("../../assets/PhotosAnims/nicolas.jpg")
-        } else if (props.animName == "ROMAIN") {
+        } else if (animName == "ROMAIN") {
             img = require("../../assets/PhotosAnims/romain.jpeg")
-        } else if (props.animName == "RUDY") {
+        } else if (animName == "RUDY") {
             img = require("../../assets/PhotosAnims/rudy.jpg")
-        } else if (props.animName == "SAMIR") {
+        } else if (animName == "SAMIR") {
             img = require("../../assets/PhotosAnims/samir.jpg")
-        } else if (props.animName == "VANESSA") {
+        } else if (animName == "VANESSA") {
             img = require("../../assets/PhotosAnims/vanessa.jpg")
-        } else if (props.animName == "TARNOF") {
+        } else if (animName == "TARNOF") {
             img = require("../../assets/PhotosAnims/tarnof.jpg")
         }
         setLoading(false);
         setImageSource(img)
-    }, []);
+    }, [animName]);
 
 
 
@@ -80,7 +83,7 @@ function Home(props) {
 
 
     let date = new Date()
-    let todayDate = moment(date).format("dddd DD MMM YYYY")
+    let todayDate = dayjs(date).format("dddd DD MMM YYYY")
 
     let mapInfos
 
@@ -112,7 +115,7 @@ function Home(props) {
                 </View>
                 <View style={styles.welcomeBox}>
                     <Image source={imageSource} style={styles.image} />
-                    <Text style={styles.welcomeMsg}>Salut {props.animName} !</Text>
+                    <Text style={styles.welcomeMsg}>Salut {animName} !</Text>
                 </View>
                 {/* <DropdownDates /> */}
                 <Text style={styles.date}>
@@ -201,8 +204,4 @@ const styles = StyleSheet.create({
     }
 });
 
-function mapStateToProps(state) {
-    return { animName: state.animName };
-}
-
-export default connect(mapStateToProps, null)(Home);
+export default Home;

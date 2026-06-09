@@ -1,17 +1,20 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, ScrollView } from 'react-native';
-import { Button, CheckBox } from "react-native-elements";
+import { Button, CheckBox } from "@rneui/themed";
 
 import { useFonts, DancingScript_400Regular } from '@expo-google-fonts/dancing-script';
 import { Roboto_400Regular } from '@expo-google-fonts/roboto';
 import { PTSans_400Regular } from '@expo-google-fonts/pt-sans';
 
-import Icon from "react-native-vector-icons/Ionicons";
+import { Ionicons } from '@expo/vector-icons';
 
-import { connect } from 'react-redux';
+import { useDispatch } from 'react-redux';
+
+import { setName as setAnimName } from '../../store/animNameSlice';
 
 function Login(props) {
 
+    const dispatch = useDispatch();
     const [name, setName] = useState("");
     const [password, setPassword] = useState("");
     const [passwordVisible, setPasswordVisible] = useState(true);
@@ -34,7 +37,7 @@ function Login(props) {
                     <Text style={styles.subTitle}> Connexion </Text>
 
                     <View style={styles.inputContainer}>
-                        <Icon name="people" color="#121851" size={30} />
+                        <Ionicons name="people" color="#121851" size={30} />
                         <TextInput
                             placeholder="Nom de l'animateur"
                             style={styles.input}
@@ -81,7 +84,7 @@ function Login(props) {
                             buttonStyle={styles.button}
                             title="Se connecter"
                             onPress={() => {
-                                props.onSetAnimName(name)
+                                dispatch(setAnimName(name))
                                 props.navigation.navigate('BottomTab', { screen: "Home" });
                             }}
                         ></Button>
@@ -164,15 +167,4 @@ const styles = StyleSheet.create({
 });
 
 
-function mapStateToProps(state) {
-    return { animName: state.animName };
-}
-
-function mapDispatchToProps(dispatch) {
-    return {
-        onSetAnimName: function (animName) {
-            dispatch({ type: 'setName', animName: animName })
-        }
-    }
-}
-export default connect(mapStateToProps, mapDispatchToProps)(Login);
+export default Login;

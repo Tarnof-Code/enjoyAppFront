@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { ListItem, Avatar } from 'react-native-elements'
+import { ListItem, Avatar } from '@rneui/themed'
+import { GOOGLE_API_KEY } from '../../config/api'
 import { StyleSheet, Text, View, ScrollView } from 'react-native';
 
 
@@ -11,7 +12,7 @@ export default function Holidays(props) {
     useEffect(() => {
         async function getHolidays() {
             let brutResponse = await fetch(
-                "https://sheets.googleapis.com/v4/spreadsheets/1n9d2byYOIK2RsqgugZcD9l5WSd3zuAa3CIKOfVvlCHU/values/Congés!A1:M3?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=AIzaSyBZXkEFqMLe991haSx1XOJcA3oqPaJlI-Y "
+                "https://sheets.googleapis.com/v4/spreadsheets/1n9d2byYOIK2RsqgugZcD9l5WSd3zuAa3CIKOfVvlCHU/values/Congés!A1:M3?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=" + GOOGLE_API_KEY + " "
             );
             let response = await brutResponse.json();
 

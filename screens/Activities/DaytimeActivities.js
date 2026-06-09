@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { ListItem, Avatar } from 'react-native-elements'
+import { ListItem, Avatar } from '@rneui/themed'
+import { GOOGLE_API_KEY } from '../../config/api'
 import { StyleSheet, Text, View, ScrollView } from 'react-native';
 
-import moment from 'moment'
-import 'moment/locale/fr'  // without this line it didn't work
-moment.locale('fr')
+import dayjs from 'dayjs'
+import 'dayjs/locale/fr'
+dayjs.locale('fr')
 
 
 
@@ -32,67 +33,67 @@ export default function DaytimeActivities(props) {
     useEffect(() => {
         async function getActivities() {
             let brutResponse1 = await fetch(
-                "https://sheets.googleapis.com/v4/spreadsheets/1qGo6naquwvwwFm9xJprJojEShx-xm95b6vQkpNrQY1s/values/Par anim!B1:T6?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=AIzaSyBZXkEFqMLe991haSx1XOJcA3oqPaJlI-Y "
+                "https://sheets.googleapis.com/v4/spreadsheets/1qGo6naquwvwwFm9xJprJojEShx-xm95b6vQkpNrQY1s/values/Par anim!B1:T6?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=" + GOOGLE_API_KEY + " "
             );
             let response1 = await brutResponse1.json();
 
             let brutResponse2 = await fetch(
-                "https://sheets.googleapis.com/v4/spreadsheets/1qGo6naquwvwwFm9xJprJojEShx-xm95b6vQkpNrQY1s/values/Par anim!B7:T12?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=AIzaSyBZXkEFqMLe991haSx1XOJcA3oqPaJlI-Y "
+                "https://sheets.googleapis.com/v4/spreadsheets/1qGo6naquwvwwFm9xJprJojEShx-xm95b6vQkpNrQY1s/values/Par anim!B7:T12?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=" + GOOGLE_API_KEY + " "
             );
             let response2 = await brutResponse2.json();
 
             let brutResponse3 = await fetch(
-                "https://sheets.googleapis.com/v4/spreadsheets/1qGo6naquwvwwFm9xJprJojEShx-xm95b6vQkpNrQY1s/values/Par anim!B13:T18?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=AIzaSyBZXkEFqMLe991haSx1XOJcA3oqPaJlI-Y "
+                "https://sheets.googleapis.com/v4/spreadsheets/1qGo6naquwvwwFm9xJprJojEShx-xm95b6vQkpNrQY1s/values/Par anim!B13:T18?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=" + GOOGLE_API_KEY + " "
             );
             let response3 = await brutResponse3.json();
 
             let brutResponse4 = await fetch(
-                "https://sheets.googleapis.com/v4/spreadsheets/1qGo6naquwvwwFm9xJprJojEShx-xm95b6vQkpNrQY1s/values/Par anim!B19:T24?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=AIzaSyBZXkEFqMLe991haSx1XOJcA3oqPaJlI-Y "
+                "https://sheets.googleapis.com/v4/spreadsheets/1qGo6naquwvwwFm9xJprJojEShx-xm95b6vQkpNrQY1s/values/Par anim!B19:T24?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=" + GOOGLE_API_KEY + " "
             );
             let response4 = await brutResponse4.json();
 
             let brutResponse5 = await fetch(
-                "https://sheets.googleapis.com/v4/spreadsheets/1qGo6naquwvwwFm9xJprJojEShx-xm95b6vQkpNrQY1s/values/Par anim!B25:T30?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=AIzaSyBZXkEFqMLe991haSx1XOJcA3oqPaJlI-Y "
+                "https://sheets.googleapis.com/v4/spreadsheets/1qGo6naquwvwwFm9xJprJojEShx-xm95b6vQkpNrQY1s/values/Par anim!B25:T30?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=" + GOOGLE_API_KEY + " "
             );
             let response5 = await brutResponse5.json();
 
             let brutResponse6 = await fetch(
-                "https://sheets.googleapis.com/v4/spreadsheets/1qGo6naquwvwwFm9xJprJojEShx-xm95b6vQkpNrQY1s/values/Par anim!B31:T36?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=AIzaSyBZXkEFqMLe991haSx1XOJcA3oqPaJlI-Y "
+                "https://sheets.googleapis.com/v4/spreadsheets/1qGo6naquwvwwFm9xJprJojEShx-xm95b6vQkpNrQY1s/values/Par anim!B31:T36?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=" + GOOGLE_API_KEY + " "
             );
             let response6 = await brutResponse6.json();
 
             let brutResponse7 = await fetch(
-                "https://sheets.googleapis.com/v4/spreadsheets/1qGo6naquwvwwFm9xJprJojEShx-xm95b6vQkpNrQY1s/values/Par anim!B37:T42?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=AIzaSyBZXkEFqMLe991haSx1XOJcA3oqPaJlI-Y "
+                "https://sheets.googleapis.com/v4/spreadsheets/1qGo6naquwvwwFm9xJprJojEShx-xm95b6vQkpNrQY1s/values/Par anim!B37:T42?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=" + GOOGLE_API_KEY + " "
             );
             let response7 = await brutResponse7.json();
 
             let brutResponse8 = await fetch(
-                "https://sheets.googleapis.com/v4/spreadsheets/1qGo6naquwvwwFm9xJprJojEShx-xm95b6vQkpNrQY1s/values/Par anim!B43:T48?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=AIzaSyBZXkEFqMLe991haSx1XOJcA3oqPaJlI-Y "
+                "https://sheets.googleapis.com/v4/spreadsheets/1qGo6naquwvwwFm9xJprJojEShx-xm95b6vQkpNrQY1s/values/Par anim!B43:T48?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=" + GOOGLE_API_KEY + " "
             );
             let response8 = await brutResponse8.json();
 
             let brutResponse9 = await fetch(
-                "https://sheets.googleapis.com/v4/spreadsheets/1qGo6naquwvwwFm9xJprJojEShx-xm95b6vQkpNrQY1s/values/Par anim!B49:T54?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=AIzaSyBZXkEFqMLe991haSx1XOJcA3oqPaJlI-Y "
+                "https://sheets.googleapis.com/v4/spreadsheets/1qGo6naquwvwwFm9xJprJojEShx-xm95b6vQkpNrQY1s/values/Par anim!B49:T54?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=" + GOOGLE_API_KEY + " "
             );
             let response9 = await brutResponse9.json();
 
             let brutResponse10 = await fetch(
-                "https://sheets.googleapis.com/v4/spreadsheets/1qGo6naquwvwwFm9xJprJojEShx-xm95b6vQkpNrQY1s/values/Par anim!B55:T60?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=AIzaSyBZXkEFqMLe991haSx1XOJcA3oqPaJlI-Y "
+                "https://sheets.googleapis.com/v4/spreadsheets/1qGo6naquwvwwFm9xJprJojEShx-xm95b6vQkpNrQY1s/values/Par anim!B55:T60?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=" + GOOGLE_API_KEY + " "
             );
             let response10 = await brutResponse10.json();
 
             let brutResponse11 = await fetch(
-                "https://sheets.googleapis.com/v4/spreadsheets/1qGo6naquwvwwFm9xJprJojEShx-xm95b6vQkpNrQY1s/values/Par anim!B61:T66?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=AIzaSyBZXkEFqMLe991haSx1XOJcA3oqPaJlI-Y "
+                "https://sheets.googleapis.com/v4/spreadsheets/1qGo6naquwvwwFm9xJprJojEShx-xm95b6vQkpNrQY1s/values/Par anim!B61:T66?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=" + GOOGLE_API_KEY + " "
             );
             let response11 = await brutResponse11.json();
 
             let brutResponse12 = await fetch(
-                "https://sheets.googleapis.com/v4/spreadsheets/1qGo6naquwvwwFm9xJprJojEShx-xm95b6vQkpNrQY1s/values/Par anim!B67:T72?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=AIzaSyBZXkEFqMLe991haSx1XOJcA3oqPaJlI-Y "
+                "https://sheets.googleapis.com/v4/spreadsheets/1qGo6naquwvwwFm9xJprJojEShx-xm95b6vQkpNrQY1s/values/Par anim!B67:T72?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=" + GOOGLE_API_KEY + " "
             );
             let response12 = await brutResponse12.json();
 
             let brutResponse13 = await fetch(
-                "https://sheets.googleapis.com/v4/spreadsheets/1qGo6naquwvwwFm9xJprJojEShx-xm95b6vQkpNrQY1s/values/Par anim!B73:T78?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=AIzaSyBZXkEFqMLe991haSx1XOJcA3oqPaJlI-Y "
+                "https://sheets.googleapis.com/v4/spreadsheets/1qGo6naquwvwwFm9xJprJojEShx-xm95b6vQkpNrQY1s/values/Par anim!B73:T78?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=" + GOOGLE_API_KEY + " "
             );
             let response13 = await brutResponse13.json();
 
@@ -263,7 +264,7 @@ export default function DaytimeActivities(props) {
         if (date < new Date("2022-07-11") || date > new Date("2022-07-29")) {
             date = new Date("2022-07-11")
         }
-        let todayDate = moment(date).format("DD/MM/YYYY")
+        let todayDate = dayjs(date).format("DD/MM/YYYY")
         filter = actiList.filter(acti => acti.date === todayDate)
 
     } else if ((animGroupChoice === null || animGroupChoice.toLowerCase() === "tous") && (dateChoice !== null)) {
@@ -274,7 +275,7 @@ export default function DaytimeActivities(props) {
         if (date < new Date("2022-07-11") || date > new Date("2022-07-29")) {
             date = new Date("2022-07-11")
         }
-        let todayDate = moment(date).format("DD/MM/YYYY")
+        let todayDate = dayjs(date).format("DD/MM/YYYY")
         filter = actiList.filter(acti => acti.date === todayDate && acti.group.toLowerCase() === animGroupChoice.toLowerCase())
     } else {
         filter = actiList.filter(acti => acti.date === dateChoice && acti.group.toLowerCase() === animGroupChoice.toLowerCase())

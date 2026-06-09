@@ -18,15 +18,15 @@ function TopTab() {
     return (
         <Tab.Navigator
             initialRouteName='UsefulNumbers'
-            tabBarOptions={{
-                activeTintColor: '#000000',
+            screenOptions={{
+                tabBarActiveTintColor: '#000000',
             }}
         >
             <Tab.Screen
                 name="UsefulNumbers"
                 component={UsefulNumbers}
                 options={{
-                    title: ({ focused }) => (
+                    tabBarLabel: ({ focused }) => (
                         <Entypo
                             size={25}
                             name="old-phone"
@@ -40,7 +40,7 @@ function TopTab() {
                 name="Regulations"
                 component={Regulations}
                 options={{
-                    title: ({ focused }) => (
+                    tabBarLabel: ({ focused }) => (
                         <Entypo
                             size={25}
                             name="book"
@@ -54,7 +54,7 @@ function TopTab() {
                 name="Weather"
                 component={Weather}
                 options={{
-                    title: ({ focused }) => (
+                    tabBarLabel: ({ focused }) => (
                         <Ionicons
                             size={25}
                             name="sunny"

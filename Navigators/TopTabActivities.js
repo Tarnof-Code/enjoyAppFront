@@ -19,15 +19,15 @@ function TopTab() {
     return (
         <Tab.Navigator
             initialRouteName='DaytimeActivities'
-            tabBarOptions={{
-                activeTintColor: '#000000',
+            screenOptions={{
+                tabBarActiveTintColor: '#000000',
             }}
         >
             <Tab.Screen
                 name="DaytimeActivities"
                 component={DaytimeActivities}
                 options={{
-                    title: ({ focused }) => (
+                    tabBarLabel: ({ focused }) => (
                         <MaterialIcons
                             size={25}
                             name="sports-kabaddi"
@@ -41,10 +41,10 @@ function TopTab() {
                 name="EveningActivities"
                 component={EveningActivities}
                 options={{
-                    title: ({ focused }) => (
+                    tabBarLabel: ({ focused }) => (
                         <Ionicons
                             size={25}
-                            name="md-moon"
+                            name="moon"
                             color={focused ? '#000000' : '#b2bec3'}
                         />
                     )
@@ -55,7 +55,7 @@ function TopTab() {
                 name="Trips"
                 component={Trips}
                 options={{
-                    title: ({ focused }) => (
+                    tabBarLabel: ({ focused }) => (
                         <MaterialCommunityIcons
                             size={25}
                             name="bus"

@@ -23,15 +23,15 @@ function TopTab() {
     return (
         <Tab.Navigator
             initialRouteName='WakeUp'
-            tabBarOptions={{
-                activeTintColor: '#000000',
+            screenOptions={{
+                tabBarActiveTintColor: '#000000',
             }}
         >
             <Tab.Screen
                 name="WakeUp"
                 component={WakeUp}
                 options={{
-                    title: ({ focused }) => (
+                    tabBarLabel: ({ focused }) => (
                         <Ionicons
                             size={25}
                             name="alarm"
@@ -45,7 +45,7 @@ function TopTab() {
                 name="MealTime"
                 component={MealTime}
                 options={{
-                    title: ({ focused }) => (
+                    tabBarLabel: ({ focused }) => (
                         <MaterialCommunityIcons
                             size={25}
                             name="silverware-fork-knife"
@@ -59,7 +59,7 @@ function TopTab() {
                 name="Surveillance"
                 component={Surveillance}
                 options={{
-                    title: ({ focused }) => (
+                    tabBarLabel: ({ focused }) => (
                         <MaterialIcons
                             size={25}
                             name="local-police"
@@ -73,7 +73,7 @@ function TopTab() {
                 name="Laundry"
                 component={Laundry}
                 options={{
-                    title: ({ focused }) => (
+                    tabBarLabel: ({ focused }) => (
                         <MaterialIcons
                             size={25}
                             name="local-laundry-service"
@@ -87,7 +87,7 @@ function TopTab() {
                 name="Holidays"
                 component={Holidays}
                 options={{
-                    title: ({ focused }) => (
+                    tabBarLabel: ({ focused }) => (
                         <Fontisto
                             size={25}
                             name="holiday-village"

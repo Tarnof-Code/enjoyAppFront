@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { ListItem, Avatar } from 'react-native-elements'
+import { ListItem, Avatar } from '@rneui/themed'
 import { StyleSheet, Text, View, ScrollView } from 'react-native';
 
-import { connect } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
-
+import { GOOGLE_API_KEY } from '../../config/api';
+import { show } from '../../store/overlaySlice';
 import DropdownBedroom from '../../Components/DropdownBedroom';
 import DropdownAnimDirection from '../../Components/DropdownAnimDirection';
 import BirthdayOverlay from '../../Components/BirthdayOverlay';
@@ -12,6 +13,7 @@ import BirthdayOverlay from '../../Components/BirthdayOverlay';
 
 function FetchLists(props) {
 
+    const dispatch = useDispatch();
     const [list, setList] = useState([]);
     const [loading, setLoading] = useState(true);
     const [animChoice, setAnimChoice] = useState(null);
@@ -29,7 +31,7 @@ function FetchLists(props) {
     useEffect(() => {
         async function getLists() {
             let brutResponse = await fetch(
-                "https://sheets.googleapis.com/v4/spreadsheets/1cYZK3VclzmylKfc_ArRNF2N__wqmJ9oCJVaMPHIcMzE/values/listeAdaptée!B4:L105?dateTimeRenderOption=FORMATTED_STRING&majorDimension=ROWS&valueRenderOption=FORMATTED_VALUE&key=AIzaSyBZXkEFqMLe991haSx1XOJcA3oqPaJlI-Y "
+                "https://sheets.googleapis.com/v4/spreadsheets/1cYZK3VclzmylKfc_ArRNF2N__wqmJ9oCJVaMPHIcMzE/values/listeAdaptée!B4:L105?dateTimeRenderOption=FORMATTED_STRING&majorDimension=ROWS&valueRenderOption=FORMATTED_VALUE&key=" + GOOGLE_API_KEY + " "
             );
             let response = await brutResponse.json();
 
@@ -109,7 +111,7 @@ function FetchLists(props) {
                 key={i}
                 source={e.birthday}
                 onPress={() => {
-                    props.onCakeClick(e.birthDate)
+                    dispatch(show(e.birthDate))
                 }}
             />
         </ListItem>
@@ -164,11 +166,4 @@ const styles = StyleSheet.create({
     }
 });
 
-function mapDispatchToProps(dispatch) {
-    return {
-        onCakeClick: function (date) {
-            dispatch({ type: 'show', date: date })
-        }
-    }
-}
-export default connect(null, mapDispatchToProps)(FetchLists);
+export default FetchLists;

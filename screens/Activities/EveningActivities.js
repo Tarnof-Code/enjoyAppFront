@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { ListItem, Avatar } from 'react-native-elements'
+import { ListItem, Avatar } from '@rneui/themed'
+import { GOOGLE_API_KEY } from '../../config/api'
 import { StyleSheet, Text, View, ScrollView } from 'react-native';
 
-import moment from 'moment'
-import 'moment/locale/fr'  // without this line it didn't work
-moment.locale('fr')
+import dayjs from 'dayjs'
+import 'dayjs/locale/fr'
+dayjs.locale('fr')
 
 
 import DropdownDates from "../../Components/DropdownDates";
@@ -23,17 +24,17 @@ export default function EveningActivities(props) {
     useEffect(() => {
         async function getEvening() {
             let brutResponse1 = await fetch(
-                "https://sheets.googleapis.com/v4/spreadsheets/1qGo6naquwvwwFm9xJprJojEShx-xm95b6vQkpNrQY1s/values/Veillées!B1:T4?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=AIzaSyBZXkEFqMLe991haSx1XOJcA3oqPaJlI-Y "
+                "https://sheets.googleapis.com/v4/spreadsheets/1qGo6naquwvwwFm9xJprJojEShx-xm95b6vQkpNrQY1s/values/Veillées!B1:T4?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=" + GOOGLE_API_KEY + " "
             );
             let response1 = await brutResponse1.json();
 
             let brutResponse2 = await fetch(
-                "https://sheets.googleapis.com/v4/spreadsheets/1qGo6naquwvwwFm9xJprJojEShx-xm95b6vQkpNrQY1s/values/Veillées!B5:T8?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=AIzaSyBZXkEFqMLe991haSx1XOJcA3oqPaJlI-Y "
+                "https://sheets.googleapis.com/v4/spreadsheets/1qGo6naquwvwwFm9xJprJojEShx-xm95b6vQkpNrQY1s/values/Veillées!B5:T8?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=" + GOOGLE_API_KEY + " "
             );
             let response2 = await brutResponse2.json();
 
             let brutResponse3 = await fetch(
-                "https://sheets.googleapis.com/v4/spreadsheets/1qGo6naquwvwwFm9xJprJojEShx-xm95b6vQkpNrQY1s/values/Veillées!B9:T12?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=AIzaSyBZXkEFqMLe991haSx1XOJcA3oqPaJlI-Y "
+                "https://sheets.googleapis.com/v4/spreadsheets/1qGo6naquwvwwFm9xJprJojEShx-xm95b6vQkpNrQY1s/values/Veillées!B9:T12?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=" + GOOGLE_API_KEY + " "
             );
             let response3 = await brutResponse3.json();
 
@@ -89,7 +90,7 @@ export default function EveningActivities(props) {
         if (date < new Date("2022-07-11") || date > new Date("2022-07-29")) {
             date = new Date("2022-07-11")
         }
-        let todayDate = moment(date).format("DD/MM/YYYY")
+        let todayDate = dayjs(date).format("DD/MM/YYYY")
 
         filter = eveningList.filter(veillee => veillee.date === todayDate)
     } else {

@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 
 import { StyleSheet, Text, ScrollView, View } from 'react-native';
-import { ListItem, Avatar } from 'react-native-elements'
+import { ListItem, Avatar } from '@rneui/themed'
+import { GOOGLE_API_KEY } from '../../config/api'
 
 import DropdownAllGroup from '../../Components/DropdownAllGroup';
 
@@ -19,7 +20,7 @@ export default function GeneralHealth(props) {
     useEffect(() => {
         async function fetchData() {
             let brutResponse = await fetch(
-                "https://sheets.googleapis.com/v4/spreadsheets/1wAm55hR8mluDI_9ATL-LMYUzJOtEpym4zmhpk179Pf8/values/Pour BDD!A2:H91?dateTimeRenderOption=FORMATTED_STRING&majorDimension=ROWS&valueRenderOption=FORMATTED_VALUE&key=AIzaSyBZXkEFqMLe991haSx1XOJcA3oqPaJlI-Y"
+                "https://sheets.googleapis.com/v4/spreadsheets/1wAm55hR8mluDI_9ATL-LMYUzJOtEpym4zmhpk179Pf8/values/Pour BDD!A2:H91?dateTimeRenderOption=FORMATTED_STRING&majorDimension=ROWS&valueRenderOption=FORMATTED_VALUE&key=" + GOOGLE_API_KEY + ""
             );
             let response = await brutResponse.json();
 

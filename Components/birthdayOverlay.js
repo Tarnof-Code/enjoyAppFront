@@ -1,39 +1,29 @@
 import React from "react";
 import { Text, View } from "react-native";
-import { Overlay } from "react-native-elements";
-import { connect } from 'react-redux';
+import { Overlay } from "@rneui/themed";
+import { useSelector, useDispatch } from 'react-redux';
 
-function BirthdayOverlay(props) {
+import { hide } from '../store/overlaySlice';
+
+function BirthdayOverlay() {
+
+    const dispatch = useDispatch();
+    const { visible, date } = useSelector((state) => state.overlay);
 
     return (
         <Overlay
             overlayStyle={{ flex: 0.2, width: 250, borderRadius: 50 }}
-            width="5000"
-            isVisible={props.visible}
+            isVisible={visible}
             onBackdropPress={() => {
-                props.backDrop()
+                dispatch(hide())
             }}
         >
             <View style={{ alignItems: "center", justifyContent: "center", flex: 1 }}>
-                <Text style={{ fontSize: 30, textAlign: "center" }}>Anniversaire le {props.date}</Text>
+                <Text style={{ fontSize: 30, textAlign: "center" }}>Anniversaire le {date}</Text>
             </View>
         </Overlay>
     )
 
 }
 
-function mapStateToProps(state) {
-    return { visible: state.OverlayReducer.visible, date: state.OverlayReducer.date };
-}
-
-
-function mapDispatchToProps(dispatch) {
-    return {
-        backDrop: function () {
-            dispatch({ type: 'hide' })
-        }
-    }
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(BirthdayOverlay);
-
+export default BirthdayOverlay;

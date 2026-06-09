@@ -1,6 +1,6 @@
 import { FontAwesome5 } from '@expo/vector-icons';
 import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 
@@ -13,7 +13,7 @@ import TopTabLists from "./TopTabLists"
 import TopTabHealth from './TopTabHealth';
 import TopTabInfos from './TopTabInfos';
 
-const Stack = createStackNavigator();
+const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 
@@ -21,6 +21,8 @@ function BottomTab() {
     return (
         <Tab.Navigator
             screenOptions={({ route }) => ({
+                tabBarActiveTintColor: '#000000',
+                tabBarInactiveTintColor: '#b2bec3',
                 tabBarIcon: ({ color }) => {
                     let iconName;
                     if (route.name === 'Listes') {
@@ -40,12 +42,6 @@ function BottomTab() {
 
                 },
             })}
-
-            tabBarOptions={{
-                activeTintColor: '#000000',
-                inactiveTintColor: '#b2bec3',
-                // showLabel: false,
-            }}
         >
             <Tab.Screen name="Home" component={Home} />
             <Tab.Screen name="Listes" component={TopTabLists} />

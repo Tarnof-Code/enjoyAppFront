@@ -23,15 +23,15 @@ function TopTab() {
     return (
         <Tab.Navigator
             initialRouteName='GeneralHealth'
-            tabBarOptions={{
-                activeTintColor: '#000000',
+            screenOptions={{
+                tabBarActiveTintColor: '#000000',
             }}
         >
             <Tab.Screen
                 name="GeneralHealth"
                 component={GeneralHealth}
                 options={{
-                    title: ({ focused }) => (
+                    tabBarLabel: ({ focused }) => (
                         <Foundation
                             size={25}
                             name="torsos-all"
@@ -45,7 +45,7 @@ function TopTab() {
                 name="EatingHealth"
                 component={EatingHealth}
                 options={{
-                    title: ({ focused }) => (
+                    tabBarLabel: ({ focused }) => (
                         <MaterialCommunityIcons
                             size={25}
                             name="silverware-fork-knife"
@@ -59,7 +59,7 @@ function TopTab() {
                 name="MedicalTreatments"
                 component={MedicalTreatments}
                 options={{
-                    title: ({ focused }) => (
+                    tabBarLabel: ({ focused }) => (
                         <MaterialCommunityIcons
                             size={25}
                             name="pill"
@@ -73,7 +73,7 @@ function TopTab() {
                 name="WhatToDoIf"
                 component={WhatToDoIf}
                 options={{
-                    title: ({ focused }) => (
+                    tabBarLabel: ({ focused }) => (
                         <MaterialCommunityIcons
                             size={25}
                             name="account-question"

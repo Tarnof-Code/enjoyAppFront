@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { ListItem } from 'react-native-elements'
+import { ListItem } from '@rneui/themed'
+import { GOOGLE_API_KEY } from '../../config/api'
 import { StyleSheet, Text, View, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import { useFonts, DancingScript_400Regular } from '@expo-google-fonts/dancing-script';
 
-import moment from 'moment'
-import 'moment/locale/fr'  // without this line it didn't work
-moment.locale('fr')
+import dayjs from 'dayjs'
+import 'dayjs/locale/fr'
+dayjs.locale('fr')
 
 
 import DropdownDates from "../../Components/DropdownDates";
@@ -29,7 +30,7 @@ export default function Surveillance(props) {
     useEffect(() => {
         async function getWakeUp() {
             let brutResponse = await fetch(
-                "https://sheets.googleapis.com/v4/spreadsheets/1n9d2byYOIK2RsqgugZcD9l5WSd3zuAa3CIKOfVvlCHU/values/Levers!B1:R6?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=AIzaSyBZXkEFqMLe991haSx1XOJcA3oqPaJlI-Y "
+                "https://sheets.googleapis.com/v4/spreadsheets/1n9d2byYOIK2RsqgugZcD9l5WSd3zuAa3CIKOfVvlCHU/values/Levers!B1:R6?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=" + GOOGLE_API_KEY + " "
             );
             let response = await brutResponse.json();
 
@@ -68,7 +69,7 @@ export default function Surveillance(props) {
         if (date < new Date("2022-07-12") || date > new Date("2022-07-29")) {
             date = new Date("2022-07-12")
         }
-        let todayDate = moment(date).format("DD/MM/YYYY")
+        let todayDate = dayjs(date).format("DD/MM/YYYY")
 
         filter = wakeUpList.filter(anim => anim.date === todayDate)
     } else {

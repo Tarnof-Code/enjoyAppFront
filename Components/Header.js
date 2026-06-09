@@ -4,48 +4,49 @@ import { StyleSheet, View, Text, Image, TouchableOpacity } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons'; // Import the FontAwesome5 Icon Package
 import { useFonts, DancingScript_400Regular } from '@expo-google-fonts/dancing-script';
 
-import { connect } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 
 
 function Header(props) {
 
+    const animName = useSelector((state) => state.animName);
     const [imageSource, setImageSource] = useState("")
 
     useEffect(() => {
 
         let temp = require("../assets/PhotosAnims/inconnu.jpg")
 
-        if (props.animName == "CANDICE") {
+        if (animName == "CANDICE") {
             temp = require("../assets/PhotosAnims/candice.jpg")
-        } else if (props.animName == "BASTIEN") {
+        } else if (animName == "BASTIEN") {
             temp = require("../assets/PhotosAnims/bastien.jpg")
-        } else if (props.animName == "CHRISTIAN") {
+        } else if (animName == "CHRISTIAN") {
             temp = require("../assets/PhotosAnims/christian.jpeg")
-        } else if (props.animName == "DERRIEN") {
+        } else if (animName == "DERRIEN") {
             temp = require("../assets/PhotosAnims/derrien.jpg")
-        } else if (props.animName == "EMY") {
+        } else if (animName == "EMY") {
             temp = require("../assets/PhotosAnims/emy.jpeg")
-        } else if (props.animName == "KHOUDEYI") {
+        } else if (animName == "KHOUDEYI") {
             temp = require("../assets/PhotosAnims/khoudeyi.jpeg")
-        } else if (props.animName == "MAËVA") {
+        } else if (animName == "MAËVA") {
             temp = require("../assets/PhotosAnims/maeva.jpeg")
-        } else if (props.animName == "NICOLAS") {
+        } else if (animName == "NICOLAS") {
             temp = require("../assets/PhotosAnims/nicolas.jpg")
-        } else if (props.animName == "ROMAIN") {
+        } else if (animName == "ROMAIN") {
             temp = require("../assets/PhotosAnims/romain.jpeg")
-        } else if (props.animName == "RUDY") {
+        } else if (animName == "RUDY") {
             temp = require("../assets/PhotosAnims/rudy.jpg")
-        } else if (props.animName == "SAMIR") {
+        } else if (animName == "SAMIR") {
             temp = require("../assets/PhotosAnims/samir.jpg")
-        } else if (props.animName == "VANESSA") {
+        } else if (animName == "VANESSA") {
             temp = require("../assets/PhotosAnims/vanessa.jpg")
-        } else if (props.animName == "TARNOF") {
+        } else if (animName == "TARNOF") {
             temp = require("../assets/PhotosAnims/tarnof.jpg")
         }
 
         setImageSource(temp)
-    }, [])
+    }, [animName])
 
 
 
@@ -116,8 +117,4 @@ const styles = StyleSheet.create({
 
 });
 
-function mapStateToProps(state) {
-    return { animName: state.animName };
-}
-
-export default connect(mapStateToProps, null)(Header);
+export default Header;

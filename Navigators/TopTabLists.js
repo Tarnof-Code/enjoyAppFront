@@ -25,15 +25,15 @@ function TopTab() {
     return (
         <Tab.Navigator
             initialRouteName='General'
-            tabBarOptions={{
-                activeTintColor: '#000000',
+            screenOptions={{
+                tabBarActiveTintColor: '#000000',
             }}
         >
             <Tab.Screen
                 name="General"
                 component={General}
                 options={{
-                    title: ({ focused }) => (
+                    tabBarLabel: ({ focused }) => (
                         <Foundation
                             size={25}
                             name="torsos-all"
@@ -47,7 +47,7 @@ function TopTab() {
                 name="Crabs"
                 component={Crabs}
                 options={{
-                    title: ({ focused }) => (
+                    tabBarLabel: ({ focused }) => (
                         <FontAwesome5
                             size={25}
                             name="pastafarianism"
@@ -61,7 +61,7 @@ function TopTab() {
                 name="Sharks"
                 component={Sharks}
                 options={{
-                    title: ({ focused }) => (
+                    tabBarLabel: ({ focused }) => (
                         <MaterialCommunityIcons
                             size={25}
                             name="shark-fin"
@@ -75,7 +75,7 @@ function TopTab() {
                 name="Octopuses"
                 component={Octopuses}
                 options={{
-                    title: ({ focused }) => (
+                    tabBarLabel: ({ focused }) => (
                         <FontAwesome5
                             size={25}
                             name="octopus-deploy"
@@ -89,7 +89,7 @@ function TopTab() {
                 name="Animators"
                 component={Animators}
                 options={{
-                    title: ({ focused }) => (
+                    tabBarLabel: ({ focused }) => (
                         // <MaterialCommunityIcons
                         //     size={25}
                         //     name="face-man-shimmer-outline"
@@ -110,7 +110,7 @@ function TopTab() {
                 name="Bedrooms"
                 component={Bedrooms}
                 options={{
-                    title: ({ focused }) => (
+                    tabBarLabel: ({ focused }) => (
                         <FontAwesome
                             size={25}
                             name="bed"

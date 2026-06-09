@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 
 import { StyleSheet, Text, View, Linking, Platform, TouchableOpacity, ScrollView } from 'react-native';
-import { ListItem, Button } from 'react-native-elements'
+import { ListItem, Button } from '@rneui/themed'
+import { GOOGLE_API_KEY } from '../../config/api'
 
 import { useFonts, DancingScript_400Regular } from '@expo-google-fonts/dancing-script';
 
@@ -32,7 +33,7 @@ export default function UsefulNumbers(props) {
     useEffect(() => {
         async function getData() {
             let brutResponse = await fetch(
-                "https://sheets.googleapis.com/v4/spreadsheets/1Jl7F-H5zvTaGEQ-5-xDzm8Ve-ASdct1QD39F56W9d3Q/values/numbers!A1:D40?dateTimeRenderOption=FORMATTED_STRING&majorDimension=ROWS&valueRenderOption=FORMATTED_VALUE&key=AIzaSyBZXkEFqMLe991haSx1XOJcA3oqPaJlI-Y"
+                "https://sheets.googleapis.com/v4/spreadsheets/1Jl7F-H5zvTaGEQ-5-xDzm8Ve-ASdct1QD39F56W9d3Q/values/numbers!A1:D40?dateTimeRenderOption=FORMATTED_STRING&majorDimension=ROWS&valueRenderOption=FORMATTED_VALUE&key=" + GOOGLE_API_KEY + ""
             );
             let response = await brutResponse.json();
 

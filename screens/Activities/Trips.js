@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { ListItem, Button, Overlay, Badge } from 'react-native-elements'
+import { ListItem, Button, Overlay, Badge } from '@rneui/themed'
+import { GOOGLE_API_KEY } from '../../config/api'
 import { StyleSheet, Text, View, ScrollView, Linking } from 'react-native';
 
 import { useFonts, DancingScript_400Regular } from '@expo-google-fonts/dancing-script';
 
-import moment from 'moment'
-import 'moment/locale/fr'  // without this line it didn't work
-moment.locale('fr')
+import dayjs from 'dayjs'
+import 'dayjs/locale/fr'
+dayjs.locale('fr')
 
 
 import DropdownGroup from '../../Components/DropdownGroup';
@@ -37,17 +38,17 @@ export default function FetchTrips(props) {
     useEffect(() => {
         async function getTrips() {
             let brutResponse1 = await fetch(
-                "https://sheets.googleapis.com/v4/spreadsheets/1qGo6naquwvwwFm9xJprJojEShx-xm95b6vQkpNrQY1s/values/Sorties!B1:H6?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=AIzaSyBZXkEFqMLe991haSx1XOJcA3oqPaJlI-Y "
+                "https://sheets.googleapis.com/v4/spreadsheets/1qGo6naquwvwwFm9xJprJojEShx-xm95b6vQkpNrQY1s/values/Sorties!B1:H6?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=" + GOOGLE_API_KEY + " "
             );
             let response1 = await brutResponse1.json();
 
             let brutResponse2 = await fetch(
-                "https://sheets.googleapis.com/v4/spreadsheets/1qGo6naquwvwwFm9xJprJojEShx-xm95b6vQkpNrQY1s/values/Sorties!B8:J13?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=AIzaSyBZXkEFqMLe991haSx1XOJcA3oqPaJlI-Y "
+                "https://sheets.googleapis.com/v4/spreadsheets/1qGo6naquwvwwFm9xJprJojEShx-xm95b6vQkpNrQY1s/values/Sorties!B8:J13?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=" + GOOGLE_API_KEY + " "
             );
             let response2 = await brutResponse2.json();
 
             let brutResponse3 = await fetch(
-                "https://sheets.googleapis.com/v4/spreadsheets/1qGo6naquwvwwFm9xJprJojEShx-xm95b6vQkpNrQY1s/values/Sorties!B15:J20?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=AIzaSyBZXkEFqMLe991haSx1XOJcA3oqPaJlI-Y "
+                "https://sheets.googleapis.com/v4/spreadsheets/1qGo6naquwvwwFm9xJprJojEShx-xm95b6vQkpNrQY1s/values/Sorties!B15:J20?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=" + GOOGLE_API_KEY + " "
             );
             let response3 = await brutResponse3.json();
 
@@ -56,7 +57,7 @@ export default function FetchTrips(props) {
 
             for (let i = 0; i < response1.values.length; i++) {
                 temp.push({
-                    date: moment(new Date(response1.values[i][0])).format("dddd DD MMM YYYY"),
+                    date: dayjs(new Date(response1.values[i][0])).format("dddd DD MMM YYYY"),
                     group: response1.values[i][1],
                     trip: response1.values[i][2],
                     departure: response1.values[i][3],
@@ -67,7 +68,7 @@ export default function FetchTrips(props) {
 
             for (let j = 0; j < response2.values.length; j++) {
                 temp.push({
-                    date: moment(new Date(response2.values[j][0])).format("dddd DD MMM YYYY"),
+                    date: dayjs(new Date(response2.values[j][0])).format("dddd DD MMM YYYY"),
                     group: response2.values[j][1],
                     trip: response2.values[j][2],
                     departure: response2.values[j][3],
@@ -79,7 +80,7 @@ export default function FetchTrips(props) {
 
             for (let k = 0; k < response3.values.length; k++) {
                 temp.push({
-                    date: moment(new Date(response3.values[k][0])).format("dddd DD MMM YYYY"),
+                    date: dayjs(new Date(response3.values[k][0])).format("dddd DD MMM YYYY"),
                     group: response3.values[k][1],
                     trip: response3.values[k][2],
                     departure: response3.values[k][3],

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CheckBox } from 'react-native-elements'
+import { CheckBox } from '@rneui/themed'
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 export default function CheckList() {

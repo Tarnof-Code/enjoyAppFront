@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { ListItem, Avatar, Button, Overlay } from 'react-native-elements'
+import { ListItem, Avatar, Button, Overlay } from '@rneui/themed'
+import { GOOGLE_API_KEY } from '../../config/api'
 import { StyleSheet, Text, View, ScrollView } from 'react-native';
 
 import { useFonts, DancingScript_400Regular } from '@expo-google-fonts/dancing-script';
 
-import moment from 'moment'
-import 'moment/locale/fr'  // without this line it didn't work
-moment.locale('fr')
+import dayjs from 'dayjs'
+import 'dayjs/locale/fr'
+dayjs.locale('fr')
 
 
 import DropdownDates from "../../Components/DropdownDates";
@@ -32,12 +33,12 @@ export default function FetchMeals(props) {
     useEffect(() => {
         async function getMeals() {
             let brutResponse = await fetch(
-                "https://sheets.googleapis.com/v4/spreadsheets/19URxY0asBXbZ7NGSESH2anh6Oz5dtz98ITTU2dzm3vY/values/Repas!C1:T10?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=AIzaSyBZXkEFqMLe991haSx1XOJcA3oqPaJlI-Y "
+                "https://sheets.googleapis.com/v4/spreadsheets/19URxY0asBXbZ7NGSESH2anh6Oz5dtz98ITTU2dzm3vY/values/Repas!C1:T10?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=" + GOOGLE_API_KEY + " "
             );
             let response = await brutResponse.json();
 
             let brutMenus = await fetch(
-                "https://sheets.googleapis.com/v4/spreadsheets/13cquIRJ93PDO9YGr6_jwQEOux2Z-B8ZDl4GtrWzuyW8/values/menus_BDD!A1:S12?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=AIzaSyBZXkEFqMLe991haSx1XOJcA3oqPaJlI-Y"
+                "https://sheets.googleapis.com/v4/spreadsheets/13cquIRJ93PDO9YGr6_jwQEOux2Z-B8ZDl4GtrWzuyW8/values/menus_BDD!A1:S12?dateTimeRenderOption=FORMATTED_STRING&majorDimension=COLUMNS&valueRenderOption=FORMATTED_VALUE&key=" + GOOGLE_API_KEY + ""
             );
             let menus = await brutMenus.json();
 
@@ -120,7 +121,7 @@ export default function FetchMeals(props) {
         if (date < new Date("2022-07-12") || date > new Date("2022-07-29")) {
             date = new Date("2022-07-12")
         }
-        let todayDate = moment(date).format("DD/MM/YYYY")
+        let todayDate = dayjs(date).format("DD/MM/YYYY")
 
         filter = planningMeals.filter(meal => meal.date === todayDate)
         filterMenu = mealList.filter(meal => meal.date === todayDate)
