@@ -1,0 +1,91 @@
+import * as React from 'react';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Foundation } from '@expo/vector-icons';
+
+import GeneralHealth from '../screens/Health/GeneralHealth';
+import EatingHealth from '../screens/Health/EatingHealth';
+import MedicalTreatments from '../screens/Health/MedicalTreatments';
+import WhatToDoIf from '../screens/Health/WhatToDoIf';
+import Header from '../Components/Header';
+import type { HealthTabParamList } from './types';
+
+const Tab = createMaterialTopTabNavigator<HealthTabParamList>();
+
+function TopTab() {
+  return (
+    <Tab.Navigator
+      initialRouteName="GeneralHealth"
+      screenOptions={{
+        tabBarActiveTintColor: '#000000',
+      }}
+    >
+      <Tab.Screen
+        name="GeneralHealth"
+        component={GeneralHealth}
+        options={{
+          tabBarLabel: ({ focused }) => (
+            <Foundation
+              size={25}
+              name="torsos-all"
+              color={focused ? '#000000' : '#b2bec3'}
+            />
+          ),
+        }}
+      />
+
+      <Tab.Screen
+        name="EatingHealth"
+        component={EatingHealth}
+        options={{
+          tabBarLabel: ({ focused }) => (
+            <MaterialCommunityIcons
+              size={25}
+              name="silverware-fork-knife"
+              color={focused ? '#000000' : '#b2bec3'}
+            />
+          ),
+        }}
+      />
+
+      <Tab.Screen
+        name="MedicalTreatments"
+        component={MedicalTreatments}
+        options={{
+          tabBarLabel: ({ focused }) => (
+            <MaterialCommunityIcons
+              size={25}
+              name="pill"
+              color={focused ? '#000000' : '#b2bec3'}
+            />
+          ),
+        }}
+      />
+
+      <Tab.Screen
+        name="WhatToDoIf"
+        component={WhatToDoIf}
+        options={{
+          tabBarLabel: ({ focused }) => (
+            <MaterialCommunityIcons
+              size={25}
+              name="account-question"
+              color={focused ? '#000000' : '#b2bec3'}
+            />
+          ),
+        }}
+      />
+    </Tab.Navigator>
+  );
+}
+
+export default function TopTabHealth() {
+  return (
+    <SafeAreaProvider>
+      <Header iconName="notes-medical" title="Sanitaire" />
+      <TopTab />
+    </SafeAreaProvider>
+  );
+}
