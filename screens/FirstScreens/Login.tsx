@@ -1,6 +1,14 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, ScrollView } from 'react-native';
-import { Button } from '@rneui/themed';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  ScrollView,
+  Pressable,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import { useFonts, DancingScript_400Regular } from '@expo-google-fonts/dancing-script';
@@ -32,9 +40,21 @@ function Login({ navigation }: LoginScreenProps) {
     return null;
   }
 
+  const handleLogin = () => {
+    dispatch(setAnimName(name.trim()));
+    navigation.navigate('BottomTab', { screen: 'Home' });
+  };
+
   return (
-    <View style={styles.container}>
-      <ScrollView>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+      >
         <Text style={styles.title}> Enjoy </Text>
         <Text style={styles.subTitle}> Connexion </Text>
 
@@ -42,34 +62,37 @@ function Login({ navigation }: LoginScreenProps) {
           <Ionicons name="people" color="#121851" size={30} />
           <TextInput
             placeholder="Nom de l'animateur"
+            placeholderTextColor="#888"
             style={styles.input}
             value={name}
-            onChangeText={(value) => setName(value)}
+            onChangeText={setName}
+            autoCapitalize="characters"
+            autoCorrect={false}
+            returnKeyType="done"
+            onSubmitEditing={handleLogin}
           />
         </View>
 
-        <View style={{ alignItems: 'center' }}>
-          <Button
-            type="solid"
-            buttonStyle={styles.button}
-            title="Se connecter"
-            onPress={() => {
-              dispatch(setAnimName(name));
-              navigation.navigate('BottomTab', { screen: 'Home' });
-            }}
-          />
-        </View>
+        <Pressable style={styles.button} onPress={handleLogin}>
+          <Text style={styles.buttonText}>Se connecter</Text>
+        </Pressable>
       </ScrollView>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: '100%',
     backgroundColor: '#121851',
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
     alignItems: 'center',
+    paddingBottom: 40,
   },
   title: {
     fontSize: 100,
@@ -87,13 +110,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   input: {
+    flex: 1,
     fontFamily: 'PTSans_400Regular',
-    margin: 20,
-    padding: 10,
-    borderRadius: 5,
-    width: 200,
-    height: 40,
-    backgroundColor: 'white',
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+    color: '#121851',
   },
   inputContainer: {
     display: 'flex',
@@ -113,8 +134,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#F94A56',
     width: 180,
     height: 50,
-    margin: 30,
     marginTop: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buttonText: {
+    color: '#ffffff',
+    fontFamily: 'Roboto_400Regular',
+    fontSize: 16,
+    fontWeight: '600',
   },
   checkboxContainer: {
     display: 'flex',
