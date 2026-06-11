@@ -2,6 +2,7 @@ import type { NavigatorScreenParams } from '@react-navigation/native';
 
 export type RootStackParamList = {
   Login: undefined;
+  SejourPicker: undefined;
   BottomTab: NavigatorScreenParams<BottomTabParamList>;
 };
 

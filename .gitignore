@@ -15,3 +15,8 @@ web-build/
 
 # Cursor
 .cursor/
+
+# Variables d'environnement
+.env
+.env.local
+.env.*.local
