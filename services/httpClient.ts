@@ -1,12 +1,16 @@
 import type { AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import axios from 'axios';
+import { Platform } from 'react-native';
 
 import { API_BASE_URL } from '../config/env';
+import type { RefreshTokenResponse } from '../types/api';
 import * as accountStorage from './accountStorage';
 import { clearLocalSession } from './accountStorage';
 
 const SKIP_HEADER = 'X-Skip-Token-Refresh';
+const CLIENT_TYPE_HEADER = 'X-Client-Type';
 const REFRESH_MARGIN_MS = 60_000;
+const isWeb = Platform.OS === 'web';
 
 let refreshPromise: Promise<string> | null = null;
 let onSessionExpired: (() => void) | null = null;
@@ -28,13 +32,26 @@ function hasSkipTokenRefreshHeader(config: InternalAxiosRequestConfig | undefine
 async function refreshAccessTokenSingleFlight(): Promise<string> {
   if (!refreshPromise) {
     refreshPromise = (async () => {
-      await clearLocalSession();
-      const response = await Axios.post<{ access_token: string }>(
+      const storedRefreshToken = await accountStorage.getRefreshToken();
+      await accountStorage.clearAccessToken();
+
+      const headers: Record<string, unknown> = { [SKIP_HEADER]: true };
+      let body: unknown;
+      // Sur natif, le cookie HttpOnly n'est pas exploitable : on envoie le
+      // refresh token stocké dans le corps (le backend le lit en fallback).
+      if (!isWeb) {
+        headers[CLIENT_TYPE_HEADER] = 'mobile';
+        if (storedRefreshToken) {
+          body = { refreshToken: storedRefreshToken };
+        }
+      }
+
+      const response = await Axios.post<RefreshTokenResponse>(
         '/auth/refresh-token',
-        undefined,
+        body,
         {
           withCredentials: true,
-          headers: { [SKIP_HEADER]: true },
+          headers,
         },
       );
       const accessToken = response.data.access_token;
@@ -42,6 +59,9 @@ async function refreshAccessTokenSingleFlight(): Promise<string> {
         throw new Error('Jeton d’accès absent dans la réponse refresh');
       }
       await accountStorage.saveAccessToken(accessToken);
+      if (response.data.refresh_token) {
+        await accountStorage.saveRefreshToken(response.data.refresh_token);
+      }
       return accessToken;
     })().finally(() => {
       refreshPromise = null;
@@ -114,12 +134,18 @@ Axios.interceptors.response.use(
 export default Axios;
 
 export async function loginRequest(email: string, motDePasse: string) {
+  const headers: Record<string, unknown> = { [SKIP_HEADER]: true };
+  // Sur natif, on signale au backend de renvoyer aussi le refresh token dans
+  // le corps (le cookie HttpOnly n'étant pas exploitable hors navigateur).
+  if (!isWeb) {
+    headers[CLIENT_TYPE_HEADER] = 'mobile';
+  }
   return Axios.post(
     '/auth/connexion',
     { email, motDePasse },
     {
       withCredentials: true,
-      headers: { [SKIP_HEADER]: true },
+      headers,
     },
   );
 }

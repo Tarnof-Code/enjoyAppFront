@@ -18,8 +18,16 @@ export async function saveAccessToken(accessToken: string): Promise<void> {
   await tokenStorage.saveAccessToken(accessToken);
 }
 
+export async function saveRefreshToken(refreshToken: string): Promise<void> {
+  await tokenStorage.saveRefreshToken(refreshToken);
+}
+
 export async function getToken(): Promise<string | null> {
   return tokenStorage.getAccessToken();
+}
+
+export async function getRefreshToken(): Promise<string | null> {
+  return tokenStorage.getRefreshToken();
 }
 
 export async function isLogged(): Promise<boolean> {
@@ -47,6 +55,11 @@ export function getTokenExpiryMs(token: string): number | null {
   }
 }
 
+export async function clearAccessToken(): Promise<void> {
+  await tokenStorage.clearAccessToken();
+}
+
 export async function clearLocalSession(): Promise<void> {
   await tokenStorage.clearAccessToken();
+  await tokenStorage.clearRefreshToken();
 }

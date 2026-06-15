@@ -12,6 +12,9 @@ export async function login(credentials: Credentials) {
     throw new Error('Réponse de connexion invalide');
   }
   await accountStorage.saveAccessToken(accessToken);
+  if (data.refresh_token) {
+    await accountStorage.saveRefreshToken(data.refresh_token);
+  }
   return response;
 }
 

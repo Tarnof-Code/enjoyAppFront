@@ -2,6 +2,7 @@ import { Platform } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 
 const ACCESS_TOKEN_KEY = 'enjoy.access_token';
+const REFRESH_TOKEN_KEY = 'enjoy.refresh_token';
 
 const isWeb = Platform.OS === 'web';
 
@@ -31,4 +32,27 @@ export async function clearAccessToken(): Promise<void> {
 export async function hasAccessToken(): Promise<boolean> {
   const token = await getAccessToken();
   return !!token;
+}
+
+export async function saveRefreshToken(token: string): Promise<void> {
+  if (isWeb) {
+    localStorage.setItem(REFRESH_TOKEN_KEY, token);
+  } else {
+    await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, token);
+  }
+}
+
+export async function getRefreshToken(): Promise<string | null> {
+  if (isWeb) {
+    return localStorage.getItem(REFRESH_TOKEN_KEY);
+  }
+  return SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
+}
+
+export async function clearRefreshToken(): Promise<void> {
+  if (isWeb) {
+    localStorage.removeItem(REFRESH_TOKEN_KEY);
+  } else {
+    await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
+  }
 }
