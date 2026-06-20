@@ -22,7 +22,6 @@ import { clearSejour, setSejourCourant } from '../store/sejourSlice';
 import { colors } from '../config/theme';
 
 import TopTabActivities from './TopTabActivities';
-import TopTabPlannings from './TopTabPlannings';
 import TopTabLists from './TopTabLists';
 import TopTabHealth from './TopTabHealth';
 import type { BottomTabParamList, RootStackParamList } from './types';
@@ -43,8 +42,6 @@ function BottomTab() {
           let iconName: keyof typeof FontAwesome5.glyphMap = 'home';
           if (route.name === 'Listes') {
             iconName = 'list-ul';
-          } else if (route.name === 'Plannings') {
-            iconName = 'calendar-alt';
           } else if (route.name === 'Activités') {
             iconName = 'dice';
           } else if (route.name === 'Sanitaire') {
@@ -58,7 +55,6 @@ function BottomTab() {
     >
       <Tab.Screen name="Home" component={Home} />
       <Tab.Screen name="Listes" component={TopTabLists} />
-      <Tab.Screen name="Plannings" component={TopTabPlannings} />
       <Tab.Screen name="Activités" component={TopTabActivities} />
       <Tab.Screen name="Sanitaire" component={TopTabHealth} />
     </Tab.Navigator>
