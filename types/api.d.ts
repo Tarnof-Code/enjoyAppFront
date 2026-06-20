@@ -143,6 +143,13 @@ export interface ReferenceAlimentaireDto {
   actif: boolean;
 }
 
+export interface PlanningGrilleSummaryDto {
+  id: number;
+  sejourId: number;
+  titre: string;
+  miseAJour: string;
+}
+
 export type TypeRepas = 'PETIT_DEJEUNER' | 'DEJEUNER' | 'GOUTER' | 'DINER';
 
 export interface MenuRepasDto {
