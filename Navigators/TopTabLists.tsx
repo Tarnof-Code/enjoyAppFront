@@ -1,7 +1,4 @@
 import * as React from 'react';
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-
 import { FontAwesome } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
@@ -9,84 +6,37 @@ import Animators from '../screens/Lists/Animators';
 import Children from '../screens/Lists/Children';
 import Groups from '../screens/Lists/Groups';
 import Bedrooms from '../screens/Lists/Bedrooms';
-import Header from '../Components/Header';
+import { creerTopTab } from './creerTopTab';
 import type { ListsTabParamList } from './types';
 import { colors } from '../config/theme';
 
-const Tab = createMaterialTopTabNavigator<ListsTabParamList>();
+const couleur = (focused: boolean) => (focused ? colors.ink : colors.disabled);
 
-function TopTab() {
-  return (
-    <Tab.Navigator
-      initialRouteName="Animators"
-      screenOptions={{
-        tabBarActiveTintColor: colors.ink,
-      }}
-    >
-      <Tab.Screen
-        name="Animators"
-        component={Animators}
-        options={{
-          tabBarLabel: ({ focused }) => (
-            <MaterialCommunityIcons
-              size={25}
-              name="badge-account-horizontal"
-              color={focused ? colors.ink : colors.disabled}
-            />
-          ),
-        }}
-      />
-
-      <Tab.Screen
-        name="Children"
-        component={Children}
-        options={{
-          tabBarLabel: ({ focused }) => (
-            <MaterialCommunityIcons
-              size={25}
-              name="human-child"
-              color={focused ? colors.ink : colors.disabled}
-            />
-          ),
-        }}
-      />
-
-      <Tab.Screen
-        name="Groups"
-        component={Groups}
-        options={{
-          tabBarLabel: ({ focused }) => (
-            <MaterialCommunityIcons
-              size={25}
-              name="account-group"
-              color={focused ? colors.ink : colors.disabled}
-            />
-          ),
-        }}
-      />
-
-      <Tab.Screen
-        name="Bedrooms"
-        component={Bedrooms}
-        options={{
-          tabBarLabel: ({ focused }) => (
-            <FontAwesome
-              size={25}
-              name="bed"
-              color={focused ? colors.ink : colors.disabled}
-            />
-          ),
-        }}
-      />
-    </Tab.Navigator>
-  );
-}
-
-export default function TopTabLists() {
-  return (
-    <SafeAreaProvider>
-      <Header iconName="list-ul" title=" Listes" />
-      <TopTab />
-    </SafeAreaProvider>
-  );
-}
+export default creerTopTab<ListsTabParamList>({
+  headerIcon: 'list-ul',
+  headerTitle: ' Listes',
+  onglets: [
+    {
+      name: 'Animators',
+      component: Animators,
+      icon: (f) => (
+        <MaterialCommunityIcons size={25} name="badge-account-horizontal" color={couleur(f)} />
+      ),
+    },
+    {
+      name: 'Children',
+      component: Children,
+      icon: (f) => <MaterialCommunityIcons size={25} name="human-child" color={couleur(f)} />,
+    },
+    {
+      name: 'Groups',
+      component: Groups,
+      icon: (f) => <MaterialCommunityIcons size={25} name="account-group" color={couleur(f)} />,
+    },
+    {
+      name: 'Bedrooms',
+      component: Bedrooms,
+      icon: (f) => <FontAwesome size={25} name="bed" color={couleur(f)} />,
+    },
+  ],
+});
