@@ -3,7 +3,6 @@ import { createMaterialTopTabNavigator } from '@react-navigation/material-top-ta
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { FontAwesome } from '@expo/vector-icons';
-import { MaterialIcons } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import Animators from '../screens/Lists/Animators';
@@ -29,9 +28,9 @@ function TopTab() {
         component={Animators}
         options={{
           tabBarLabel: ({ focused }) => (
-            <MaterialIcons
+            <MaterialCommunityIcons
               size={25}
-              name="sports-kabaddi"
+              name="badge-account-horizontal"
               color={focused ? colors.ink : colors.disabled}
             />
           ),
