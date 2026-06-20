@@ -150,6 +150,79 @@ export interface PlanningGrilleSummaryDto {
   miseAJour: string;
 }
 
+export interface MomentDto {
+  id: number;
+  nom: string;
+  sejourId: number;
+  ordre: number;
+  parentId: number | null;
+}
+
+export interface HoraireDto {
+  id: number;
+  libelle: string;
+  sejourId: number;
+}
+
+export type EmplacementLieu = 'INTERIEUR' | 'EXTERIEUR' | 'HORS_CENTRE';
+
+export type UsageLieu = 'ACTIVITE' | 'SURVEILLANCE' | 'RASSEMBLEMENT';
+
+export interface LieuDto {
+  id: number;
+  nom: string;
+  emplacement: EmplacementLieu;
+  nombreMax: number | null;
+  sejourId: number;
+  partageableEntreAnimateurs: boolean;
+  nombreMaxActivitesSimultanees: number | null;
+  usages: UsageLieu[];
+}
+
+export type PlanningLigneLibelleSource =
+  | 'SAISIE_LIBRE'
+  | 'HORAIRE'
+  | 'MOMENT'
+  | 'GROUPE'
+  | 'LIEU'
+  | 'MEMBRE_EQUIPE';
+
+export interface PlanningCelluleDto {
+  id: number;
+  jour: string;
+  membreTokenIds?: string[] | null;
+  horaireIds?: number[] | null;
+  horaireLibelles?: string[] | null;
+  momentIds?: number[] | null;
+  groupeIds?: number[] | null;
+  lieuIds?: number[] | null;
+  texteLibre?: string | null;
+}
+
+export interface PlanningLigneDto {
+  id: number;
+  ordre: number;
+  libelleSaisieLibre: string | null;
+  libelleRegroupement: string | null;
+  libelleMomentId: number | null;
+  libelleHoraireId: number | null;
+  libelleGroupeId: number | null;
+  libelleLieuId: number | null;
+  libelleUtilisateurTokenId: string | null;
+  cellules: PlanningCelluleDto[];
+}
+
+export interface PlanningGrilleDetailDto {
+  id: number;
+  sejourId: number;
+  titre: string;
+  consigneGlobale: string | null;
+  sourceLibelleLignes: PlanningLigneLibelleSource | null;
+  sourceContenuCellules: PlanningLigneLibelleSource;
+  miseAJour: string;
+  lignes: PlanningLigneDto[];
+}
+
 export type TypeRepas = 'PETIT_DEJEUNER' | 'DEJEUNER' | 'GOUTER' | 'DINER';
 
 export interface MenuRepasDto {

@@ -1,17 +1,28 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  FlatList,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import dayjs from 'dayjs';
 import 'dayjs/locale/fr';
 
 import Header from '../../Components/Header';
 import { getUserFacingErrorMessage } from '../../helpers/axiosError';
 import { planningGrilleService } from '../../services/planningGrille.service';
+import type { OrganisationStackParamList } from '../../Navigators/types';
 import type { PlanningGrilleSummaryDto } from '../../types/api';
 import { useAppSelector } from '../../store/hooks';
 import { colors } from '../../config/theme';
 
 dayjs.locale('fr');
+
+type Props = NativeStackScreenProps<OrganisationStackParamList, 'GrillesList'>;
 
 function formatMiseAJour(valeur: unknown): string {
   if (Array.isArray(valeur) && valeur.length >= 3) {
@@ -23,7 +34,7 @@ function formatMiseAJour(valeur: unknown): string {
   return dt.isValid() ? dt.format('D MMM YYYY') : '';
 }
 
-function GrillesList() {
+function GrillesList({ navigation }: Props) {
   const sejourId = useAppSelector((state) => state.sejour.sejourCourant?.id);
   const [grilles, setGrilles] = useState<PlanningGrilleSummaryDto[]>([]);
   const [loading, setLoading] = useState(true);
@@ -82,10 +93,15 @@ function GrillesList() {
       renderItem={({ item }) => {
         const maj = formatMiseAJour(item.miseAJour as unknown);
         return (
-          <View style={styles.card}>
+          <Pressable
+            style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
+            onPress={() =>
+              navigation.navigate('GrilleDetail', { grilleId: item.id, titre: item.titre })
+            }
+          >
             <Text style={styles.titre}>{item.titre}</Text>
             {maj ? <Text style={styles.meta}>Mis à jour le {maj}</Text> : null}
-          </View>
+          </Pressable>
         );
       }}
       ListEmptyComponent={
@@ -95,11 +111,11 @@ function GrillesList() {
   );
 }
 
-export default function Organisation() {
+export default function Organisation(props: Props) {
   return (
     <SafeAreaProvider>
       <Header iconName="calendar-alt" title="Organisation" />
-      <GrillesList />
+      <GrillesList {...props} />
     </SafeAreaProvider>
   );
 }
@@ -122,6 +138,9 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     marginBottom: 10,
+  },
+  cardPressed: {
+    opacity: 0.85,
   },
   titre: {
     fontSize: 16,

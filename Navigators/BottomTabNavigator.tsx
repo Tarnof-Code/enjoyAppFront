@@ -25,7 +25,7 @@ import TopTabActivities from './TopTabActivities';
 import TopTabLists from './TopTabLists';
 import TopTabHealth from './TopTabHealth';
 import Menus from '../screens/Menus/Menus';
-import Organisation from '../screens/Organisation/Organisation';
+import OrganisationNavigator from './OrganisationNavigator';
 import type { BottomTabParamList, RootStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -61,7 +61,7 @@ function BottomTab() {
     >
       <Tab.Screen name="Home" component={Home} />
       <Tab.Screen name="Listes" component={TopTabLists} />
-      <Tab.Screen name="Organisation" component={Organisation} />
+      <Tab.Screen name="Organisation" component={OrganisationNavigator} />
       <Tab.Screen name="Menus" component={Menus} />
       <Tab.Screen name="Activités" component={TopTabActivities} />
       <Tab.Screen name="Sanitaire" component={TopTabHealth} />

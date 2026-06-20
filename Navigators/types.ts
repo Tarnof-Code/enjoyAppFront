@@ -35,6 +35,11 @@ export type HealthTabParamList = {
   WhatToDoIf: undefined;
 };
 
+export type OrganisationStackParamList = {
+  GrillesList: undefined;
+  GrilleDetail: { grilleId: number; titre: string };
+};
+
 declare global {
   namespace ReactNavigation {
     interface RootParamList extends RootStackParamList {}
