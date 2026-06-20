@@ -14,10 +14,10 @@ const couleur = (focused: boolean) => (focused ? colors.ink : colors.disabled);
 
 export default creerTopTab<ListsTabParamList>({
   headerIcon: 'list-ul',
-  headerTitle: ' Listes',
   onglets: [
     {
       name: 'Animators',
+      title: 'Équipe',
       component: Animators,
       icon: (f) => (
         <MaterialCommunityIcons size={25} name="badge-account-horizontal" color={couleur(f)} />
@@ -25,16 +25,19 @@ export default creerTopTab<ListsTabParamList>({
     },
     {
       name: 'Children',
+      title: 'Enfants',
       component: Children,
       icon: (f) => <MaterialCommunityIcons size={25} name="human-child" color={couleur(f)} />,
     },
     {
       name: 'Groups',
+      title: 'Groupes',
       component: Groups,
       icon: (f) => <MaterialCommunityIcons size={25} name="account-group" color={couleur(f)} />,
     },
     {
       name: 'Bedrooms',
+      title: 'Chambres',
       component: Bedrooms,
       icon: (f) => <FontAwesome size={25} name="bed" color={couleur(f)} />,
     },
