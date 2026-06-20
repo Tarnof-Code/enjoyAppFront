@@ -14,10 +14,6 @@ export type BottomTabParamList = {
 };
 
 export type ListsTabParamList = {
-  General: undefined;
-  Crabs: undefined;
-  Sharks: undefined;
-  Octopuses: undefined;
   Animators: undefined;
   Bedrooms: undefined;
 };
