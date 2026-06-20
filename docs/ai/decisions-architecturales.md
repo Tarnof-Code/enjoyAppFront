@@ -7,6 +7,7 @@ Patterns et choix techniques de l’app mobile. Garder ce fichier comme référe
 - **Expo SDK 54 / RN 0.81 / React 19 / TypeScript** ; `tsc --noEmit` via `npm run typecheck`.
 - Paquets : **npm** + `legacy-peer-deps=true` (`.npmrc`). Ne pas introduire `pnpm`/`yarn`.
 - **React 19 Compiler** : éviter `useMemo` / `useCallback` manuels sauf nécessité mesurée.
+- **Principes de code** (`.cursor/rules/20-simplicite-code.mdc`) : KISS/DRY/YAGNI + SRP, séparation des préoccupations (`screens/` UI, `services/` API, `helpers/` logique pure), composition, fail fast ; pas de sur-ingénierie.
 
 ## Navigation (React Navigation 7)
 

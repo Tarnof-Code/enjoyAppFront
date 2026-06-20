@@ -1,0 +1,30 @@
+---
+description: Principes de simplicité du code (KISS, DRY, YAGNI) — pas de sur-ingénierie.
+alwaysApply: true
+---
+
+# Simplicité du code
+
+Privilégier le code le plus simple qui résout le besoin réel. Pas de sur-ingénierie. Ces principes sont des outils d'aide à la décision, pas des règles rigides : les appliquer avec discernement selon le contexte.
+
+## Socle (toujours)
+
+- **KISS** : choisir la solution la plus directe et lisible. Éviter abstractions, couches, génériques et patterns inutiles.
+- **DRY** : ne pas dupliquer une logique. Si un bout de code apparaît une 2ᵉ/3ᵉ fois, le centraliser (`helpers/`, `services/`, `config/`). Ne pas factoriser prématurément une seule occurrence.
+- **YAGNI** : implémenter uniquement ce qui est demandé maintenant. Pas d'options, de paramètres ou de cas « au cas où » non requis.
+
+## Conception
+
+- **Responsabilité unique (SRP)** : une fonction / un composant / un module = une seule raison de changer.
+- **Séparation des préoccupations** : respecter le découpage du projet (`screens/` UI, `services/` API, `helpers/` logique pure, `store/` état). Pas de logique métier ou d'appel réseau dans un composant d'écran.
+- **Composition plutôt qu'héritage** : composer hooks et petits composants ; pas de hiérarchies de classes.
+- **Loi de Déméter** : limiter le chaînage profond (`a.b.c.d`) et le couplage entre modules.
+- **Fail fast** : valider tôt, gérer les erreurs via `helpers/axiosError.ts`, pas de `catch` silencieux.
+
+## Lisibilité
+
+- Fonctions courtes ; noms explicites plutôt que commentaires (code auto-documenté).
+- Réutiliser l'existant (patterns, helpers, composants) avant d'ajouter une dépendance ou un pattern.
+- Règle du boy-scout : laisser le code touché un peu plus propre, sans refactorer hors périmètre sans le signaler.
+
+Exemple : un formatage de date répété dans deux écrans → un seul helper partagé (ex. `helpers/sejourPeriode.ts`), pas une fonction locale copiée dans chaque écran.

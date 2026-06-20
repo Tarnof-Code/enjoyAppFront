@@ -18,3 +18,6 @@ En cours / à venir : migration progressive des écrans Listes, Plannings, Activ
 
 ### 2026-06-20
 - Mise en place de la **Memory Bank** mobile (calquée sur `enjoyWebApp`) : `AI_MEMORY.md`, fiches `docs/ai/`, règles `.cursor/rules/00-global.mdc` et `10-memory-bank.mdc`, commande `/maj`, `.cursorignore`, `.cursorindexignore`, `.vscode/settings.json`.
+- **Accueil** : séjour courant + dates affichés à côté du titre, avec **menu déroulant** (modal) pour changer de séjour quand plusieurs sont disponibles (`Home` charge `sejoursDisponibles` via `sejourService`, mémorise le choix via `helpers/dernierSejour.ts`).
+- Helper **`helpers/sejourPeriode.ts`** (DRY) : formatage des périodes (`formatPeriodeSejourCourte`, `formatPeriodeSejour`), factorisé depuis `Home` et `SejourPicker`.
+- Nouvelle règle **`.cursor/rules/20-simplicite-code.mdc`** : principes KISS/DRY/YAGNI + SRP, séparation des préoccupations, composition, fail fast — pas de sur-ingénierie.

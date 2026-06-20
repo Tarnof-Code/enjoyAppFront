@@ -35,7 +35,7 @@ App.tsx
 
 - **`Login`** : connexion email + mot de passe (API `POST /auth/connexion`).
 - **`SejourPicker`** : sélection du séjour de l’animateur ; mémorise le dernier séjour (`helpers/dernierSejour.ts`).
-- **`Home`** : accueil — bienvenue (prénom + photo), date, et **compte rendu de la réunion de la veille**.
+- **`Home`** : accueil — séjour courant + dates à côté du titre avec **menu déroulant** (modal) pour changer de séjour si plusieurs disponibles ; bienvenue (prénom + photo), date, et **compte rendu de la réunion de la veille**.
 
 ## Composants partagés (`Components/`)
 
