@@ -1,57 +1,55 @@
 # Décisions architecturales
 
-Patterns et choix techniques de l’app mobile. Garder ce fichier comme référence ; le journal daté va dans [contexte-actif.md](contexte-actif.md).
+Patterns et choix techniques de l'app mobile. Garder ce fichier comme référence ; le journal daté va dans [contexte-actif.md](contexte-actif.md).
 
 ## Tooling & langage
 
 - **Expo SDK 54 / RN 0.81 / React 19 / TypeScript** ; `tsc --noEmit` via `npm run typecheck`.
 - Paquets : **npm** + `legacy-peer-deps=true` (`.npmrc`). Ne pas introduire `pnpm`/`yarn`.
 - **React 19 Compiler** : éviter `useMemo` / `useCallback` manuels sauf nécessité mesurée.
-- **Principes de code** (`.cursor/rules/20-simplicite-code.mdc`) : KISS/DRY/YAGNI + SRP, séparation des préoccupations (`screens/` UI, `services/` API, `helpers/` logique pure), composition, fail fast ; pas de sur-ingénierie.
+- **Principes de code** (`.cursor/rules/20-simplicite-code.mdc`) : KISS/DRY/YAGNI + SRP, séparation des préoccupations (`screens/` UI, `services/` API, `helpers/` logique pure), composition, fail fast.
 
 ## Thème & styles
 
-- **Tokens centralisés** : `config/theme.ts` exporte `colors`, `gradients`, `fonts`, `spacing`, `radius`, `fontSizes` (et l'objet agrégé `theme`), tous `as const`.
-- Composants et écrans importent ces tokens au lieu de valeurs en dur (couleurs hex, noms de polices, marges). Ajouter ou modifier une valeur de design ici, pas dans chaque `StyleSheet`.
-- **Zéro couleur en dur** dans les `.tsx` : toute couleur (y compris les couleurs nommées CSS) passe par un token sémantique (`primary`, `danger`, `info`, `success`, `accent`, `focus`, `link`, `tempCold`/`tempHot`, `highlight`, `inputBorder`, etc.).
-- **Source de vérité = app web** : la palette de `config/theme.ts` mirroite `enjoyWebApp/src/_variables.scss` pour une cohérence inter-apps. Marque (`primary #383CA7`, `primaryDark #333796`, `danger #f94a56`, `success #00b894`) + palette sémantique d'actions (`actionAdd/Edit/Delete/Warning/Secondary/Info` et `*Hover`) reprises du web. Les tokens propres à des composants web (overrides `.btn-*`, accordéon) ne sont pas portés (pas d'équivalent RN).
+- **Tokens centralisés** : `config/theme.ts` (`colors`, `gradients`, `fonts`, `spacing`, `radius`, `fontSizes`).
+- **Source de vérité = app web** : palette mirroir de `enjoyWebApp/src/_variables.scss`.
 
 ## Navigation (React Navigation 7)
 
 - Racine `App.tsx` : `Provider` Redux + `GestureHandlerRootView` + `SafeAreaProvider` + `ThemeProvider` (RNEUI).
-- **Stack natif** (`BottomTabNavigator.tsx`) : `Login` → `SejourPicker` → `BottomTab`, `headerShown: false`. `navigationRef` exposé pour les resets hors composant (ex. session expirée).
-- **Bottom tabs** : `Home`, `Listes`, `Plannings`, `Activités`, `Sanitaire`, `Infos utiles` (icônes FontAwesome5).
-- **Top tabs** par zone (`TopTabLists`, `TopTabPlannings`, `TopTabActivities`, `TopTabHealth`, `TopTabInfos`).
-- **Types de navigation** centralisés dans `Navigators/types.ts` (`RootStackParamList`, `BottomTabParamList`, etc.) + augmentation `ReactNavigation.RootParamList`.
+- **Stack natif** (`BottomTabNavigator.tsx`) : `Login` → `SejourPicker` → `BottomTab`, `headerShown: false`. `navigationRef` exposé pour resets hors composant.
+- **Bottom tabs (6)** : `Home`, `Listes`, `Organisation`, `Menus`, `Activités`, `Sanitaire` (icônes FontAwesome5).
+- **Top tabs** (`creerTopTab`) : `TopTabLists` (Animators, Children, Groups, Bedrooms), `TopTabActivities` (Activites, Sorties). Titre du `Header` suit l'onglet actif.
+- **Stack Organisation** (`OrganisationNavigator`) : `GrillesList` → `GrilleDetail` (params `grilleId`, `titre`).
+- **Écrans pleine page** (header propre) : `Menus`, `Sanitaire`, `Home`.
+- Types centralisés : `Navigators/types.ts`.
 
 ## Authentification & client HTTP
 
-- **Client unique** : `services/httpClient.ts` (`axios.create({ baseURL: API_BASE_URL, withCredentials: true })`).
-- **Access token** : stocké via `expo-secure-store` (jamais en clair ni `AsyncStorage`). Lecture/écriture encapsulées dans `accountStorage.ts` / `tokenStorage.ts`.
-- **Refresh token** : sur natif, le cookie HttpOnly n’étant pas exploitable, le backend lit le refresh token envoyé dans le corps en fallback (header `X-Client-Type: mobile`).
-- **Intercepteur requête** : refresh **proactif** si le JWT expire dans moins de `REFRESH_MARGIN_MS` (60 s), puis ajout du header `Authorization: Bearer`.
-- **Intercepteur réponse** : `401` (hors `X-Skip-Token-Refresh`) → `refreshAccessTokenSingleFlight()` puis rejeu de la requête (`_retry`) ; échec → `triggerSessionExpired()` (purge session + callback de reset vers `Login`).
-- **Single-flight** : une seule requête `/auth/refresh-token` simultanée via `refreshPromise`.
-- **`X-Skip-Token-Refresh`** : header posé sur `login` / `refresh` pour éviter les boucles.
-- **Référence web à porter** : `caller.service.ts` + `account.service.ts` du web.
+- **Client unique** : `services/httpClient.ts` (axios, `withCredentials: true`).
+- **Access token** : `expo-secure-store` via `accountStorage.ts` / `tokenStorage.ts`.
+- **Refresh** : corps fallback + `X-Client-Type: mobile` ; refresh proactif ~60 s ; single-flight ; 401 → rejeu ou reset `Login`.
+- **`X-Skip-Token-Refresh`** sur login/refresh.
 
-## Services
+## Services & chargement des écrans
 
-- Pattern : un service par domaine exposant un objet (`accountService`, `sejourService`, …), appels via le client `Axios` partagé, erreurs formatées par `helpers/axiosError.ts` (`getApiErrorMessage`).
-- Utilisateur référencé par **`tokenId`** (extrait du JWT `sub`), jamais l’id SQL.
+- Un service par domaine dans `services/`, appels via client partagé, erreurs via `helpers/axiosError.ts`.
+- **`useChargementRafraichissable`** (`hooks/useChargementRafraichissable.ts`) : pattern standard pour écrans API — `loading` (1er chargement), `refreshing` (pull-to-refresh), `error`, `refresh`. L'écran fournit un `executer` async.
+- **Cas particuliers** : `Animators` lit le store Redux (`sejourCourant`) et rafraîchit via `getSejourById` ; `Home` gère son propre refresh (CR veille + photo + liste séjours).
+- Utilisateur référencé par **`tokenId`**, jamais id SQL.
 
 ## State (Redux Toolkit)
 
-- Store (`store/index.ts`) : `overlay`, `animName`, `auth`, `sejour`.
-- `authSlice` : profil courant + `bootstrapDone`. `sejourSlice` : séjour sélectionné. `animNameSlice` : prénom animateur (affichage). `overlaySlice` : overlays UI (ex. anniversaire).
-- Hooks typés dans `store/hooks.ts` ; `RootState` / `AppDispatch` exportés depuis `store/index.ts`.
+- Store : `animName`, `auth`, `sejour` (plus de slice `overlay`).
+- `sejourSlice` : `sejourCourant`, `sejoursDisponibles`.
 
-## Données / API vs Sheets
+## Données / API
 
-- Cible : **API Enjoy** (`/api/v1`), types dans `types/api.d.ts` alignés sur `enjoyWebApp/src/types/api.d.ts`.
-- Legacy en retrait : **Google Sheets** (`config/api.ts`, `types/sheets.ts`) — conservé temporairement pour `UsefulNumbers`.
-- Config runtime : `config/env.ts` (`API_BASE_URL`, surcharge `EXPO_PUBLIC_API_URL`, valeurs `app.config.js` → `expoConfig.extra`).
+- **Source unique** : API Enjoy (`/api/v1`). Google Sheets retiré (`config/api.ts`, `types/sheets.ts` supprimés).
+- Types DTO dans `types/api.d.ts`, alignés sur `enjoyWebApp/src/types/api.d.ts`.
+- Dates API : helper `helpers/dateApi.ts` (`jourISOdepuisValeurApi`) pour chaînes ISO, timestamps et tableaux Jackson `[année, mois, jour]`.
+- Config runtime : `config/env.ts` / `app.config.js` (`EXPO_PUBLIC_API_URL`).
 
 ## Sécurité
 
-- Jamais lire/exposer `.env*`, clés, keystores (`*.jks`, `*.keystore`, `*.p8`, `*.p12`), `google-services.json`, `GoogleService-Info.plist`, dumps SQL. Cf. `.cursorignore`.
+- Jamais lire/exposer `.env*`, clés, keystores, `google-services.json`, dumps SQL. Cf. `.cursorignore`.

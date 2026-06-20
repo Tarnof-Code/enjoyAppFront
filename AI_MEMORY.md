@@ -5,11 +5,11 @@ Index court : ne pas lire toute la Memory Bank par défaut. Pour une question ci
 Fiches utiles :
 - `docs/ai/contexte-global-stack.md` : stack Expo/RN, tooling npm, structure.
 - `docs/ai/contexte-actif.md` : journal récent et phase courante.
-- `docs/ai/decisions-architecturales.md` : navigation, auth/refresh, services, store.
+- `docs/ai/decisions-architecturales.md` : navigation, auth, services, hooks, store.
 - `docs/ai/etat-projet.md` : contrat API, services, glossaire.
 - `docs/ai/documentation-ui-routing.md` : navigateurs, écrans, onglets.
-- `docs/ai/roadmap.md` : suivi des tâches (migration Sheets → API).
+- `docs/ai/roadmap.md` : suivi des tâches.
 
-Rappels essentiels : réponses en français ; paquets avec `npm` + `legacy-peer-deps` ; secrets / `.env*` / keystores interdits ; types partagés dans `types/api.d.ts` (alignés sur le web). **Référence utilisateur** : `tokenId` (jamais id SQL). **Client HTTP** : `services/httpClient.ts` (intercepteur, refresh single-flight, `X-Skip-Token-Refresh`, `X-Client-Type: mobile`). **Auth** : access token en `expo-secure-store` ; 401 → refresh puis rejeu, sinon reset vers `Login`. **Navigation** : Stack (`Login` → `SejourPicker` → `BottomTab`) + 6 onglets bas, top-tabs par zone (`Navigators/`). **Données** : migration en cours de **Google Sheets** vers l'**API Enjoy** (plan `.cursor/plans/migration-api-mobile.plan.md`).
+Rappels essentiels : réponses en français ; `npm` + `legacy-peer-deps` ; secrets interdits ; types dans `types/api.d.ts` (alignés web) ; **`tokenId`** jamais id SQL ; client **`services/httpClient.ts`** ; auth SecureStore + refresh single-flight. **Navigation** : Stack `Login` → `SejourPicker` → **6 onglets** (`Home`, `Listes`, `Organisation`, `Menus`, `Activités`, `Sanitaire`) ; top-tabs via **`creerTopTab`** ; stack Organisation (grilles + détail). **Données** : **API Enjoy uniquement** (Google Sheets retiré) ; chargement écrans via **`useChargementRafraichissable`** + pull-to-refresh. App web = source de vérité (règle `30-app-web.mdc`).
 
-Mise à jour mémoire : commande **`/maj`** ; détail dans `docs/ai/` ; garder ce fichier entre 10 et 20 lignes. Dernière MAJ : **2026-06-21** (thème `config/theme.ts` : tokenisation complète, zéro couleur en dur ; palette alignée à l'identique sur l'app web `_variables.scss`, y compris la palette d'actions `actionAdd/Edit/Delete/...`).
+Mise à jour mémoire : commande **`/maj`**. Dernière MAJ : **2026-06-21** (migration API terminée, pull-to-refresh, navigation refactorisée).

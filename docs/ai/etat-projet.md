@@ -4,49 +4,65 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 
 ## Contrat API (alignement enjoyApi / enjoyWebApp)
 
-- Base : `/api/v1`, JWT **Bearer**, `withCredentials: true` (refresh/logout).
-- Types DTO dans `types/api.d.ts`, à garder synchronisés avec `enjoyWebApp/src/types/api.d.ts`.
+- Base : `/api/v1`, JWT **Bearer**, `withCredentials: true`.
+- Types DTO dans `types/api.d.ts`, synchronisés avec `enjoyWebApp/src/types/api.d.ts`.
 - Référence utilisateur : **`tokenId`** (jamais id SQL).
 
-### Endpoints utilisés / cibles (mobile)
+### Endpoints utilisés (mobile)
 
-| Domaine | Endpoint | Usage mobile |
-|---------|----------|--------------|
-| Auth | `POST /auth/connexion` | Connexion (email + mot de passe) |
-| Auth | `POST /auth/refresh-token` | Rafraîchissement (single-flight ; `X-Client-Type: mobile`) |
-| Auth | `POST /auth/logout` | Déconnexion |
-| Profil | `GET /utilisateurs/profil?tokenId=…` | Profil courant (`ProfilUtilisateurDTO`) |
-| Profil | `GET /utilisateurs/{tokenId}/photo-profil` | Photo (blob + JWT) — cible |
-| Séjours | `GET /sejours/utilisateur/{tokenId}` | Séjours de l’utilisateur (sélection) — cible |
-| Séjour | `GET /sejours/{id}` | Détail séjour courant |
-| Réunions | `GET /sejours/{sejourId}/reunions` | Compte rendu de la veille (`Home`) — cible |
+| Domaine | Endpoint | Écran / usage |
+|---------|----------|---------------|
+| Auth | `POST /auth/connexion`, `/refresh-token`, `/logout` | Connexion, session |
+| Profil | `GET /utilisateurs/profil`, `GET /utilisateurs/{tokenId}/photo-profil` | Bootstrap, `Home` |
+| Séjours | `GET /sejours/utilisateur/{tokenId}`, `GET /sejours/{id}` | `SejourPicker`, `Home`, `Animators` (refresh) |
+| Réunions | `GET /sejours/{sejourId}/reunions` | `Home` (CR veille) |
+| Enfants | `GET /sejours/{id}/enfants` | `Children` |
+| Groupes | `GET /sejours/{id}/groupes` | `Groups`, résolution libellés (Activités, Sorties, GrilleDetail) |
+| Chambres | `GET /sejours/{id}/chambres` | `Bedrooms` |
+| Menus | `GET /sejours/{id}/menus?dateDebut&dateFin` | `Menus` |
+| Plannings | `GET /sejours/{id}/planning-grilles`, `GET …/{grilleId}` | `Organisation`, `GrilleDetail` |
+| Réf. planning | `GET …/moments`, `…/lieux`, `…/horaires` | `GrilleDetail` (résolution libellés) |
+| Activités | `GET /sejours/{id}/activites` | `Activites` |
+| Sorties | `GET /sejours/{id}/activites-prestataires` | `Sorties` |
+| Sanitaire | `GET /sejours/{id}/dossiers-enfants` | `Sanitaire` |
 
-> Listes / Plannings / Activités / Sanitaire : endpoints enfants, groupes, chambres, dossiers-enfants, activités, grilles — voir le plan de migration pour la correspondance écran → API.
+> Équipe (`Animators`) : données `directeur` + `equipe` déjà présentes dans `SejourDTO` (store), pas d'appel dédié au montage.
 
 ## Services (`services/`)
 
 | Fichier | Rôle |
 |---------|------|
-| `httpClient.ts` | Client axios + intercepteurs auth (refresh, 401), `loginRequest`, `logoutRequest` |
-| `account.service.ts` | `login`, `logout`, `fetchProfil`, `restoreSession`, messages d’erreur de connexion |
-| `accountStorage.ts` | Stockage session (access/refresh token, `tokenId`, expiry), `clearLocalSession` |
-| `tokenStorage.ts` | Accès bas niveau `expo-secure-store` |
-| `sejour.service.ts` | Récupération séjour(s) |
-| `sejour-reunion.service.ts` | Réunions / compte rendu veille |
-| `utilisateur.service.ts` | Données utilisateur / photo profil |
+| `httpClient.ts` | Client axios + intercepteurs auth |
+| `account.service.ts` | Login, logout, profil, restoreSession |
+| `accountStorage.ts` / `tokenStorage.ts` | SecureStore |
+| `sejour.service.ts` | Séjours utilisateur et détail |
+| `sejour-reunion.service.ts` | Réunions (CR veille) |
+| `utilisateur.service.ts` | Photo profil |
+| `enfant.service.ts` | Enfants du séjour |
+| `groupe.service.ts` | Groupes |
+| `chambre.service.ts` | Chambres |
+| `menu.service.ts` | Menus repas |
+| `planningGrille.service.ts` | Grilles planning (liste + détail) |
+| `moment.service.ts`, `lieu.service.ts`, `horaire.service.ts` | Référentiels planning |
+| `activite.service.ts`, `activitePrestataire.service.ts` | Activités internes et sorties |
+| `dossierEnfant.service.ts` | Fiches sanitaires agrégées |
 
 ## Helpers (`helpers/`)
 
-- `axiosError.ts` — `getApiErrorMessage` (extraction message backend).
-- `dernierSejour.ts` — mémorisation/lecture du dernier séjour visité (par `tokenId`).
-- `photoProfil.ts` — récupération de la photo de profil (blob).
-- `reunionVeille.ts` — sélection de la réunion J−1 (timezone Europe/Paris).
-- `reunionTipTapTexte.ts` — rendu texte du contenu TipTap des réunions.
+| Fichier | Rôle |
+|---------|------|
+| `axiosError.ts` | Messages d'erreur utilisateur |
+| `dateApi.ts` | Normalisation dates API (ISO, timestamp, tableau Jackson) |
+| `menuRepas.ts` | Types repas, ordre, alias date menu |
+| `dernierSejour.ts` | Dernier séjour visité (SecureStore) |
+| `sejourPeriode.ts` | Formatage périodes séjour |
+| `reunionVeille.ts`, `reunionTipTapTexte.ts` | CR réunion J−1 (`Home`) |
+| `photoProfil.ts` | Blob photo profil |
 
 ## Glossaire
 
 - **`tokenId`** : identifiant public utilisateur (claim `sub` du JWT).
-- **Bootstrap** : restauration de session au démarrage (`BottomTabNavigator`) → profil + dernier séjour → route initiale.
-- **Single-flight** : garantie d’un seul refresh token concurrent.
-- **Compte rendu de la veille** : dernière réunion (`id` max) à la date J−1, affichée sur `Home`.
-- **Animateur (`BASIC_USER`)** : utilisateur cible mobile, accès en lecture aux séjours dont il est membre d’équipe.
+- **Bootstrap** : restauration session au démarrage → profil + dernier séjour → route initiale.
+- **Single-flight** : un seul refresh token concurrent.
+- **Compte rendu de la veille** : dernière réunion à J−1, affichée sur `Home`.
+- **Pull-to-refresh** : tirer vers le bas pour recharger (`useChargementRafraichissable` ou logique dédiée `Home` / `Animators`).

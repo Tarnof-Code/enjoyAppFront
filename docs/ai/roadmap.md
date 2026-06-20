@@ -1,20 +1,21 @@
 # Roadmap — Enjoy Mobile
 
-Suivi synthétique. Le plan détaillé (phases, correspondances écran → API, spike refresh) vit dans [`.cursor/plans/migration-api-mobile.plan.md`](../../.cursor/plans/migration-api-mobile.plan.md).
+Suivi synthétique. Plan détaillé : [`.cursor/plans/migration-api-mobile.plan.md`](../../.cursor/plans/migration-api-mobile.plan.md).
 
 ## Fait
 
-- [x] Migration JavaScript → TypeScript (navigateurs, écrans, services).
-- [x] Couche API / auth : `httpClient.ts`, `account.service.ts`, stockage SecureStore, refresh single-flight + proactif.
-- [x] Bootstrap session (restauration profil + dernier séjour) dans `BottomTabNavigator`.
-- [x] Types `types/api.d.ts` alignés sur l’API.
-- [x] Écran Connexion + sélection séjour (`Login`, `SejourPicker`) sur API.
+- [x] Migration JavaScript → TypeScript.
+- [x] Couche API / auth (httpClient, SecureStore, refresh single-flight).
+- [x] Bootstrap session + types `api.d.ts`.
+- [x] **Phase A** — Suppression Infos utiles, Plannings, groupes en dur, composants Sheets orphelins.
+- [x] **Phase B** — Listes (Équipe, Enfants, Groupes, Chambres), Menus, Organisation (+ détail grille), Activités/Sorties, Sanitaire (écran unique API).
+- [x] **Phase C** — Nettoyage Sheets (`config/api.ts`, `types/sheets.ts`, `overlaySlice`, clé Google) ; fabrique `creerTopTab` ; titres header dynamiques ; pull-to-refresh global.
+- [x] Thème centralisé aligné web.
+- [x] Règles Cursor app web / API (`30-app-web.mdc`, `40-api.mdc`).
 
-## À faire (migration Sheets → API)
+## Reste (mineur)
 
-- [ ] **Phase 0** — finaliser fondations : spike cookie refresh (Android/iOS Expo Go), `EXPO_PUBLIC_API_URL` en HTTPS prod.
-- [ ] **Phase 1** — Accueil (`Home`) : profil + compte rendu de la réunion de la veille (`/sejours/{id}/reunions`).
-- [ ] **Phase 2** — Listes + Sanitaire via GET enfants / groupes / chambres / dossiers-enfants.
-- [ ] **Phase 3** — Plannings (grilles + menus) et Activités (internes + prestataires).
-- [ ] **Phase 4** — Infos : `Regulations`, `Weather` ; `UsefulNumbers` laissé en Sheets (hors scope v1).
-- [ ] **Phase 5** — Nettoyage : retirer Google Sheets (sauf `UsefulNumbers`) et les photos animateurs hardcodées.
+- [ ] Remplacer avatars animateurs codés en dur dans `Header.tsx` (photos API ou initiales).
+- [ ] Supprimer `Components/DropdownAnim.tsx` et assets `LogosGroupes/` non utilisés.
+- [ ] Spike refresh token prod (HTTPS, Android/iOS).
+- [ ] Mettre à jour Memory Bank web si besoin de parité doc inter-apps.

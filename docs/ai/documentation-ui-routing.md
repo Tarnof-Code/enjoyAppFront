@@ -9,40 +9,58 @@ App.tsx
 └─ BottomTabNavigator (Stack natif, headerShown: false)
    ├─ Login            (FirstScreens/Login)
    ├─ SejourPicker     (FirstScreens/SejourPicker)
-   └─ BottomTab        (Bottom tabs)
-      ├─ Home          (FirstScreens/Home)
-      ├─ Listes        → TopTabLists
-      ├─ Plannings     → TopTabPlannings
-      ├─ Activités     → TopTabActivities
-      ├─ Sanitaire     → TopTabHealth
-      └─ Infos utiles  → TopTabInfos
+   └─ BottomTab        (6 onglets)
+      ├─ Home          (FirstScreens/Home) — pas de Header commun
+      ├─ Listes        → TopTabLists (creerTopTab)
+      ├─ Organisation  → OrganisationNavigator (Stack)
+      ├─ Menus         (screens/Menus/Menus) — Header propre
+      ├─ Activités     → TopTabActivities (creerTopTab)
+      └─ Sanitaire     (screens/Health/Sanitaire) — Header propre
 ```
 
-- **Bootstrap** (`BottomTabNavigator`) : restaure le profil et le dernier séjour visité, puis choisit la route initiale (`Login` si non connecté, `SejourPicker` si connecté sans séjour mémorisé, `BottomTab` si séjour restauré).
-- **Session expirée** : `setOnSessionExpired` réinitialise le store et fait `navigationRef.reset` vers `Login`.
+- **Bootstrap** : restaure profil + dernier séjour → `Login` / `SejourPicker` / `BottomTab`.
+- **Session expirée** : reset store + `navigationRef` → `Login`.
 
-## Onglets et écrans (top tabs)
+## Onglets Listes (`TopTabLists`)
 
-| Onglet | Navigateur | Écrans (`screens/`) |
-|--------|------------|---------------------|
-| Listes | `TopTabLists` | `General`, `Crabs`, `Sharks`, `Octopuses`, `Animators`, `Bedrooms` (+ `FetchLists`) |
-| Plannings | `TopTabPlannings` | `WakeUp`, `MealTime`, `Surveillance`, `Laundry`, `Holidays` |
-| Activités | `TopTabActivities` | `DaytimeActivities`, `EveningActivities`, `Trips` |
-| Sanitaire | `TopTabHealth` | `GeneralHealth`, `EatingHealth`, `MedicalTreatments`, `WhatToDoIf` |
-| Infos utiles | `TopTabInfos` | `UsefulNumbers`, `Regulations`, `Weather` |
+| Sous-onglet | Écran | Titre header | Source données |
+|-------------|-------|--------------|----------------|
+| Animators | `screens/Lists/Animators` | Équipe | Redux `sejourCourant` (+ refresh API séjour) |
+| Children | `screens/Lists/Children` | Enfants | `GET /enfants` |
+| Groups | `screens/Lists/Groups` | Groupes | `GET /groupes` |
+| Bedrooms | `screens/Lists/Bedrooms` | Chambres | `GET /chambres` |
 
-## Écrans d’entrée (`FirstScreens/`)
+## Onglets Activités (`TopTabActivities`)
 
-- **`Login`** : connexion email + mot de passe (API `POST /auth/connexion`).
-- **`SejourPicker`** : sélection du séjour de l’animateur ; mémorise le dernier séjour (`helpers/dernierSejour.ts`).
-- **`Home`** : accueil — séjour courant + dates à côté du titre avec **menu déroulant** (modal) pour changer de séjour si plusieurs disponibles ; bienvenue (prénom + photo), date, et **compte rendu de la réunion de la veille**.
+| Sous-onglet | Écran | Titre header | Source |
+|-------------|-------|--------------|--------|
+| Activites | `screens/Activities/Activites` | Activités | `GET /activites` |
+| Sorties | `screens/Activities/Sorties` | Sorties | `GET /activites-prestataires` |
 
-## Composants partagés (`Components/`)
+## Organisation (`OrganisationNavigator`)
 
-`Header`, `CheckList`, `BirthdayOverlay`, et dropdowns de filtres : `DropdownGroup`, `DropdownAllGroup`, `DropdownAnim`, `DropdownAnimDirection`, `DropdownBedroom`, `DropdownDates`, `DropdownMeal`, `DropdownNumbers`, `DropdownTreatment`.
+| Écran | Composant | Navigation |
+|-------|-----------|------------|
+| GrillesList | `screens/Organisation/Organisation` | Liste des grilles → tap → détail |
+| GrilleDetail | `screens/Organisation/GrilleDetail` | Vue jour par jour, libellés résolus |
 
-## Notes UX
+## Écrans autonomes
 
-- Thème via RNEUI (`createTheme` dans `App.tsx`).
-- États de chargement : `ActivityIndicator` (écran de bootstrap, fetchs).
-- Source de données en cours de bascule de Google Sheets vers l’API (voir [roadmap.md](roadmap.md)).
+- **`Menus`** : menus repas groupés par jour (`SectionList`).
+- **`Sanitaire`** : fiches sanitaires agrégées, filtres Tout / Traitements / Régime / Médical.
+- **`Home`** : titre Enjoy, sélecteur séjour (modal), bienvenue, date, encart CR veille.
+
+## Composants partagés
+
+- **`Header`** : icône FontAwesome5 + titre (script) + avatar animateur (mapping prénom → photo locale, legacy).
+- **`DropdownAnim.tsx`** : orphelin (plus référencé).
+
+## UX transverse
+
+- **Pull-to-refresh** sur tous les écrans de données (hook `useChargementRafraichissable` ou logique dédiée).
+- Thème RNEUI + tokens `config/theme.ts`.
+- États : `ActivityIndicator` au 1er chargement ; indicateur natif au refresh.
+
+## Supprimé (migration)
+
+Onglets **Plannings**, **Infos utiles** ; sous-onglets Sheets (General/Crabs/Sharks/Octopuses, Daytime/Evening/Trips, GeneralHealth/EatingHealth/MedicalTreatments/WhatToDoIf) ; dropdowns Sheets associés.
