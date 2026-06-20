@@ -4,8 +4,10 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { FontAwesome } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import Animators from '../screens/Lists/Animators';
+import Groups from '../screens/Lists/Groups';
 import Bedrooms from '../screens/Lists/Bedrooms';
 import Header from '../Components/Header';
 import type { ListsTabParamList } from './types';
@@ -29,6 +31,20 @@ function TopTab() {
             <MaterialIcons
               size={25}
               name="sports-kabaddi"
+              color={focused ? colors.ink : colors.disabled}
+            />
+          ),
+        }}
+      />
+
+      <Tab.Screen
+        name="Groups"
+        component={Groups}
+        options={{
+          tabBarLabel: ({ focused }) => (
+            <MaterialCommunityIcons
+              size={25}
+              name="account-group"
               color={focused ? colors.ink : colors.disabled}
             />
           ),

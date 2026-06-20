@@ -15,6 +15,7 @@ export type BottomTabParamList = {
 
 export type ListsTabParamList = {
   Animators: undefined;
+  Groups: undefined;
   Bedrooms: undefined;
 };
 

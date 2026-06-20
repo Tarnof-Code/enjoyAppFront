@@ -101,3 +101,34 @@ export interface ChambreDto {
   referents: ChambreReferentInfos[];
   occupants: ChambreOccupantDto[];
 }
+
+export type TypeGroupe = 'THEMATIQUE' | 'AGE' | 'NIVEAU_SCOLAIRE';
+
+export interface ReferentInfos {
+  tokenId: string;
+  nom: string;
+  prenom: string;
+}
+
+export interface EnfantDto {
+  id: number;
+  nom: string;
+  prenom: string;
+  genre: string;
+  dateNaissance: string;
+  niveauScolaire: string;
+}
+
+export interface GroupeDto {
+  id: number;
+  nom: string;
+  description: string | null;
+  typeGroupe: TypeGroupe;
+  ageMin: number | null;
+  ageMax: number | null;
+  niveauScolaireMin: string | null;
+  niveauScolaireMax: string | null;
+  sejourId: number;
+  enfants: EnfantDto[];
+  referents: ReferentInfos[];
+}
