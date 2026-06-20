@@ -1,0 +1,12 @@
+---
+description: Où chercher les informations sur l'app web Enjoy (enjoyWebApp).
+alwaysApply: true
+---
+
+# Informations sur l'app web (enjoyWebApp)
+
+Pour toute question concernant l'application web Enjoy, consulter les sources dans cet ordre :
+
+1. `../enjoyWebApp/AI_MEMORY.md`
+2. `../enjoyWebApp/docs/ai/`
+3. **En dernier recours**, si l'information n'est pas trouvée dans les deux premières sources : `../enjoyWebApp/src/`

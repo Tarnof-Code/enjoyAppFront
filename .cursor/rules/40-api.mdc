@@ -1,0 +1,12 @@
+---
+description: Où chercher les informations sur l'API Enjoy (enjoyApi).
+alwaysApply: true
+---
+
+# Informations sur l'API (enjoyApi)
+
+Pour toute question concernant l'API Enjoy, consulter les sources dans cet ordre :
+
+1. `../enjoyApi/AI_MEMORY.md`
+2. `../enjoyApi/docs/ai/`
+3. **En dernier recours**, si l'information n'est pas trouvée dans les deux premières sources : `../enjoyApi/src/main/java/com/tarnof/enjoyrestapi/`
