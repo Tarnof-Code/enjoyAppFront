@@ -19,6 +19,7 @@ import { store } from '../store';
 import { setName as setAnimName } from '../store/animNameSlice';
 import { clearUser, setBootstrapDone, setUserFromProfil } from '../store/authSlice';
 import { clearSejour, setSejourCourant } from '../store/sejourSlice';
+import { colors } from '../config/theme';
 
 import TopTabActivities from './TopTabActivities';
 import TopTabPlannings from './TopTabPlannings';
@@ -37,8 +38,8 @@ function BottomTab() {
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
-        tabBarActiveTintColor: '#000000',
-        tabBarInactiveTintColor: '#b2bec3',
+        tabBarActiveTintColor: colors.ink,
+        tabBarInactiveTintColor: colors.disabled,
         tabBarIcon: ({ color }) => {
           let iconName: keyof typeof FontAwesome5.glyphMap = 'home';
           if (route.name === 'Listes') {
@@ -138,7 +139,7 @@ export default function BottomTabNavigator() {
   if (!bootstrapped) {
     return (
       <View style={styles.bootstrap}>
-        <ActivityIndicator size="large" color="#121851" />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -159,6 +160,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f1f2f6',
+    backgroundColor: colors.background,
   },
 });

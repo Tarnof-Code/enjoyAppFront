@@ -4,6 +4,8 @@ import { StyleSheet, Text, View, Image } from 'react-native';
 
 import { useFonts, DancingScript_400Regular } from '@expo-google-fonts/dancing-script';
 
+import { colors, fonts } from '../../config/theme';
+
 interface WeatherData {
   description: string;
   icon: string;
@@ -81,10 +83,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.surface,
   },
   title: {
-    fontFamily: 'DancingScript_400Regular',
+    fontFamily: fonts.script,
     fontSize: 30,
     marginTop: 20,
     marginBottom: 40,
@@ -100,27 +102,27 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   text: {
-    fontFamily: 'DancingScript_400Regular',
+    fontFamily: fonts.script,
     fontSize: 25,
     alignSelf: 'center',
     marginLeft: 20,
   },
   tempMin: {
-    fontFamily: 'DancingScript_400Regular',
+    fontFamily: fonts.script,
     fontSize: 20,
     alignSelf: 'center',
     marginLeft: 20,
-    color: 'blue',
+    color: colors.tempCold,
   },
   tempMax: {
-    fontFamily: 'DancingScript_400Regular',
+    fontFamily: fonts.script,
     fontSize: 20,
     alignSelf: 'center',
     marginLeft: 20,
-    color: 'red',
+    color: colors.tempHot,
   },
   timeOfDay: {
-    fontFamily: 'DancingScript_400Regular',
+    fontFamily: fonts.script,
     fontSize: 30,
   },
   loadingText: {

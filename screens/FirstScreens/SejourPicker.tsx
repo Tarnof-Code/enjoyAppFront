@@ -19,6 +19,7 @@ import { sejourService } from '../../services/sejour.service';
 import type { SejourDTO } from '../../types/api';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { setSejourCourant, setSejoursDisponibles } from '../../store/sejourSlice';
+import { colors } from '../../config/theme';
 
 dayjs.locale('fr');
 
@@ -74,7 +75,7 @@ function SejourPicker({ navigation }: SejourPickerProps) {
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color="#121851" />
+        <ActivityIndicator size="large" color={colors.primary} />
         <Text style={styles.loadingText}>Chargement de vos séjours…</Text>
       </View>
     );
@@ -103,7 +104,7 @@ function SejourPicker({ navigation }: SejourPickerProps) {
               <Text style={styles.cardLieu}>{item.lieuDuSejour}</Text>
             ) : null}
             {selectingId === item.id ? (
-              <ActivityIndicator style={styles.cardSpinner} color="#121851" />
+              <ActivityIndicator style={styles.cardSpinner} color={colors.primary} />
             ) : null}
           </Pressable>
         )}
@@ -118,7 +119,7 @@ function SejourPicker({ navigation }: SejourPickerProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f1f2f6',
+    backgroundColor: colors.background,
     paddingTop: 60,
     paddingHorizontal: 20,
   },
@@ -126,38 +127,38 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f1f2f6',
+    backgroundColor: colors.background,
   },
   loadingText: {
     marginTop: 16,
     fontSize: 16,
-    color: '#121851',
+    color: colors.primary,
   },
   title: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#121851',
+    color: colors.primary,
   },
   subtitle: {
     fontSize: 16,
-    color: '#636e72',
+    color: colors.muted,
     marginTop: 8,
     marginBottom: 20,
   },
   error: {
-    color: '#F94A56',
+    color: colors.danger,
     marginBottom: 12,
   },
   list: {
     paddingBottom: 40,
   },
   card: {
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.surface,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#dfe6e9',
+    borderColor: colors.border,
   },
   cardPressed: {
     opacity: 0.85,
@@ -165,24 +166,24 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#121851',
+    color: colors.primary,
   },
   cardMeta: {
     marginTop: 6,
     fontSize: 14,
-    color: '#636e72',
+    color: colors.muted,
   },
   cardLieu: {
     marginTop: 4,
     fontSize: 13,
-    color: '#b2bec3',
+    color: colors.disabled,
   },
   cardSpinner: {
     marginTop: 8,
   },
   empty: {
     textAlign: 'center',
-    color: '#636e72',
+    color: colors.muted,
     marginTop: 24,
   },
 });

@@ -12,6 +12,7 @@ dayjs.locale('fr');
 import DropdownGroup from '../../Components/DropdownGroup';
 import CheckList from '../../Components/CheckList';
 import type { GoogleSheetsValuesResponse } from '../../types/sheets';
+import { colors, fonts } from '../../config/theme';
 
 interface TripItem {
   date: string;
@@ -195,7 +196,7 @@ export default function FetchTrips() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.surface,
   },
   loadingText: {
     fontStyle: 'italic',
@@ -213,7 +214,7 @@ const styles = StyleSheet.create({
     borderRadius: 100,
   },
   listStyle: {
-    backgroundColor: '#0E0E66',
+    backgroundColor: colors.primaryDark,
     borderRadius: 10,
     height: 70,
     flexDirection: 'row',
@@ -223,17 +224,17 @@ const styles = StyleSheet.create({
   },
   dateStyle: {
     fontSize: 14,
-    color: 'white',
+    color: colors.surface,
     marginLeft: 20,
   },
   titleStyle: {
-    fontFamily: 'DancingScript_400Regular',
-    color: 'white',
+    fontFamily: fonts.script,
+    color: colors.surface,
     marginLeft: 20,
     fontSize: 24,
   },
   titleOver: {
-    fontFamily: 'DancingScript_400Regular',
+    fontFamily: fonts.script,
     fontSize: 35,
     marginBottom: 20,
   },
@@ -248,25 +249,25 @@ const styles = StyleSheet.create({
   },
   button: {
     borderRadius: 5,
-    backgroundColor: '#F94A56',
+    backgroundColor: colors.danger,
     width: 65,
     height: 32,
     marginRight: 20,
   },
   link: {
     fontSize: 20,
-    color: 'blue',
+    color: colors.link,
     marginTop: 30,
     fontWeight: 'bold',
     fontStyle: 'italic',
   },
   badge: {
-    backgroundColor: '#F94A56',
+    backgroundColor: colors.danger,
     width: 130,
     height: 40,
     marginBottom: 5,
     borderRadius: 80,
     borderWidth: 1,
-    borderColor: '#FFFFFF',
+    borderColor: colors.surface,
   },
 });

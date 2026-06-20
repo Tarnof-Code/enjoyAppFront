@@ -11,6 +11,7 @@ dayjs.locale('fr');
 
 import DropdownDates from '../../Components/DropdownDates';
 import type { GoogleSheetsValuesResponse, MealPlanning } from '../../types/sheets';
+import { colors, fonts } from '../../config/theme';
 
 interface MenuRow {
   date: string;
@@ -140,7 +141,7 @@ export default function FetchMeals() {
     <ListItem key={i} style={{ marginLeft: 30 }}>
       <Avatar rounded avatarStyle={styles.avatar} source={e.photo} />
       <ListItem.Content>
-        <ListItem.Title style={{ color: 'blue' }}>{e.ptitDej}</ListItem.Title>
+        <ListItem.Title style={{ color: colors.info }}>{e.ptitDej}</ListItem.Title>
       </ListItem.Content>
     </ListItem>
   ));
@@ -149,7 +150,7 @@ export default function FetchMeals() {
     <ListItem key={i} style={{ marginLeft: 30 }}>
       <Avatar rounded avatarStyle={styles.avatar} source={e.photo} />
       <ListItem.Content>
-        <ListItem.Title style={{ color: 'blue' }}>{e.dej}</ListItem.Title>
+        <ListItem.Title style={{ color: colors.info }}>{e.dej}</ListItem.Title>
       </ListItem.Content>
     </ListItem>
   ));
@@ -158,7 +159,7 @@ export default function FetchMeals() {
     <ListItem key={i} style={{ marginLeft: 30 }}>
       <Avatar rounded avatarStyle={styles.avatar} source={e.photo} />
       <ListItem.Content>
-        <ListItem.Title style={{ color: 'blue' }}>{e.diner}</ListItem.Title>
+        <ListItem.Title style={{ color: colors.info }}>{e.diner}</ListItem.Title>
       </ListItem.Content>
     </ListItem>
   ));
@@ -257,7 +258,7 @@ export default function FetchMeals() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.surface,
   },
   loadingText: {
     fontStyle: 'italic',
@@ -275,7 +276,7 @@ const styles = StyleSheet.create({
     borderRadius: 100,
   },
   title: {
-    fontFamily: 'DancingScript_400Regular',
+    fontFamily: fonts.script,
     fontSize: 32,
   },
   titleBox: {
@@ -288,7 +289,7 @@ const styles = StyleSheet.create({
   },
   button: {
     borderRadius: 20,
-    backgroundColor: '#F94A56',
+    backgroundColor: colors.danger,
     width: 100,
     height: 35,
     alignSelf: 'center',
@@ -296,21 +297,21 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   titleOver: {
-    fontFamily: 'DancingScript_400Regular',
+    fontFamily: fonts.script,
     fontSize: 35,
     marginBottom: 20,
   },
   subTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: 'blue',
+    color: colors.info,
   },
   menuStyle: {
     width: '100%',
   },
   detailsMenu: {
     fontSize: 22,
-    fontFamily: 'DancingScript_400Regular',
+    fontFamily: fonts.script,
     alignSelf: 'center',
   },
 });

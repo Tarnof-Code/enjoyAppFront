@@ -8,6 +8,7 @@ import 'dayjs/locale/fr';
 dayjs.locale('fr');
 
 import type { GoogleSheetsValuesResponse } from '../../types/sheets';
+import { colors, fonts } from '../../config/theme';
 
 interface LaundryBatRow {
   bat: string;
@@ -85,7 +86,7 @@ export default function Laundry() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.surface,
   },
   loadingText: {
     fontStyle: 'italic',
@@ -99,12 +100,12 @@ const styles = StyleSheet.create({
   },
   title: {
     alignSelf: 'center',
-    fontFamily: 'DancingScript_400Regular',
+    fontFamily: fonts.script,
     fontSize: 35,
     marginBottom: 5,
   },
   dates: {
     alignSelf: 'center',
-    color: 'blue',
+    color: colors.info,
   },
 });

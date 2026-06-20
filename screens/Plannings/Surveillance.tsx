@@ -10,6 +10,7 @@ dayjs.locale('fr');
 
 import DropdownDates from '../../Components/DropdownDates';
 import type { GoogleSheetsValuesResponse } from '../../types/sheets';
+import { colors, gradients } from '../../config/theme';
 
 interface SurveillanceRow {
   date: string;
@@ -72,7 +73,7 @@ export default function Surveillance() {
   const filteredList = (filter ?? []).map((e, i) => (
     <ListItem key={i} bottomDivider>
       <ListItem.Content style={{ alignItems: 'center', marginBottom: 20 }}>
-        <LinearGradient colors={['#f7f1e3', '#dff9fb']} style={styles.card}>
+        <LinearGradient colors={gradients.calm} style={styles.card}>
           <ListItem.Title style={styles.title}>Bâtiment A</ListItem.Title>
           <ListItem.Subtitle style={styles.subTitle}>{e.batA}</ListItem.Subtitle>
           <ListItem.Title style={styles.title}>Bâtiment B / Rdc</ListItem.Title>
@@ -121,7 +122,7 @@ const styles = StyleSheet.create({
     borderRadius: 100,
   },
   title: {
-    color: 'blue',
+    color: colors.info,
     fontSize: 20,
     marginTop: 30,
   },

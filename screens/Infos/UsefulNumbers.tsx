@@ -8,6 +8,7 @@ import { useFonts, DancingScript_400Regular } from '@expo-google-fonts/dancing-s
 
 import DropdownNumbers from '../../Components/DropdownNumbers';
 import type { GoogleSheetsValuesResponse, UsefulNumber } from '../../types/sheets';
+import { colors } from '../../config/theme';
 
 export default function UsefulNumbers() {
   const [data, setData] = useState<UsefulNumber[]>([]);
@@ -72,8 +73,8 @@ export default function UsefulNumbers() {
     <ListItem key={i} bottomDivider>
       <ListItem.Content style={styles.listStyle}>
         <View>
-          <ListItem.Title style={{ color: 'blue' }}>{e.name}</ListItem.Title>
-          <ListItem.Title style={{ color: 'green' }}>{e.number}</ListItem.Title>
+          <ListItem.Title style={{ color: colors.info }}>{e.name}</ListItem.Title>
+          <ListItem.Title style={{ color: colors.success }}>{e.number}</ListItem.Title>
         </View>
         <Button
           type="solid"
@@ -107,7 +108,7 @@ export default function UsefulNumbers() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.surface,
   },
   listStyle: {
     borderRadius: 10,
@@ -119,7 +120,7 @@ const styles = StyleSheet.create({
   },
   button: {
     borderRadius: 5,
-    backgroundColor: '#F94A56',
+    backgroundColor: colors.danger,
     width: 65,
     height: 32,
     marginRight: 20,

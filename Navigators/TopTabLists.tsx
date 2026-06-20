@@ -16,6 +16,7 @@ import Animators from '../screens/Lists/Animators';
 import Bedrooms from '../screens/Lists/Bedrooms';
 import Header from '../Components/Header';
 import type { ListsTabParamList } from './types';
+import { colors } from '../config/theme';
 
 const Tab = createMaterialTopTabNavigator<ListsTabParamList>();
 
@@ -24,7 +25,7 @@ function TopTab() {
     <Tab.Navigator
       initialRouteName="General"
       screenOptions={{
-        tabBarActiveTintColor: '#000000',
+        tabBarActiveTintColor: colors.ink,
       }}
     >
       <Tab.Screen
@@ -35,7 +36,7 @@ function TopTab() {
             <Foundation
               size={25}
               name="torsos-all"
-              color={focused ? '#000000' : '#b2bec3'}
+              color={focused ? colors.ink : colors.disabled}
             />
           ),
         }}
@@ -49,7 +50,7 @@ function TopTab() {
             <FontAwesome5
               size={25}
               name="pastafarianism"
-              color={focused ? '#000000' : '#b2bec3'}
+              color={focused ? colors.ink : colors.disabled}
             />
           ),
         }}
@@ -63,7 +64,7 @@ function TopTab() {
             <MaterialCommunityIcons
               size={25}
               name="shark-fin"
-              color={focused ? '#000000' : '#b2bec3'}
+              color={focused ? colors.ink : colors.disabled}
             />
           ),
         }}
@@ -77,7 +78,7 @@ function TopTab() {
             <FontAwesome5
               size={25}
               name="octopus-deploy"
-              color={focused ? '#000000' : '#b2bec3'}
+              color={focused ? colors.ink : colors.disabled}
             />
           ),
         }}
@@ -91,7 +92,7 @@ function TopTab() {
             <MaterialIcons
               size={25}
               name="sports-kabaddi"
-              color={focused ? '#000000' : '#b2bec3'}
+              color={focused ? colors.ink : colors.disabled}
             />
           ),
         }}
@@ -105,7 +106,7 @@ function TopTab() {
             <FontAwesome
               size={25}
               name="bed"
-              color={focused ? '#000000' : '#b2bec3'}
+              color={focused ? colors.ink : colors.disabled}
             />
           ),
         }}

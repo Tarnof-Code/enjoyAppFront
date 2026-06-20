@@ -13,6 +13,7 @@ import type {
   FetchListsGroupFilter,
   GoogleSheetsValuesResponse,
 } from '../../types/sheets';
+import { colors } from '../../config/theme';
 
 interface FetchListsProps {
   group: FetchListsGroupFilter;
@@ -133,12 +134,12 @@ function FetchLists({ group }: FetchListsProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.surface,
   },
   room: {
     fontWeight: '400',
     fontSize: 20,
-    color: '#121851',
+    color: colors.primary,
   },
   loadingText: {
     fontStyle: 'italic',

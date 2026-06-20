@@ -10,6 +10,7 @@ dayjs.locale('fr');
 import DropdownAllGroup from '../../Components/DropdownAllGroup';
 import DropdownDates from '../../Components/DropdownDates';
 import type { DaytimeActivity, GoogleSheetsValuesResponse } from '../../types/sheets';
+import { colors } from '../../config/theme';
 
 export default function DaytimeActivities() {
   const [actiList, setActiList] = useState<DaytimeActivity[]>([]);
@@ -317,8 +318,8 @@ export default function DaytimeActivities() {
     <ListItem key={i} bottomDivider>
       <Avatar rounded avatarStyle={styles.avatar} source={e.photo} />
       <ListItem.Content>
-        <ListItem.Title style={{ color: 'blue' }}>Matin: {e.morning}</ListItem.Title>
-        <ListItem.Title style={{ color: 'green' }}>Aprem: {e.afternoon}</ListItem.Title>
+        <ListItem.Title style={{ color: colors.info }}>Matin: {e.morning}</ListItem.Title>
+        <ListItem.Title style={{ color: colors.success }}>Aprem: {e.afternoon}</ListItem.Title>
       </ListItem.Content>
     </ListItem>
   ));
@@ -343,7 +344,7 @@ export default function DaytimeActivities() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.surface,
   },
   loadingText: {
     fontStyle: 'italic',

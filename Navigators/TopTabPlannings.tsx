@@ -14,6 +14,7 @@ import Surveillance from '../screens/Plannings/Surveillance';
 import WakeUp from '../screens/Plannings/WakeUp';
 import Header from '../Components/Header';
 import type { PlanningsTabParamList } from './types';
+import { colors } from '../config/theme';
 
 const Tab = createMaterialTopTabNavigator<PlanningsTabParamList>();
 
@@ -22,7 +23,7 @@ function TopTab() {
     <Tab.Navigator
       initialRouteName="WakeUp"
       screenOptions={{
-        tabBarActiveTintColor: '#000000',
+        tabBarActiveTintColor: colors.ink,
       }}
     >
       <Tab.Screen
@@ -33,7 +34,7 @@ function TopTab() {
             <Ionicons
               size={25}
               name="alarm"
-              color={focused ? '#000000' : '#b2bec3'}
+              color={focused ? colors.ink : colors.disabled}
             />
           ),
         }}
@@ -47,7 +48,7 @@ function TopTab() {
             <MaterialCommunityIcons
               size={25}
               name="silverware-fork-knife"
-              color={focused ? '#000000' : '#b2bec3'}
+              color={focused ? colors.ink : colors.disabled}
             />
           ),
         }}
@@ -61,7 +62,7 @@ function TopTab() {
             <MaterialIcons
               size={25}
               name="local-police"
-              color={focused ? '#000000' : '#b2bec3'}
+              color={focused ? colors.ink : colors.disabled}
             />
           ),
         }}
@@ -75,7 +76,7 @@ function TopTab() {
             <MaterialIcons
               size={25}
               name="local-laundry-service"
-              color={focused ? '#000000' : '#b2bec3'}
+              color={focused ? colors.ink : colors.disabled}
             />
           ),
         }}
@@ -89,7 +90,7 @@ function TopTab() {
             <Fontisto
               size={25}
               name="holiday-village"
-              color={focused ? '#000000' : '#b2bec3'}
+              color={focused ? colors.ink : colors.disabled}
             />
           ),
         }}

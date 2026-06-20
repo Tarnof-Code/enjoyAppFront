@@ -11,6 +11,7 @@ import MedicalTreatments from '../screens/Health/MedicalTreatments';
 import WhatToDoIf from '../screens/Health/WhatToDoIf';
 import Header from '../Components/Header';
 import type { HealthTabParamList } from './types';
+import { colors } from '../config/theme';
 
 const Tab = createMaterialTopTabNavigator<HealthTabParamList>();
 
@@ -19,7 +20,7 @@ function TopTab() {
     <Tab.Navigator
       initialRouteName="GeneralHealth"
       screenOptions={{
-        tabBarActiveTintColor: '#000000',
+        tabBarActiveTintColor: colors.ink,
       }}
     >
       <Tab.Screen
@@ -30,7 +31,7 @@ function TopTab() {
             <Foundation
               size={25}
               name="torsos-all"
-              color={focused ? '#000000' : '#b2bec3'}
+              color={focused ? colors.ink : colors.disabled}
             />
           ),
         }}
@@ -44,7 +45,7 @@ function TopTab() {
             <MaterialCommunityIcons
               size={25}
               name="silverware-fork-knife"
-              color={focused ? '#000000' : '#b2bec3'}
+              color={focused ? colors.ink : colors.disabled}
             />
           ),
         }}
@@ -58,7 +59,7 @@ function TopTab() {
             <MaterialCommunityIcons
               size={25}
               name="pill"
-              color={focused ? '#000000' : '#b2bec3'}
+              color={focused ? colors.ink : colors.disabled}
             />
           ),
         }}
@@ -72,7 +73,7 @@ function TopTab() {
             <MaterialCommunityIcons
               size={25}
               name="account-question"
-              color={focused ? '#000000' : '#b2bec3'}
+              color={focused ? colors.ink : colors.disabled}
             />
           ),
         }}

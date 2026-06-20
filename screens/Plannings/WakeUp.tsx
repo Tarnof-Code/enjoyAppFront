@@ -12,6 +12,7 @@ dayjs.locale('fr');
 
 import DropdownDates from '../../Components/DropdownDates';
 import type { GoogleSheetsValuesResponse } from '../../types/sheets';
+import { colors, fonts, gradients } from '../../config/theme';
 
 interface WakeUpRow {
   date: string;
@@ -82,7 +83,7 @@ export default function WakeUp() {
   const filteredList = (filter ?? []).map((e, i) => (
     <ListItem key={i} bottomDivider>
       <ListItem.Content style={{ alignItems: 'center', marginBottom: 20 }}>
-        <LinearGradient colors={['#f7f1e3', '#dff9fb']} style={styles.card}>
+        <LinearGradient colors={gradients.calm} style={styles.card}>
           <ListItem.Title style={styles.hour}>8H15</ListItem.Title>
           <ListItem.Title style={styles.title}>Couloir A</ListItem.Title>
           <ListItem.Subtitle style={styles.subTitle}>{e.couloirA}</ListItem.Subtitle>
@@ -92,7 +93,7 @@ export default function WakeUp() {
           <ListItem.Subtitle style={styles.subTitle}>{e.etageCouloirB}</ListItem.Subtitle>
         </LinearGradient>
 
-        <LinearGradient colors={['#f7f1e3', '#ffcccc']} style={styles.card}>
+        <LinearGradient colors={gradients.alert} style={styles.card}>
           <ListItem.Title style={styles.hour}>8H30</ListItem.Title>
           <ListItem.Title style={styles.title}>Salle de réveil A</ListItem.Title>
           <ListItem.Subtitle style={styles.subTitle}>{e.salleReveilA}</ListItem.Subtitle>
@@ -139,7 +140,7 @@ const styles = StyleSheet.create({
     borderRadius: 100,
   },
   title: {
-    color: 'blue',
+    color: colors.info,
     fontSize: 18,
     marginTop: 10,
   },
@@ -147,9 +148,9 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   hour: {
-    color: 'red',
+    color: colors.highlight,
     fontSize: 25,
-    fontFamily: 'DancingScript_400Regular',
+    fontFamily: fonts.script,
   },
   card: {
     borderRadius: 30,

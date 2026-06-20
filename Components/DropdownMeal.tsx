@@ -3,6 +3,8 @@ import { StyleSheet, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { AntDesign } from '@expo/vector-icons';
 
+import { colors } from '../config/theme';
+
 const data = [
   { label: 'Tout', value: 'Tout' },
   { label: 'Sans porc', value: 'Sans porc' },
@@ -21,7 +23,7 @@ const DropdownMeal = ({ mealSelectedParent }: DropdownMealProps) => {
   return (
     <View style={styles.container}>
       <Dropdown
-        style={[styles.dropdown, isFocus && { borderColor: 'blue' }]}
+        style={[styles.dropdown, isFocus && { borderColor: colors.focus }]}
         placeholderStyle={styles.placeholderStyle}
         selectedTextStyle={styles.selectedTextStyle}
         inputSearchStyle={styles.inputSearchStyle}
@@ -43,7 +45,7 @@ const DropdownMeal = ({ mealSelectedParent }: DropdownMealProps) => {
         renderLeftIcon={() => (
           <AntDesign
             style={styles.icon}
-            color={isFocus ? 'blue' : 'black'}
+            color={isFocus ? colors.focus : colors.ink}
             name="safety"
             size={20}
           />
@@ -57,12 +59,12 @@ export default DropdownMeal;
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'white',
+    backgroundColor: colors.surface,
     paddingHorizontal: 10,
   },
   dropdown: {
     height: 50,
-    borderColor: 'gray',
+    borderColor: colors.inputBorder,
     borderWidth: 0.5,
     borderRadius: 8,
     paddingHorizontal: 8,

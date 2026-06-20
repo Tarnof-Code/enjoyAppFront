@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
+
+import { colors } from '../config/theme';
 import { AntDesign } from '@expo/vector-icons';
 
 const data = [
@@ -20,7 +22,7 @@ const DropdownGroup = ({ groupSelectedParent }: DropdownGroupProps) => {
   return (
     <View style={styles.container}>
       <Dropdown
-        style={[styles.dropdown, isFocus && { borderColor: 'blue' }]}
+        style={[styles.dropdown, isFocus && { borderColor: colors.focus }]}
         placeholderStyle={styles.placeholderStyle}
         selectedTextStyle={styles.selectedTextStyle}
         inputSearchStyle={styles.inputSearchStyle}
@@ -42,7 +44,7 @@ const DropdownGroup = ({ groupSelectedParent }: DropdownGroupProps) => {
         renderLeftIcon={() => (
           <AntDesign
             style={styles.icon}
-            color={isFocus ? 'blue' : 'black'}
+            color={isFocus ? colors.focus : colors.ink}
             name="safety"
             size={20}
           />
@@ -56,12 +58,12 @@ export default DropdownGroup;
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'white',
+    backgroundColor: colors.surface,
     padding: 10,
   },
   dropdown: {
     height: 50,
-    borderColor: 'gray',
+    borderColor: colors.inputBorder,
     borderWidth: 0.5,
     borderRadius: 8,
     paddingHorizontal: 8,

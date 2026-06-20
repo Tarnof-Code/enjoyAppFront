@@ -2,10 +2,12 @@ import React from 'react';
 
 import { StyleSheet, Text, View } from 'react-native';
 
+import { colors } from '../../config/theme';
+
 export default function Regulations() {
   return (
     <View style={styles.container}>
-      <Text style={{ fontSize: 30, color: 'white' }}>Réglementation</Text>
+      <Text style={styles.title}>Réglementation</Text>
     </View>
   );
 }
@@ -13,8 +15,12 @@ export default function Regulations() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#4b6584',
+    backgroundColor: colors.slate,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  title: {
+    fontSize: 30,
+    color: colors.surface,
   },
 });

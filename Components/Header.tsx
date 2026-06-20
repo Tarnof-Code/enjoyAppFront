@@ -12,6 +12,7 @@ import { FontAwesome5 } from '@expo/vector-icons';
 import { useFonts, DancingScript_400Regular } from '@expo-google-fonts/dancing-script';
 
 import { useAppSelector } from '../store/hooks';
+import { colors, fonts } from '../config/theme';
 
 interface HeaderProps {
   iconName: keyof typeof FontAwesome5.glyphMap;
@@ -70,7 +71,7 @@ function Header({ iconName, title }: HeaderProps) {
     <View style={styles.container}>
       <View style={styles.alignElements}>
         <View style={styles.iconContainer}>
-          <FontAwesome5 style={styles.icon} name={iconName} size={27} color="#000000" />
+          <FontAwesome5 style={styles.icon} name={iconName} size={27} color={colors.ink} />
         </View>
         <View style={styles.textContainer}>
           <Text style={styles.title}>{title}</Text>
@@ -90,7 +91,7 @@ function Header({ iconName, title }: HeaderProps) {
 const styles = StyleSheet.create({
   container: {
     height: 120,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.surface,
     justifyContent: 'flex-end',
   },
   icon: {
@@ -102,7 +103,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontFamily: 'DancingScript_400Regular',
+    fontFamily: fonts.script,
     fontSize: 30,
     marginBottom: 9,
   },

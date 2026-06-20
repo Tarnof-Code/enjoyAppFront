@@ -10,6 +10,7 @@ dayjs.locale('fr');
 import DropdownDates from '../../Components/DropdownDates';
 import type { ImageSourcePropType } from 'react-native';
 import type { GoogleSheetsValuesResponse } from '../../types/sheets';
+import { colors } from '../../config/theme';
 
 interface EveningActivityRow {
   date: string;
@@ -107,7 +108,7 @@ export default function EveningActivities() {
     <ListItem key={i} style={{ marginTop: 20 }}>
       <Avatar rounded avatarStyle={styles.avatar} source={e.photo} />
       <ListItem.Content>
-        <ListItem.Title style={{ color: 'blue' }}>{e.veillee}</ListItem.Title>
+        <ListItem.Title style={{ color: colors.info }}>{e.veillee}</ListItem.Title>
       </ListItem.Content>
     </ListItem>
   ));
@@ -131,7 +132,7 @@ export default function EveningActivities() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.surface,
   },
   loadingText: {
     fontStyle: 'italic',

@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { CheckBox } from '@rneui/themed';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { colors } from '../config/theme';
+
 export default function CheckList() {
   const [checked1, setChecked1] = useState(false);
   const [checked2, setChecked2] = useState(false);
@@ -16,7 +18,7 @@ export default function CheckList() {
       <CheckBox
         checked={checked1}
         title="Téléphone chargé"
-        checkedColor="#F94A56"
+        checkedColor={colors.danger}
         onPress={() => {
           setChecked1(!checked1);
         }}
@@ -24,7 +26,7 @@ export default function CheckList() {
       <CheckBox
         checked={checked2}
         title="Fiches sanitaires"
-        checkedColor="#F94A56"
+        checkedColor={colors.danger}
         onPress={() => {
           setChecked2(!checked2);
         }}
@@ -32,7 +34,7 @@ export default function CheckList() {
       <CheckBox
         checked={checked3}
         title="Trousse à pharmacie"
-        checkedColor="#F94A56"
+        checkedColor={colors.danger}
         onPress={() => {
           setChecked3(!checked3);
         }}
@@ -40,7 +42,7 @@ export default function CheckList() {
       <CheckBox
         checked={checked4}
         title="Traitements"
-        checkedColor="#F94A56"
+        checkedColor={colors.danger}
         onPress={() => {
           setChecked4(!checked4);
         }}
@@ -48,7 +50,7 @@ export default function CheckList() {
       <CheckBox
         checked={checked5}
         title="Eau"
-        checkedColor="#F94A56"
+        checkedColor={colors.danger}
         onPress={() => {
           setChecked5(!checked5);
         }}
@@ -56,7 +58,7 @@ export default function CheckList() {
       <CheckBox
         checked={checked6}
         title="Crème solaire"
-        checkedColor="#F94A56"
+        checkedColor={colors.danger}
         onPress={() => {
           setChecked6(!checked6);
         }}
@@ -64,7 +66,7 @@ export default function CheckList() {
       <CheckBox
         checked={checked7}
         title="Pique-niques"
-        checkedColor="#F94A56"
+        checkedColor={colors.danger}
         onPress={() => {
           setChecked7(!checked7);
         }}

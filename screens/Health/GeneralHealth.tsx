@@ -6,6 +6,7 @@ import { GOOGLE_API_KEY } from '../../config/api';
 
 import DropdownAllGroup from '../../Components/DropdownAllGroup';
 import type { GoogleSheetsValuesResponse, HealthSheetRow } from '../../types/sheets';
+import { colors } from '../../config/theme';
 
 export default function GeneralHealth() {
   const [data, setData] = useState<HealthSheetRow[]>([]);
@@ -74,8 +75,8 @@ export default function GeneralHealth() {
     <ListItem key={i} bottomDivider>
       <Avatar source={e.imageSrc} />
       <ListItem.Content>
-        <ListItem.Title style={{ color: 'blue' }}>{e.name}</ListItem.Title>
-        <ListItem.Title style={{ color: 'green' }}>{e.general}</ListItem.Title>
+        <ListItem.Title style={{ color: colors.info }}>{e.name}</ListItem.Title>
+        <ListItem.Title style={{ color: colors.success }}>{e.general}</ListItem.Title>
       </ListItem.Content>
     </ListItem>
   ));

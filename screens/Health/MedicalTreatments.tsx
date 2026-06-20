@@ -6,6 +6,7 @@ import { GOOGLE_API_KEY } from '../../config/api';
 
 import DropdownTreatment from '../../Components/DropdownTreatment';
 import type { GoogleSheetsValuesResponse, HealthSheetRow } from '../../types/sheets';
+import { colors } from '../../config/theme';
 
 export default function Treatment() {
   const [data, setData] = useState<HealthSheetRow[]>([]);
@@ -149,15 +150,15 @@ const styles = StyleSheet.create({
     marginBottom: 3,
   },
   morning: {
-    color: 'blue',
+    color: colors.info,
     marginVertical: 4,
   },
   midday: {
-    color: 'green',
+    color: colors.success,
     marginVertical: 4,
   },
   evening: {
-    color: 'purple',
+    color: colors.accent,
     marginVertical: 4,
   },
 });

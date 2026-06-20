@@ -23,6 +23,7 @@ import { accountService } from '../../services/account.service';
 import { useAppDispatch } from '../../store/hooks';
 import { setName as setAnimName } from '../../store/animNameSlice';
 import { setUserFromProfil } from '../../store/authSlice';
+import { colors, fonts } from '../../config/theme';
 
 type LoginScreenProps = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
@@ -94,10 +95,10 @@ function Login({ navigation }: LoginScreenProps) {
         {error ? <Text style={styles.error}>{error}</Text> : null}
 
         <View style={styles.inputContainer}>
-          <Ionicons name="mail-outline" color="#121851" size={26} />
+          <Ionicons name="mail-outline" color={colors.primary} size={26} />
           <TextInput
             placeholder="Email"
-            placeholderTextColor="#888"
+            placeholderTextColor={colors.placeholder}
             style={styles.input}
             value={email}
             onChangeText={setEmail}
@@ -110,10 +111,10 @@ function Login({ navigation }: LoginScreenProps) {
         </View>
 
         <View style={styles.inputContainer}>
-          <Ionicons name="lock-closed-outline" color="#121851" size={26} />
+          <Ionicons name="lock-closed-outline" color={colors.primary} size={26} />
           <TextInput
             placeholder="Mot de passe"
-            placeholderTextColor="#888"
+            placeholderTextColor={colors.placeholder}
             style={styles.input}
             value={password}
             onChangeText={setPassword}
@@ -130,7 +131,7 @@ function Login({ navigation }: LoginScreenProps) {
           >
             <Ionicons
               name={passwordVisible ? 'eye-off-outline' : 'eye-outline'}
-              color="#121851"
+              color={colors.primary}
               size={22}
             />
           </Pressable>
@@ -142,7 +143,7 @@ function Login({ navigation }: LoginScreenProps) {
           disabled={loading}
         >
           {loading ? (
-            <ActivityIndicator color="#ffffff" />
+            <ActivityIndicator color={colors.surface} />
           ) : (
             <Text style={styles.buttonText}>Se connecter</Text>
           )}
@@ -155,7 +156,7 @@ function Login({ navigation }: LoginScreenProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#121851',
+    backgroundColor: colors.primary,
   },
   scrollView: {
     flex: 1,
@@ -167,38 +168,38 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 100,
-    color: 'white',
-    fontFamily: 'DancingScript_400Regular',
+    color: colors.surface,
+    fontFamily: fonts.script,
     marginTop: 60,
     textAlign: 'center',
   },
   subTitle: {
     fontSize: 30,
-    color: 'white',
-    fontFamily: 'Roboto_400Regular',
+    color: colors.surface,
+    fontFamily: fonts.body,
     marginTop: 60,
     marginBottom: 30,
     textAlign: 'center',
   },
   error: {
-    color: '#ffb8b8',
-    fontFamily: 'PTSans_400Regular',
+    color: colors.dangerSoft,
+    fontFamily: fonts.sans,
     marginBottom: 12,
     paddingHorizontal: 24,
     textAlign: 'center',
   },
   input: {
     flex: 1,
-    fontFamily: 'PTSans_400Regular',
+    fontFamily: fonts.sans,
     paddingVertical: 10,
     paddingHorizontal: 8,
-    color: '#121851',
+    color: colors.primary,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'center',
-    backgroundColor: 'white',
+    backgroundColor: colors.surface,
     marginTop: 16,
     paddingLeft: 10,
     paddingRight: 12,
@@ -209,7 +210,7 @@ const styles = StyleSheet.create({
   },
   button: {
     borderRadius: 40,
-    backgroundColor: '#F94A56',
+    backgroundColor: colors.danger,
     width: 180,
     height: 50,
     marginTop: 40,
@@ -220,8 +221,8 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   buttonText: {
-    color: '#ffffff',
-    fontFamily: 'Roboto_400Regular',
+    color: colors.surface,
+    fontFamily: fonts.body,
     fontSize: 16,
     fontWeight: '600',
   },

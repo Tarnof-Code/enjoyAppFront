@@ -4,6 +4,7 @@ import { GOOGLE_API_KEY } from '../../config/api';
 import { StyleSheet, Text, View, ScrollView, type ImageSourcePropType } from 'react-native';
 
 import type { GoogleSheetsValuesResponse } from '../../types/sheets';
+import { colors } from '../../config/theme';
 
 interface HolidayItem {
   anim: string;
@@ -77,8 +78,8 @@ export default function Holidays() {
     <ListItem key={i}>
       <Avatar rounded source={e.imageSrc} size="medium" />
       <ListItem.Content>
-        <ListItem.Title style={{ color: 'blue' }}>{e.firstDay}</ListItem.Title>
-        <ListItem.Title style={{ color: 'green' }}>{e.secondDay}</ListItem.Title>
+        <ListItem.Title style={{ color: colors.info }}>{e.firstDay}</ListItem.Title>
+        <ListItem.Title style={{ color: colors.success }}>{e.secondDay}</ListItem.Title>
       </ListItem.Content>
     </ListItem>
   ));
@@ -105,7 +106,7 @@ const styles = StyleSheet.create({
   room: {
     fontWeight: '400',
     fontSize: 20,
-    color: '#121851',
+    color: colors.primary,
   },
   loadingText: {
     fontStyle: 'italic',

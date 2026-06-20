@@ -11,6 +11,7 @@ import EveningActivities from '../screens/Activities/EveningActivities';
 import Trips from '../screens/Activities/Trips';
 import Header from '../Components/Header';
 import type { ActivitiesTabParamList } from './types';
+import { colors } from '../config/theme';
 
 const Tab = createMaterialTopTabNavigator<ActivitiesTabParamList>();
 
@@ -19,7 +20,7 @@ function TopTab() {
     <Tab.Navigator
       initialRouteName="DaytimeActivities"
       screenOptions={{
-        tabBarActiveTintColor: '#000000',
+        tabBarActiveTintColor: colors.ink,
       }}
     >
       <Tab.Screen
@@ -30,7 +31,7 @@ function TopTab() {
             <MaterialIcons
               size={25}
               name="sports-kabaddi"
-              color={focused ? '#000000' : '#b2bec3'}
+              color={focused ? colors.ink : colors.disabled}
             />
           ),
         }}
@@ -44,7 +45,7 @@ function TopTab() {
             <Ionicons
               size={25}
               name="moon"
-              color={focused ? '#000000' : '#b2bec3'}
+              color={focused ? colors.ink : colors.disabled}
             />
           ),
         }}
@@ -58,7 +59,7 @@ function TopTab() {
             <MaterialCommunityIcons
               size={25}
               name="bus"
-              color={focused ? '#000000' : '#b2bec3'}
+              color={focused ? colors.ink : colors.disabled}
             />
           ),
         }}

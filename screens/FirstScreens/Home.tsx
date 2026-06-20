@@ -32,6 +32,7 @@ import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { setName as setAnimName } from '../../store/animNameSlice';
 import { clearUser } from '../../store/authSlice';
 import { clearSejour, setSejourCourant, setSejoursDisponibles } from '../../store/sejourSlice';
+import { colors, fonts, fontSizes, radius, spacing } from '../../config/theme';
 
 dayjs.locale('fr');
 
@@ -157,7 +158,7 @@ function Home() {
   if (!fontsLoaded || loading) {
     return (
       <View style={styles.loadingBox}>
-        <ActivityIndicator size="large" color="#121851" />
+        <ActivityIndicator size="large" color={colors.primary} />
         <Text style={styles.loadingText}>Chargement…</Text>
       </View>
     );
@@ -183,7 +184,7 @@ function Home() {
                   </Text>
                 ) : null}
                 {plusieursSejours ? (
-                  <Ionicons name="chevron-down" size={16} color="#121851" style={styles.sejourChevron} />
+                  <Ionicons name="chevron-down" size={16} color={colors.primary} style={styles.sejourChevron} />
                 ) : null}
               </View>
               {periodeSejour ? <Text style={styles.sejourPeriode}>{periodeSejour}</Text> : null}
@@ -192,7 +193,7 @@ function Home() {
             <View style={styles.sejourInfo} />
           )}
           <Pressable onPress={() => void handleLogout()} hitSlop={12} accessibilityLabel="Se déconnecter">
-            <Ionicons name="log-out-outline" size={26} color="#636e72" />
+            <Ionicons name="log-out-outline" size={26} color={colors.muted} />
           </Pressable>
         </View>
 
@@ -225,9 +226,9 @@ function Home() {
                         <Text style={styles.sejourOptionPeriode}>{formatPeriodeSejour(item)}</Text>
                       </View>
                       {sejourEnCoursId === item.id ? (
-                        <ActivityIndicator color="#121851" />
+                        <ActivityIndicator color={colors.primary} />
                       ) : actif ? (
-                        <Ionicons name="checkmark" size={20} color="#121851" />
+                        <Ionicons name="checkmark" size={20} color={colors.primary} />
                       ) : null}
                     </Pressable>
                   );
@@ -275,11 +276,11 @@ function Home() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f1f2f6',
+    backgroundColor: colors.background,
   },
   titleBox: {
-    marginLeft: 20,
-    marginRight: 20,
+    marginLeft: spacing.xl,
+    marginRight: spacing.xl,
     marginTop: 50,
   },
   titleRow: {
@@ -288,13 +289,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   title: {
-    fontFamily: 'DancingScript_400Regular',
-    fontSize: 40,
-    color: '#000000',
+    fontFamily: fonts.script,
+    fontSize: fontSizes.display,
+    color: colors.ink,
   },
   sejourInfo: {
     flex: 1,
-    marginHorizontal: 12,
+    marginHorizontal: spacing.md,
     alignItems: 'center',
   },
   sejourNomRow: {
@@ -302,112 +303,112 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   sejourNom: {
-    fontFamily: 'Roboto_400Regular',
-    fontSize: 16,
+    fontFamily: fonts.body,
+    fontSize: fontSizes.md,
     fontWeight: '600',
-    color: '#121851',
+    color: colors.primary,
     flexShrink: 1,
   },
   sejourChevron: {
-    marginLeft: 4,
+    marginLeft: spacing.xs,
   },
   sejourPeriode: {
-    fontFamily: 'Roboto_400Regular',
-    fontSize: 13,
-    color: '#636e72',
+    fontFamily: fonts.body,
+    fontSize: fontSizes.xs,
+    color: colors.muted,
     marginTop: 2,
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    backgroundColor: colors.overlay,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 24,
+    padding: spacing.xxl,
   },
   modalCard: {
     width: '100%',
     maxHeight: '70%',
-    backgroundColor: '#ffffff',
-    borderRadius: 20,
-    padding: 20,
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    padding: spacing.xl,
   },
   modalTitle: {
-    fontFamily: 'Roboto_400Regular',
-    fontSize: 18,
+    fontFamily: fonts.body,
+    fontSize: fontSizes.lg,
     fontWeight: '700',
-    color: '#121851',
-    marginBottom: 12,
+    color: colors.primary,
+    marginBottom: spacing.md,
   },
   sejourOption: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingVertical: 14,
-    paddingHorizontal: 12,
-    borderRadius: 12,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.sm,
     borderWidth: 1,
-    borderColor: '#dfe6e9',
+    borderColor: colors.border,
     marginBottom: 10,
   },
   sejourOptionActif: {
-    borderColor: '#121851',
-    backgroundColor: '#f0f1fb',
+    borderColor: colors.primary,
+    backgroundColor: colors.primarySoft,
   },
   sejourOptionPressed: {
     opacity: 0.85,
   },
   sejourOptionTexte: {
     flex: 1,
-    marginRight: 12,
+    marginRight: spacing.md,
   },
   sejourOptionNom: {
-    fontFamily: 'Roboto_400Regular',
-    fontSize: 16,
+    fontFamily: fonts.body,
+    fontSize: fontSizes.md,
     fontWeight: '600',
-    color: '#121851',
+    color: colors.primary,
   },
   sejourOptionPeriode: {
-    fontFamily: 'Roboto_400Regular',
-    fontSize: 13,
-    color: '#636e72',
-    marginTop: 4,
+    fontFamily: fonts.body,
+    fontSize: fontSizes.xs,
+    color: colors.muted,
+    marginTop: spacing.xs,
   },
   welcomeBox: {
     marginLeft: 30,
-    marginTop: 20,
+    marginTop: spacing.xl,
     flexDirection: 'row',
     alignItems: 'center',
   },
   image: {
     width: 70,
     height: 70,
-    borderRadius: 35,
+    borderRadius: radius.full,
   },
   initialsCircle: {
     width: 70,
     height: 70,
-    borderRadius: 35,
-    backgroundColor: '#121851',
+    borderRadius: radius.full,
+    backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
   initialsText: {
-    color: '#ffffff',
-    fontSize: 22,
+    color: colors.surface,
+    fontSize: fontSizes.xxl,
     fontWeight: '700',
   },
   welcomeMsg: {
-    fontFamily: 'Roboto_400Regular',
-    fontSize: 20,
-    marginLeft: 20,
-    color: '#000000',
+    fontFamily: fonts.body,
+    fontSize: fontSizes.xl,
+    marginLeft: spacing.xl,
+    color: colors.ink,
   },
   date: {
     textAlign: 'center',
     fontWeight: '900',
-    fontSize: 18,
-    marginTop: 20,
-    color: '#000000',
+    fontSize: fontSizes.lg,
+    marginTop: spacing.xl,
+    color: colors.ink,
   },
   reportOuter: {
     alignItems: 'center',
@@ -416,51 +417,51 @@ const styles = StyleSheet.create({
   },
   reportBox: {
     borderWidth: 1,
-    borderColor: 'black',
+    borderColor: colors.ink,
     minHeight: '65%',
     maxHeight: '75%',
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.surface,
     width: '80%',
-    padding: 20,
-    borderRadius: 40,
+    padding: spacing.xl,
+    borderRadius: radius.lg,
   },
   crTitle: {
-    fontFamily: 'Roboto_400Regular',
+    fontFamily: fonts.body,
     fontWeight: '700',
     fontSize: 15,
-    marginBottom: 12,
-    color: '#121851',
+    marginBottom: spacing.md,
+    color: colors.primary,
     textAlign: 'center',
   },
   crScroll: {
     flex: 1,
   },
   loadingText: {
-    marginTop: 12,
+    marginTop: spacing.md,
     fontStyle: 'italic',
-    fontSize: 16,
+    fontSize: fontSizes.md,
   },
   loadingBox: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f1f2f6',
+    backgroundColor: colors.background,
   },
   text: {
-    fontSize: 14,
+    fontSize: fontSizes.sm,
     lineHeight: 22,
-    color: '#2d3436',
+    color: colors.text,
   },
   emptyCr: {
-    fontSize: 14,
+    fontSize: fontSizes.sm,
     fontStyle: 'italic',
-    color: '#636e72',
+    color: colors.muted,
     textAlign: 'center',
-    marginTop: 16,
+    marginTop: spacing.lg,
   },
   error: {
-    color: '#F94A56',
-    fontSize: 14,
+    color: colors.danger,
+    fontSize: fontSizes.sm,
     textAlign: 'center',
   },
 });
