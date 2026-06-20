@@ -223,6 +223,59 @@ export interface PlanningGrilleDetailDto {
   lignes: PlanningLigneDto[];
 }
 
+export interface TypeActiviteDto {
+  id: number;
+  libelle: string;
+  predefini: boolean;
+  sejourId: number;
+}
+
+export interface ActiviteMembreEquipeInfo {
+  tokenId: string;
+  nom: string;
+  prenom: string;
+}
+
+export interface EnfantParticipantInfo {
+  id: number;
+  nom: string;
+  prenom: string;
+}
+
+export interface ActiviteDto {
+  id: number;
+  date: string;
+  nom: string;
+  description: string | null;
+  sejourId: number;
+  moment: MomentDto;
+  typeActivite: TypeActiviteDto;
+  membres: ActiviteMembreEquipeInfo[];
+  groupeIds: number[];
+  lieu: LieuDto | null;
+  avertissementLieu?: string | null;
+  enfants?: EnfantParticipantInfo[];
+}
+
+export interface NonParticipationPrestataireDto {
+  tokenId: string;
+  momentId: number;
+}
+
+export interface ActivitePrestataireDto {
+  id: number;
+  nom: string;
+  date: string | readonly number[];
+  moments: MomentDto[];
+  sejourId: number;
+  heureDepart: string | null;
+  heureRetour: string | null;
+  informations: string | null;
+  telephone: string | null;
+  groupeIds: number[];
+  nonParticipations: NonParticipationPrestataireDto[];
+}
+
 export type TypeRepas = 'PETIT_DEJEUNER' | 'DEJEUNER' | 'GOUTER' | 'DINER';
 
 export interface MenuRepasDto {

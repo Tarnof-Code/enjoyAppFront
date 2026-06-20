@@ -23,9 +23,8 @@ export type ListsTabParamList = {
 };
 
 export type ActivitiesTabParamList = {
-  DaytimeActivities: undefined;
-  EveningActivities: undefined;
-  Trips: undefined;
+  Activites: undefined;
+  Sorties: undefined;
 };
 
 export type HealthTabParamList = {

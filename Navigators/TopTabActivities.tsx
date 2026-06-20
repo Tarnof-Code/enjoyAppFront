@@ -3,12 +3,10 @@ import { createMaterialTopTabNavigator } from '@react-navigation/material-top-ta
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { Ionicons } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons';
 
-import DaytimeActivities from '../screens/Activities/DaytimeActivities';
-import EveningActivities from '../screens/Activities/EveningActivities';
-import Trips from '../screens/Activities/Trips';
+import Activites from '../screens/Activities/Activites';
+import Sorties from '../screens/Activities/Sorties';
 import Header from '../Components/Header';
 import type { ActivitiesTabParamList } from './types';
 import { colors } from '../config/theme';
@@ -18,19 +16,19 @@ const Tab = createMaterialTopTabNavigator<ActivitiesTabParamList>();
 function TopTab() {
   return (
     <Tab.Navigator
-      initialRouteName="DaytimeActivities"
+      initialRouteName="Activites"
       screenOptions={{
         tabBarActiveTintColor: colors.ink,
       }}
     >
       <Tab.Screen
-        name="DaytimeActivities"
-        component={DaytimeActivities}
+        name="Activites"
+        component={Activites}
         options={{
           tabBarLabel: ({ focused }) => (
             <MaterialIcons
               size={25}
-              name="sports-kabaddi"
+              name="local-activity"
               color={focused ? colors.ink : colors.disabled}
             />
           ),
@@ -38,22 +36,8 @@ function TopTab() {
       />
 
       <Tab.Screen
-        name="EveningActivities"
-        component={EveningActivities}
-        options={{
-          tabBarLabel: ({ focused }) => (
-            <Ionicons
-              size={25}
-              name="moon"
-              color={focused ? colors.ink : colors.disabled}
-            />
-          ),
-        }}
-      />
-
-      <Tab.Screen
-        name="Trips"
-        component={Trips}
+        name="Sorties"
+        component={Sorties}
         options={{
           tabBarLabel: ({ focused }) => (
             <MaterialCommunityIcons
