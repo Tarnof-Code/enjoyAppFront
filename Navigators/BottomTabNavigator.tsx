@@ -25,7 +25,6 @@ import TopTabActivities from './TopTabActivities';
 import TopTabPlannings from './TopTabPlannings';
 import TopTabLists from './TopTabLists';
 import TopTabHealth from './TopTabHealth';
-import TopTabInfos from './TopTabInfos';
 import type { BottomTabParamList, RootStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -50,8 +49,6 @@ function BottomTab() {
             iconName = 'dice';
           } else if (route.name === 'Sanitaire') {
             iconName = 'notes-medical';
-          } else if (route.name === 'Infos utiles') {
-            iconName = 'info-circle';
           } else if (route.name === 'Home') {
             iconName = 'home';
           }
@@ -64,7 +61,6 @@ function BottomTab() {
       <Tab.Screen name="Plannings" component={TopTabPlannings} />
       <Tab.Screen name="Activités" component={TopTabActivities} />
       <Tab.Screen name="Sanitaire" component={TopTabHealth} />
-      <Tab.Screen name="Infos utiles" component={TopTabInfos} />
     </Tab.Navigator>
   );
 }

@@ -12,7 +12,6 @@ export type BottomTabParamList = {
   Plannings: undefined;
   'Activités': undefined;
   Sanitaire: undefined;
-  'Infos utiles': undefined;
 };
 
 export type ListsTabParamList = {
@@ -43,12 +42,6 @@ export type HealthTabParamList = {
   EatingHealth: undefined;
   MedicalTreatments: undefined;
   WhatToDoIf: undefined;
-};
-
-export type InfosTabParamList = {
-  UsefulNumbers: undefined;
-  Regulations: undefined;
-  Weather: undefined;
 };
 
 declare global {
