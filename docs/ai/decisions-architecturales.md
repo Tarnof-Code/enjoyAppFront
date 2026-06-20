@@ -9,6 +9,13 @@ Patterns et choix techniques de l’app mobile. Garder ce fichier comme référe
 - **React 19 Compiler** : éviter `useMemo` / `useCallback` manuels sauf nécessité mesurée.
 - **Principes de code** (`.cursor/rules/20-simplicite-code.mdc`) : KISS/DRY/YAGNI + SRP, séparation des préoccupations (`screens/` UI, `services/` API, `helpers/` logique pure), composition, fail fast ; pas de sur-ingénierie.
 
+## Thème & styles
+
+- **Tokens centralisés** : `config/theme.ts` exporte `colors`, `gradients`, `fonts`, `spacing`, `radius`, `fontSizes` (et l'objet agrégé `theme`), tous `as const`.
+- Composants et écrans importent ces tokens au lieu de valeurs en dur (couleurs hex, noms de polices, marges). Ajouter ou modifier une valeur de design ici, pas dans chaque `StyleSheet`.
+- **Zéro couleur en dur** dans les `.tsx` : toute couleur (y compris les couleurs nommées CSS) passe par un token sémantique (`primary`, `danger`, `info`, `success`, `accent`, `focus`, `link`, `tempCold`/`tempHot`, `highlight`, `inputBorder`, etc.).
+- **Source de vérité = app web** : la palette de `config/theme.ts` mirroite `enjoyWebApp/src/_variables.scss` pour une cohérence inter-apps. Marque (`primary #383CA7`, `primaryDark #333796`, `danger #f94a56`, `success #00b894`) + palette sémantique d'actions (`actionAdd/Edit/Delete/Warning/Secondary/Info` et `*Hover`) reprises du web. Les tokens propres à des composants web (overrides `.btn-*`, accordéon) ne sont pas portés (pas d'équivalent RN).
+
 ## Navigation (React Navigation 7)
 
 - Racine `App.tsx` : `Provider` Redux + `GestureHandlerRootView` + `SafeAreaProvider` + `ThemeProvider` (RNEUI).
