@@ -132,3 +132,29 @@ export interface GroupeDto {
   enfants: EnfantDto[];
   referents: ReferentInfos[];
 }
+
+export type ReferenceAlimentaireType = 'ALLERGENE' | 'REGIME_PREFERENCE';
+
+export interface ReferenceAlimentaireDto {
+  id: number;
+  type: ReferenceAlimentaireType;
+  libelle: string;
+  ordre: number;
+  actif: boolean;
+}
+
+export type TypeRepas = 'PETIT_DEJEUNER' | 'DEJEUNER' | 'GOUTER' | 'DINER';
+
+export interface MenuRepasDto {
+  id: number;
+  sejourId?: number;
+  dateRepas: string;
+  typeRepas: TypeRepas;
+  detailPetitDejeunerOuGouter: string | null;
+  entree: string | null;
+  plat: string | null;
+  fromageOuEntremet: string | null;
+  dessert: string | null;
+  allergenes?: ReferenceAlimentaireDto[];
+  regimesEtPreferences?: ReferenceAlimentaireDto[];
+}
