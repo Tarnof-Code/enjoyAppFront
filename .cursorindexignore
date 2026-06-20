@@ -1,0 +1,60 @@
+# Dépendances et stores
+node_modules/
+.pnp
+.pnp.js
+
+# Builds Expo / RN, caches et sorties
+dist/
+build/
+web-build/
+.expo/
+.expo-shared/
+android/
+ios/
+.cache/
+.turbo/
+coverage/
+.nyc_output/
+*.tsbuildinfo
+
+# Logs et diagnostics
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+*.stackdump
+
+# VCS, IDE, OS
+.git/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Médias, archives et binaires
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+*.svg
+*.ico
+*.pdf
+*.woff
+*.woff2
+*.ttf
+*.eot
+*.otf
+*.mp4
+*.mov
+*.avi
+*.zip
+*.tar.gz
+
+# Lockfiles et sauvegardes
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+*.backup

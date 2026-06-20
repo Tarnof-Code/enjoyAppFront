@@ -13,10 +13,15 @@ web-build/
 # macOS
 .DS_Store
 
-# Cursor
-.cursor/
+# Cursor (plans de travail non versionnés)
+.cursor/plans/
 
 # Variables d'environnement
 .env
 .env.local
 .env.*.local
+
+# Fichiers Markdown (tous les fichiers .md)
+*.md
+!AI_MEMORY.md
+!docs/ai/*.md

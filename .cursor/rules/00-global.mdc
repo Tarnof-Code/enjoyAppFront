@@ -1,0 +1,14 @@
+---
+description: Règles globales minimales Enjoy Mobile.
+alwaysApply: true
+---
+
+# Règles Globales
+- Répondre en français ; pour les messages de commit, suivre `.cursor/rules/commit-messages-fr.mdc` (français, une phrase).
+- Expo SDK 54 / React Native 0.81 / React 19 / TypeScript. Paquets via `npm` avec `legacy-peer-deps=true` (`.npmrc`) — pas de `pnpm`/`yarn`. Respecter `tsconfig.json` et les patterns existants.
+- React 19 Compiler : éviter `useMemo` / `useCallback` manuels sauf besoin mesuré ou exception locale existante.
+- API / types : centraliser les appels dans `services/` (client `services/httpClient.ts`), gérer les erreurs via `helpers/axiosError.ts`, utiliser `types/api.d.ts`. Référencer les utilisateurs par `tokenId`, jamais par id SQL.
+- Auth : access token en `expo-secure-store` (jamais en clair) ; refresh via intercepteur single-flight (`httpClient.ts`) ; 401 → refresh puis rejeu, sinon retour `Login`.
+- Ne jamais lire ni exposer `.env*`, secrets, clés, keystores, `google-services.json`, `GoogleService-Info.plist` ou données sensibles.
+- Périmètre d'exploration : si des fichiers sont ouverts, déduire le dossier racine concerné (`screens/`, `Navigators/`, `Components/`, `services/`, `store/`, `helpers/`, `config/`, `types/`) et limiter lectures/recherches à ce périmètre + sa fiche `docs/ai/`; demander confirmation avant d'explorer ailleurs.
+- Pour une question ciblée, lire directement le fichier concerné ; élargir à `AI_MEMORY.md` ou `docs/ai/` seulement sur demande explicite ou tâche transverse multi-modules.

@@ -1,0 +1,20 @@
+# Accès IA totalement bloqué : secrets et données sensibles uniquement.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p8
+*.p12
+*.crt
+*.jks
+*.mobileprovision
+*.keystore
+google-services.json
+GoogleService-Info.plist
+*.sqlite
+*.sqlite3
+*.db
+*.dump
+*.sql
+*.bak

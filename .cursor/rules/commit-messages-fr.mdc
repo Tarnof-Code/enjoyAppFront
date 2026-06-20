@@ -1,0 +1,47 @@
+---
+description: OBLIGATOIRE — commits en français, une phrase
+alwaysApply: true
+---
+
+# Messages de commit (OBLIGATOIRE)
+
+**Langue : français uniquement. Ne jamais rédiger en anglais.**
+
+> **Bouton ✨ Source Control** : les règles `.mdc` ne suffisent pas. Voir [`.cursorrules`](../.cursorrules) à la racine du repo.
+
+S’applique à :
+- tout `git commit` exécuté par l’agent ;
+- tout message de commit proposé ou généré pour l’utilisateur (panneau Source Control, bouton de génération, etc.).
+
+## Format
+
+- **Une seule phrase synthétique** — une ligne, pas de titre/corps, pas de listes, pas de point final.
+- Verbe d’action : corriger, renommer, migrer, ajouter, typer…
+- Décrire le **résultat** ou l’**intention**, pas les noms de fichiers un par un.
+- Pas de préfixe Conventional Commits (`fix:`, `feat:`, `refactor:`) sauf demande explicite.
+
+## Exemples valides
+
+```
+Renommer les exports des écrans WakeUp, EatingHealth, Animators et Bedrooms
+```
+
+```
+Corriger l’affichage vide de l’écran Traitements au chargement
+```
+
+## Interdit
+
+```
+Refactor component names for clarity: updated EatingHealth...
+```
+
+```
+fix: rename exports in screens
+```
+
+```
+Fixed bugs in screens
+```
+
+Si le diff concerne plusieurs fichiers, **résumer en une phrase** en français, pas traduire mot à mot depuis l’anglais.
