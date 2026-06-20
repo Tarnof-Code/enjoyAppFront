@@ -276,6 +276,34 @@ export interface ActivitePrestataireDto {
   nonParticipations: NonParticipationPrestataireDto[];
 }
 
+export interface DossierEnfantDto {
+  id: number;
+  enfantId: number;
+  emailParent1: string | null;
+  telephoneParent1: string | null;
+  emailParent2: string | null;
+  telephoneParent2: string | null;
+  informationsMedicales: string | null;
+  pai: string | null;
+  allergenes: ReferenceAlimentaireDto[];
+  regimesEtPreferences: ReferenceAlimentaireDto[];
+  informationsAlimentaires: string | null;
+  traitementMatin: string | null;
+  traitementMidi: string | null;
+  traitementSoir: string | null;
+  traitementSiBesoin: string | null;
+  autresInformations: string | null;
+  aPrendreEnSortie: string | null;
+}
+
+export interface EnfantDossierSanitaireLigneDto {
+  enfantId: number;
+  prenom: string;
+  nom: string;
+  groupes: GroupeResumeDto[];
+  dossier: DossierEnfantDto | null;
+}
+
 export type TypeRepas = 'PETIT_DEJEUNER' | 'DEJEUNER' | 'GOUTER' | 'DINER';
 
 export interface MenuRepasDto {

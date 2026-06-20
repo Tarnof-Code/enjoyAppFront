@@ -27,13 +27,6 @@ export type ActivitiesTabParamList = {
   Sorties: undefined;
 };
 
-export type HealthTabParamList = {
-  GeneralHealth: undefined;
-  EatingHealth: undefined;
-  MedicalTreatments: undefined;
-  WhatToDoIf: undefined;
-};
-
 export type OrganisationStackParamList = {
   GrillesList: undefined;
   GrilleDetail: { grilleId: number; titre: string };

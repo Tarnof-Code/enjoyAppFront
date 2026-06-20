@@ -23,7 +23,7 @@ import { colors } from '../config/theme';
 
 import TopTabActivities from './TopTabActivities';
 import TopTabLists from './TopTabLists';
-import TopTabHealth from './TopTabHealth';
+import Sanitaire from '../screens/Health/Sanitaire';
 import Menus from '../screens/Menus/Menus';
 import OrganisationNavigator from './OrganisationNavigator';
 import type { BottomTabParamList, RootStackParamList } from './types';
@@ -64,7 +64,7 @@ function BottomTab() {
       <Tab.Screen name="Organisation" component={OrganisationNavigator} />
       <Tab.Screen name="Menus" component={Menus} />
       <Tab.Screen name="Activités" component={TopTabActivities} />
-      <Tab.Screen name="Sanitaire" component={TopTabHealth} />
+      <Tab.Screen name="Sanitaire" component={Sanitaire} />
     </Tab.Navigator>
   );
 }
