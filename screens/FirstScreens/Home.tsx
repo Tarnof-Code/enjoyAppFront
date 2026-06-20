@@ -5,6 +5,7 @@ import {
   Image,
   Modal,
   Pressable,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -64,16 +65,17 @@ function Home() {
   const [crCorps, setCrCorps] = useState<string>('');
   const [crVide, setCrVide] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const loadAccueil = useCallback(async () => {
+  const loadAccueil = useCallback(async (estRafraichissement = false) => {
     if (!sejour?.id) {
       setError('Aucun séjour sélectionné.');
-      setLoading(false);
+      if (!estRafraichissement) setLoading(false);
       return;
     }
 
-    setLoading(true);
+    if (!estRafraichissement) setLoading(true);
     setError(null);
 
     try {
@@ -104,7 +106,7 @@ function Home() {
     } catch (err) {
       setError(getUserFacingErrorMessage(err, 'Impossible de charger l’accueil.'));
     } finally {
-      setLoading(false);
+      if (!estRafraichissement) setLoading(false);
     }
   }, [sejour?.id, tokenId]);
 
@@ -124,6 +126,15 @@ function Home() {
   useEffect(() => {
     void chargerSejoursDisponibles();
   }, [chargerSejoursDisponibles]);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await Promise.all([loadAccueil(true), chargerSejoursDisponibles()]);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [loadAccueil, chargerSejoursDisponibles]);
 
   const handleChoisirSejour = async (cible: SejourDTO) => {
     if (cible.id === sejour?.id) {
@@ -255,18 +266,22 @@ function Home() {
       <View style={styles.reportOuter}>
         <View style={styles.reportBox}>
           <Text style={styles.crTitle}>{crTitre}</Text>
-          {error ? <Text style={styles.error}>{error}</Text> : null}
-          {!error && crVide ? (
-            <Text style={styles.emptyCr}>Pas de compte rendu pour hier.</Text>
-          ) : null}
-          {!error && !crVide && crCorps ? (
-            <ScrollView style={styles.crScroll}>
-              <Text style={styles.text}>{crCorps}</Text>
-            </ScrollView>
-          ) : null}
-          {!error && !crVide && !crCorps ? (
-            <Text style={styles.emptyCr}>Compte rendu vide.</Text>
-          ) : null}
+          <ScrollView
+            style={styles.crScroll}
+            contentContainerStyle={styles.crScrollContent}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.primary]} tintColor={colors.primary} />
+            }
+          >
+            {error ? <Text style={styles.error}>{error}</Text> : null}
+            {!error && crVide ? (
+              <Text style={styles.emptyCr}>Pas de compte rendu pour hier.</Text>
+            ) : null}
+            {!error && !crVide && crCorps ? <Text style={styles.text}>{crCorps}</Text> : null}
+            {!error && !crVide && !crCorps ? (
+              <Text style={styles.emptyCr}>Compte rendu vide.</Text>
+            ) : null}
+          </ScrollView>
         </View>
       </View>
     </View>
@@ -435,6 +450,9 @@ const styles = StyleSheet.create({
   },
   crScroll: {
     flex: 1,
+  },
+  crScrollContent: {
+    flexGrow: 1,
   },
   loadingText: {
     marginTop: spacing.md,

@@ -1,7 +1,14 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import {
+  ActivityIndicator,
+  FlatList,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 
-import { getUserFacingErrorMessage } from '../../helpers/axiosError';
+import { useChargementRafraichissable } from '../../hooks/useChargementRafraichissable';
 import { chambreService } from '../../services/chambre.service';
 import type { ChambreDto, GenreChambre, TypeChambre } from '../../types/api';
 import { useAppSelector } from '../../store/hooks';
@@ -28,29 +35,16 @@ function localisation(chambre: ChambreDto): string {
 export default function Bedrooms() {
   const sejourId = useAppSelector((state) => state.sejour.sejourCourant?.id);
   const [chambres, setChambres] = useState<ChambreDto[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
-    if (sejourId == null) {
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await chambreService.getChambresBySejour(sejourId);
-      setChambres(data);
-    } catch (err) {
-      setError(getUserFacingErrorMessage(err, 'Impossible de charger les chambres.'));
-    } finally {
-      setLoading(false);
-    }
+  const executer = useCallback(async () => {
+    if (sejourId == null) return;
+    setChambres(await chambreService.getChambresBySejour(sejourId));
   }, [sejourId]);
 
-  useEffect(() => {
-    void load();
-  }, [load]);
+  const { loading, refreshing, error, refresh } = useChargementRafraichissable(
+    executer,
+    'Impossible de charger les chambres.',
+  );
 
   if (!sejourId) {
     return (
@@ -82,6 +76,9 @@ export default function Bedrooms() {
         data={chambres}
         keyExtractor={(item) => String(item.id)}
         contentContainerStyle={styles.list}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={refresh} colors={[colors.primary]} tintColor={colors.primary} />
+        }
         renderItem={({ item }) => {
           const lieu = localisation(item);
           return (

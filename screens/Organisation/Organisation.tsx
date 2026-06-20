@@ -1,8 +1,9 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
   Pressable,
+  RefreshControl,
   StyleSheet,
   Text,
   View,
@@ -13,7 +14,7 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/fr';
 
 import Header from '../../Components/Header';
-import { getUserFacingErrorMessage } from '../../helpers/axiosError';
+import { useChargementRafraichissable } from '../../hooks/useChargementRafraichissable';
 import { planningGrilleService } from '../../services/planningGrille.service';
 import type { OrganisationStackParamList } from '../../Navigators/types';
 import type { PlanningGrilleSummaryDto } from '../../types/api';
@@ -37,29 +38,16 @@ function formatMiseAJour(valeur: unknown): string {
 function GrillesList({ navigation }: Props) {
   const sejourId = useAppSelector((state) => state.sejour.sejourCourant?.id);
   const [grilles, setGrilles] = useState<PlanningGrilleSummaryDto[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
-    if (sejourId == null) {
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await planningGrilleService.getPlanningGrillesBySejour(sejourId);
-      setGrilles(data);
-    } catch (err) {
-      setError(getUserFacingErrorMessage(err, 'Impossible de charger les plannings.'));
-    } finally {
-      setLoading(false);
-    }
+  const executer = useCallback(async () => {
+    if (sejourId == null) return;
+    setGrilles(await planningGrilleService.getPlanningGrillesBySejour(sejourId));
   }, [sejourId]);
 
-  useEffect(() => {
-    void load();
-  }, [load]);
+  const { loading, refreshing, error, refresh } = useChargementRafraichissable(
+    executer,
+    'Impossible de charger les plannings.',
+  );
 
   if (!sejourId) {
     return (
@@ -90,6 +78,9 @@ function GrillesList({ navigation }: Props) {
       data={grilles}
       keyExtractor={(item) => String(item.id)}
       contentContainerStyle={styles.list}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={refresh} colors={[colors.primary]} tintColor={colors.primary} />
+      }
       renderItem={({ item }) => {
         const maj = formatMiseAJour(item.miseAJour as unknown);
         return (

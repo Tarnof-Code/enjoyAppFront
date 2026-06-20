@@ -1,11 +1,18 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, SectionList, StyleSheet, Text, View } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import {
+  ActivityIndicator,
+  RefreshControl,
+  SectionList,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import dayjs from 'dayjs';
 import 'dayjs/locale/fr';
 
 import Header from '../../Components/Header';
-import { getUserFacingErrorMessage } from '../../helpers/axiosError';
+import { useChargementRafraichissable } from '../../hooks/useChargementRafraichissable';
 import {
   ORDRE_REPAS,
   jourISOdepuisDateRepas,
@@ -62,31 +69,18 @@ function MenusList() {
   const sejour = useAppSelector((state) => state.sejour.sejourCourant);
   const sejourId = sejour?.id;
   const [menus, setMenus] = useState<MenuRepasDto[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
-    if (sejourId == null || sejour == null) {
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    setError(null);
-    try {
-      const dateDebut = dayjs(sejour.dateDebut).format('YYYY-MM-DD');
-      const dateFin = dayjs(sejour.dateFin).format('YYYY-MM-DD');
-      const data = await menuService.getMenusBySejour(sejourId, dateDebut, dateFin);
-      setMenus(data);
-    } catch (err) {
-      setError(getUserFacingErrorMessage(err, 'Impossible de charger les menus.'));
-    } finally {
-      setLoading(false);
-    }
+  const executer = useCallback(async () => {
+    if (sejourId == null || sejour == null) return;
+    const dateDebut = dayjs(sejour.dateDebut).format('YYYY-MM-DD');
+    const dateFin = dayjs(sejour.dateFin).format('YYYY-MM-DD');
+    setMenus(await menuService.getMenusBySejour(sejourId, dateDebut, dateFin));
   }, [sejourId, sejour]);
 
-  useEffect(() => {
-    void load();
-  }, [load]);
+  const { loading, refreshing, error, refresh } = useChargementRafraichissable(
+    executer,
+    'Impossible de charger les menus.',
+  );
 
   const sections = construireSections(menus);
 
@@ -120,6 +114,9 @@ function MenusList() {
       keyExtractor={(item) => String(item.id)}
       contentContainerStyle={styles.list}
       stickySectionHeadersEnabled={false}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={refresh} colors={[colors.primary]} tintColor={colors.primary} />
+      }
       renderSectionHeader={({ section }) => (
         <Text style={styles.jour}>{section.title}</Text>
       )}

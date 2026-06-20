@@ -1,8 +1,9 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
   Pressable,
+  RefreshControl,
   StyleSheet,
   Text,
   View,
@@ -10,7 +11,7 @@ import {
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import Header from '../../Components/Header';
-import { getUserFacingErrorMessage } from '../../helpers/axiosError';
+import { useChargementRafraichissable } from '../../hooks/useChargementRafraichissable';
 import { dossierEnfantService } from '../../services/dossierEnfant.service';
 import type { DossierEnfantDto, EnfantDossierSanitaireLigneDto } from '../../types/api';
 import { useAppSelector } from '../../store/hooks';
@@ -127,29 +128,16 @@ function Liste() {
   const sejourId = useAppSelector((state) => state.sejour.sejourCourant?.id);
   const [lignes, setLignes] = useState<EnfantDossierSanitaireLigneDto[]>([]);
   const [filtre, setFiltre] = useState<Filtre>('TOUT');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
-    if (sejourId == null) {
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await dossierEnfantService.getDossiersSanitairesBySejour(sejourId);
-      setLignes(data);
-    } catch (err) {
-      setError(getUserFacingErrorMessage(err, 'Impossible de charger les fiches sanitaires.'));
-    } finally {
-      setLoading(false);
-    }
+  const executer = useCallback(async () => {
+    if (sejourId == null) return;
+    setLignes(await dossierEnfantService.getDossiersSanitairesBySejour(sejourId));
   }, [sejourId]);
 
-  useEffect(() => {
-    void load();
-  }, [load]);
+  const { loading, refreshing, error, refresh } = useChargementRafraichissable(
+    executer,
+    'Impossible de charger les fiches sanitaires.',
+  );
 
   const visibles = lignes.filter((l) => l.dossier && correspondAuFiltre(l.dossier, filtre));
 
@@ -198,6 +186,9 @@ function Liste() {
         data={visibles}
         keyExtractor={(item) => String(item.enfantId)}
         contentContainerStyle={styles.list}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={refresh} colors={[colors.primary]} tintColor={colors.primary} />
+        }
         renderItem={({ item }) => <Ligne item={item} />}
         ListEmptyComponent={
           <Text style={styles.empty}>Aucune information sanitaire pour ce filtre.</Text>

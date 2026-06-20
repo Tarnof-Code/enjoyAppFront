@@ -1,8 +1,15 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import {
+  ActivityIndicator,
+  FlatList,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import dayjs from 'dayjs';
 
-import { getUserFacingErrorMessage } from '../../helpers/axiosError';
+import { useChargementRafraichissable } from '../../hooks/useChargementRafraichissable';
 import { enfantService } from '../../services/enfant.service';
 import type { EnfantDto } from '../../types/api';
 import { useAppSelector } from '../../store/hooks';
@@ -23,29 +30,16 @@ function age(dateNaissance: string): string {
 export default function Children() {
   const sejourId = useAppSelector((state) => state.sejour.sejourCourant?.id);
   const [enfants, setEnfants] = useState<EnfantDto[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
-    if (sejourId == null) {
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await enfantService.getEnfantsBySejour(sejourId);
-      setEnfants(data);
-    } catch (err) {
-      setError(getUserFacingErrorMessage(err, 'Impossible de charger les enfants.'));
-    } finally {
-      setLoading(false);
-    }
+  const executer = useCallback(async () => {
+    if (sejourId == null) return;
+    setEnfants(await enfantService.getEnfantsBySejour(sejourId));
   }, [sejourId]);
 
-  useEffect(() => {
-    void load();
-  }, [load]);
+  const { loading, refreshing, error, refresh } = useChargementRafraichissable(
+    executer,
+    'Impossible de charger les enfants.',
+  );
 
   if (!sejourId) {
     return (
@@ -77,6 +71,9 @@ export default function Children() {
         data={enfants}
         keyExtractor={(item) => String(item.id)}
         contentContainerStyle={styles.list}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={refresh} colors={[colors.primary]} tintColor={colors.primary} />
+        }
         renderItem={({ item }) => {
           const ageLabel = age(item.dateNaissance);
           const details = [libelleGenre(item.genre), ageLabel, item.niveauScolaire]

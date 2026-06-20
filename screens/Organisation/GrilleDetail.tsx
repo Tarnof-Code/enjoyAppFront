@@ -1,7 +1,8 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -13,7 +14,7 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/fr';
 
 import Header from '../../Components/Header';
-import { getUserFacingErrorMessage } from '../../helpers/axiosError';
+import { useChargementRafraichissable } from '../../hooks/useChargementRafraichissable';
 import { jourISOdepuisValeurApi } from '../../helpers/dateApi';
 import { planningGrilleService } from '../../services/planningGrille.service';
 import { momentService } from '../../services/moment.service';
@@ -51,8 +52,6 @@ function GrilleDetailContent({ route }: Props) {
   const [lieux, setLieux] = useState<Map<number, string>>(new Map());
   const [groupes, setGroupes] = useState<Map<number, string>>(new Map());
   const [horaires, setHoraires] = useState<Map<number, string>>(new Map());
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [jourIndex, setJourIndex] = useState(0);
 
   const membres = new Map<string, string>();
@@ -63,36 +62,26 @@ function GrilleDetailContent({ route }: Props) {
     membres.set(m.tokenId, `${m.prenom} ${m.nom}`);
   }
 
-  const load = useCallback(async () => {
-    if (sejourId == null) {
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    setError(null);
-    try {
-      const [detail, momentsArr, lieuxArr, groupesArr, horairesArr] = await Promise.all([
-        planningGrilleService.getPlanningGrilleById(sejourId, grilleId),
-        momentService.getMomentsBySejour(sejourId).catch(() => []),
-        lieuService.getLieuxBySejour(sejourId).catch(() => []),
-        groupeService.getGroupesBySejour(sejourId).catch(() => []),
-        horaireService.getHorairesBySejour(sejourId).catch(() => []),
-      ]);
-      setGrille(detail);
-      setMoments(new Map(momentsArr.map((m) => [m.id, m.nom])));
-      setLieux(new Map(lieuxArr.map((l) => [l.id, l.nom])));
-      setGroupes(new Map(groupesArr.map((g) => [g.id, g.nom])));
-      setHoraires(new Map(horairesArr.map((h) => [h.id, h.libelle])));
-    } catch (err) {
-      setError(getUserFacingErrorMessage(err, 'Impossible de charger le planning.'));
-    } finally {
-      setLoading(false);
-    }
+  const executer = useCallback(async () => {
+    if (sejourId == null) return;
+    const [detail, momentsArr, lieuxArr, groupesArr, horairesArr] = await Promise.all([
+      planningGrilleService.getPlanningGrilleById(sejourId, grilleId),
+      momentService.getMomentsBySejour(sejourId).catch(() => []),
+      lieuService.getLieuxBySejour(sejourId).catch(() => []),
+      groupeService.getGroupesBySejour(sejourId).catch(() => []),
+      horaireService.getHorairesBySejour(sejourId).catch(() => []),
+    ]);
+    setGrille(detail);
+    setMoments(new Map(momentsArr.map((m) => [m.id, m.nom])));
+    setLieux(new Map(lieuxArr.map((l) => [l.id, l.nom])));
+    setGroupes(new Map(groupesArr.map((g) => [g.id, g.nom])));
+    setHoraires(new Map(horairesArr.map((h) => [h.id, h.libelle])));
   }, [sejourId, grilleId]);
 
-  useEffect(() => {
-    void load();
-  }, [load]);
+  const { loading, refreshing, error, refresh } = useChargementRafraichissable(
+    executer,
+    'Impossible de charger le planning.',
+  );
 
   if (!sejourId) {
     return (
@@ -211,7 +200,12 @@ function GrilleDetailContent({ route }: Props) {
         </Pressable>
       </View>
 
-      <ScrollView contentContainerStyle={styles.list}>
+      <ScrollView
+        contentContainerStyle={styles.list}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={refresh} colors={[colors.primary]} tintColor={colors.primary} />
+        }
+      >
         {lignesTriees.map((ligne) => {
           const cellule = celluleDuJour(ligne, jour);
           const contenu = cellule ? lignesCellule(cellule) : [];

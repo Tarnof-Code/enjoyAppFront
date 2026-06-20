@@ -1,7 +1,9 @@
-import React from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native';
 
-import { useAppSelector } from '../../store/hooks';
+import { sejourService } from '../../services/sejour.service';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { setSejourCourant } from '../../store/sejourSlice';
 import { colors } from '../../config/theme';
 
 interface TeamRow {
@@ -20,6 +22,22 @@ function libelleRole(role: string): string {
 
 export default function Animators() {
   const sejour = useAppSelector((state) => state.sejour.sejourCourant);
+  const dispatch = useAppDispatch();
+  const sejourId = sejour?.id;
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(async () => {
+    if (sejourId == null) return;
+    setRefreshing(true);
+    try {
+      const maj = await sejourService.getSejourById(sejourId);
+      dispatch(setSejourCourant(maj));
+    } catch {
+      // rafraîchissement silencieux : on conserve les données déjà affichées
+    } finally {
+      setRefreshing(false);
+    }
+  }, [sejourId, dispatch]);
 
   const directeur = sejour?.directeur;
   const membres = sejour?.equipe ?? [];
@@ -59,6 +77,9 @@ export default function Animators() {
         data={rows}
         keyExtractor={(item) => item.key}
         contentContainerStyle={styles.list}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.primary]} tintColor={colors.primary} />
+        }
         renderItem={({ item }) => (
           <View style={styles.card}>
             <View style={styles.cardMain}>

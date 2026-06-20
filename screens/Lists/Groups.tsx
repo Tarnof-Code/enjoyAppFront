@@ -1,7 +1,14 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import {
+  ActivityIndicator,
+  FlatList,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 
-import { getUserFacingErrorMessage } from '../../helpers/axiosError';
+import { useChargementRafraichissable } from '../../hooks/useChargementRafraichissable';
 import { groupeService } from '../../services/groupe.service';
 import type { GroupeDto, TypeGroupe } from '../../types/api';
 import { useAppSelector } from '../../store/hooks';
@@ -29,29 +36,16 @@ function tranche(groupe: GroupeDto): string | null {
 export default function Groups() {
   const sejourId = useAppSelector((state) => state.sejour.sejourCourant?.id);
   const [groupes, setGroupes] = useState<GroupeDto[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
-    if (sejourId == null) {
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await groupeService.getGroupesBySejour(sejourId);
-      setGroupes(data);
-    } catch (err) {
-      setError(getUserFacingErrorMessage(err, 'Impossible de charger les groupes.'));
-    } finally {
-      setLoading(false);
-    }
+  const executer = useCallback(async () => {
+    if (sejourId == null) return;
+    setGroupes(await groupeService.getGroupesBySejour(sejourId));
   }, [sejourId]);
 
-  useEffect(() => {
-    void load();
-  }, [load]);
+  const { loading, refreshing, error, refresh } = useChargementRafraichissable(
+    executer,
+    'Impossible de charger les groupes.',
+  );
 
   if (!sejourId) {
     return (
@@ -83,6 +77,9 @@ export default function Groups() {
         data={groupes}
         keyExtractor={(item) => String(item.id)}
         contentContainerStyle={styles.list}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={refresh} colors={[colors.primary]} tintColor={colors.primary} />
+        }
         renderItem={({ item }) => {
           const intervalle = tranche(item);
           return (

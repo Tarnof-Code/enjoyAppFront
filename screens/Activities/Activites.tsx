@@ -1,9 +1,16 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, SectionList, StyleSheet, Text, View } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import {
+  ActivityIndicator,
+  RefreshControl,
+  SectionList,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import dayjs from 'dayjs';
 import 'dayjs/locale/fr';
 
-import { getUserFacingErrorMessage } from '../../helpers/axiosError';
+import { useChargementRafraichissable } from '../../hooks/useChargementRafraichissable';
 import { jourISOdepuisValeurApi } from '../../helpers/dateApi';
 import { activiteService } from '../../services/activite.service';
 import { groupeService } from '../../services/groupe.service';
@@ -40,38 +47,26 @@ function Liste() {
   const sejourId = useAppSelector((state) => state.sejour.sejourCourant?.id);
   const [activites, setActivites] = useState<ActiviteDto[]>([]);
   const [groupes, setGroupes] = useState<Map<number, string>>(new Map());
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
-    if (sejourId == null) {
-      setLoading(false);
-      return;
+  const executer = useCallback(async () => {
+    if (sejourId == null) return;
+    const [activitesResult, groupesResult] = await Promise.allSettled([
+      activiteService.getActivitesBySejour(sejourId),
+      groupeService.getGroupesBySejour(sejourId),
+    ]);
+    if (activitesResult.status === 'rejected') {
+      throw activitesResult.reason;
     }
-    setLoading(true);
-    setError(null);
-    try {
-      const [activitesResult, groupesResult] = await Promise.allSettled([
-        activiteService.getActivitesBySejour(sejourId),
-        groupeService.getGroupesBySejour(sejourId),
-      ]);
-      if (activitesResult.status === 'rejected') {
-        throw activitesResult.reason;
-      }
-      setActivites(activitesResult.value);
-      if (groupesResult.status === 'fulfilled') {
-        setGroupes(new Map(groupesResult.value.map((g) => [g.id, g.nom])));
-      }
-    } catch (err) {
-      setError(getUserFacingErrorMessage(err, 'Impossible de charger les activités.'));
-    } finally {
-      setLoading(false);
+    setActivites(activitesResult.value);
+    if (groupesResult.status === 'fulfilled') {
+      setGroupes(new Map(groupesResult.value.map((g) => [g.id, g.nom])));
     }
   }, [sejourId]);
 
-  useEffect(() => {
-    void load();
-  }, [load]);
+  const { loading, refreshing, error, refresh } = useChargementRafraichissable(
+    executer,
+    'Impossible de charger les activités.',
+  );
 
   const sections = construireSections(activites);
 
@@ -105,6 +100,9 @@ function Liste() {
       keyExtractor={(item) => String(item.id)}
       contentContainerStyle={styles.list}
       stickySectionHeadersEnabled={false}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={refresh} colors={[colors.primary]} tintColor={colors.primary} />
+      }
       renderSectionHeader={({ section }) => <Text style={styles.jour}>{section.title}</Text>}
       renderItem={({ item }) => {
         const animateurs = (item.membres ?? [])
