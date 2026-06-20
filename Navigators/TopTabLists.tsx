@@ -7,6 +7,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import Animators from '../screens/Lists/Animators';
+import Children from '../screens/Lists/Children';
 import Groups from '../screens/Lists/Groups';
 import Bedrooms from '../screens/Lists/Bedrooms';
 import Header from '../Components/Header';
@@ -31,6 +32,20 @@ function TopTab() {
             <MaterialIcons
               size={25}
               name="sports-kabaddi"
+              color={focused ? colors.ink : colors.disabled}
+            />
+          ),
+        }}
+      />
+
+      <Tab.Screen
+        name="Children"
+        component={Children}
+        options={{
+          tabBarLabel: ({ focused }) => (
+            <MaterialCommunityIcons
+              size={25}
+              name="human-child"
               color={focused ? colors.ink : colors.disabled}
             />
           ),
