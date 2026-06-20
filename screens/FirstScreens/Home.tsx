@@ -1,7 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  FlatList,
   Image,
+  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -16,16 +18,20 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/fr';
 
 import { getUserFacingErrorMessage } from '../../helpers/axiosError';
+import { enregistrerDernierSejourVisite } from '../../helpers/dernierSejour';
 import { dateVeilleCalendaire, trouverReunionVeille } from '../../helpers/reunionVeille';
 import { extraireTexteBrutDepuisTipTapJson } from '../../helpers/reunionTipTapTexte';
+import { formatPeriodeSejour, formatPeriodeSejourCourte } from '../../helpers/sejourPeriode';
 import { navigationRef } from '../../Navigators/BottomTabNavigator';
 import { accountService } from '../../services/account.service';
+import { sejourService } from '../../services/sejour.service';
 import { sejourReunionService } from '../../services/sejour-reunion.service';
 import { utilisateurService } from '../../services/utilisateur.service';
+import type { SejourDTO } from '../../types/api';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { setName as setAnimName } from '../../store/animNameSlice';
 import { clearUser } from '../../store/authSlice';
-import { clearSejour } from '../../store/sejourSlice';
+import { clearSejour, setSejourCourant, setSejoursDisponibles } from '../../store/sejourSlice';
 
 dayjs.locale('fr');
 
@@ -39,6 +45,10 @@ function Home() {
   const dispatch = useAppDispatch();
   const { prenom, nom, tokenId } = useAppSelector((state) => state.auth);
   const sejour = useAppSelector((state) => state.sejour.sejourCourant);
+  const sejoursDisponibles = useAppSelector((state) => state.sejour.sejoursDisponibles);
+
+  const [menuOuvert, setMenuOuvert] = useState(false);
+  const [sejourEnCoursId, setSejourEnCoursId] = useState<number | null>(null);
 
   const handleLogout = async () => {
     await accountService.logout();
@@ -101,16 +111,48 @@ function Home() {
     void loadAccueil();
   }, [loadAccueil]);
 
+  const chargerSejoursDisponibles = useCallback(async () => {
+    try {
+      const list = await sejourService.getAllSejoursByUtilisateur();
+      dispatch(setSejoursDisponibles(list));
+    } catch {
+      /* liste de séjours indisponible : on garde le séjour courant */
+    }
+  }, [dispatch]);
+
+  useEffect(() => {
+    void chargerSejoursDisponibles();
+  }, [chargerSejoursDisponibles]);
+
+  const handleChoisirSejour = async (cible: SejourDTO) => {
+    if (cible.id === sejour?.id) {
+      setMenuOuvert(false);
+      return;
+    }
+    setSejourEnCoursId(cible.id);
+    try {
+      const detail = await sejourService.getSejourById(cible.id);
+      dispatch(setSejourCourant(detail));
+      if (tokenId) {
+        await enregistrerDernierSejourVisite(tokenId, cible.id);
+      }
+      setMenuOuvert(false);
+    } catch (err) {
+      setError(getUserFacingErrorMessage(err, 'Impossible de sélectionner ce séjour.'));
+    } finally {
+      setSejourEnCoursId(null);
+    }
+  };
+
+  const plusieursSejours = sejoursDisponibles.length > 1;
+
   const [fontsLoaded] = useFonts({
     DancingScript_400Regular,
     Roboto_400Regular,
   });
 
   const todayDate = dayjs().format('dddd DD MMM YYYY');
-  const periodeSejour =
-    sejour != null
-      ? `${dayjs(sejour.dateDebut).format('DD MMM')} — ${dayjs(sejour.dateFin).format('DD MMM YYYY')}`
-      : null;
+  const periodeSejour = sejour != null ? formatPeriodeSejourCourte(sejour) : null;
 
   if (!fontsLoaded || loading) {
     return (
@@ -126,12 +168,74 @@ function Home() {
       <View style={styles.titleBox}>
         <View style={styles.titleRow}>
           <Text style={styles.title}> Enjoy</Text>
+          {sejour || periodeSejour ? (
+            <Pressable
+              style={styles.sejourInfo}
+              onPress={() => setMenuOuvert(true)}
+              disabled={!plusieursSejours}
+              accessibilityRole="button"
+              accessibilityLabel="Changer de séjour"
+            >
+              <View style={styles.sejourNomRow}>
+                {sejour ? (
+                  <Text style={styles.sejourNom} numberOfLines={1}>
+                    {sejour.nom}
+                  </Text>
+                ) : null}
+                {plusieursSejours ? (
+                  <Ionicons name="chevron-down" size={16} color="#121851" style={styles.sejourChevron} />
+                ) : null}
+              </View>
+              {periodeSejour ? <Text style={styles.sejourPeriode}>{periodeSejour}</Text> : null}
+            </Pressable>
+          ) : (
+            <View style={styles.sejourInfo} />
+          )}
           <Pressable onPress={() => void handleLogout()} hitSlop={12} accessibilityLabel="Se déconnecter">
             <Ionicons name="log-out-outline" size={26} color="#636e72" />
           </Pressable>
         </View>
-        {sejour ? <Text style={styles.sejourNom}>{sejour.nom}</Text> : null}
-        {periodeSejour ? <Text style={styles.sejourPeriode}>{periodeSejour}</Text> : null}
+
+        <Modal
+          visible={menuOuvert}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setMenuOuvert(false)}
+        >
+          <Pressable style={styles.modalOverlay} onPress={() => setMenuOuvert(false)}>
+            <Pressable style={styles.modalCard} onPress={() => {}}>
+              <Text style={styles.modalTitle}>Choisir un séjour</Text>
+              <FlatList
+                data={sejoursDisponibles}
+                keyExtractor={(item) => String(item.id)}
+                renderItem={({ item }) => {
+                  const actif = item.id === sejour?.id;
+                  return (
+                    <Pressable
+                      style={({ pressed }) => [
+                        styles.sejourOption,
+                        actif && styles.sejourOptionActif,
+                        pressed && styles.sejourOptionPressed,
+                      ]}
+                      onPress={() => void handleChoisirSejour(item)}
+                      disabled={sejourEnCoursId !== null}
+                    >
+                      <View style={styles.sejourOptionTexte}>
+                        <Text style={styles.sejourOptionNom}>{item.nom}</Text>
+                        <Text style={styles.sejourOptionPeriode}>{formatPeriodeSejour(item)}</Text>
+                      </View>
+                      {sejourEnCoursId === item.id ? (
+                        <ActivityIndicator color="#121851" />
+                      ) : actif ? (
+                        <Ionicons name="checkmark" size={20} color="#121851" />
+                      ) : null}
+                    </Pressable>
+                  );
+                }}
+              />
+            </Pressable>
+          </Pressable>
+        </Modal>
       </View>
 
       <View style={styles.welcomeBox}>
@@ -188,18 +292,85 @@ const styles = StyleSheet.create({
     fontSize: 40,
     color: '#000000',
   },
+  sejourInfo: {
+    flex: 1,
+    marginHorizontal: 12,
+    alignItems: 'center',
+  },
+  sejourNomRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   sejourNom: {
     fontFamily: 'Roboto_400Regular',
     fontSize: 16,
     fontWeight: '600',
     color: '#121851',
-    marginTop: 4,
+    flexShrink: 1,
+  },
+  sejourChevron: {
+    marginLeft: 4,
   },
   sejourPeriode: {
     fontFamily: 'Roboto_400Regular',
     fontSize: 13,
     color: '#636e72',
     marginTop: 2,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  modalCard: {
+    width: '100%',
+    maxHeight: '70%',
+    backgroundColor: '#ffffff',
+    borderRadius: 20,
+    padding: 20,
+  },
+  modalTitle: {
+    fontFamily: 'Roboto_400Regular',
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#121851',
+    marginBottom: 12,
+  },
+  sejourOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 14,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#dfe6e9',
+    marginBottom: 10,
+  },
+  sejourOptionActif: {
+    borderColor: '#121851',
+    backgroundColor: '#f0f1fb',
+  },
+  sejourOptionPressed: {
+    opacity: 0.85,
+  },
+  sejourOptionTexte: {
+    flex: 1,
+    marginRight: 12,
+  },
+  sejourOptionNom: {
+    fontFamily: 'Roboto_400Regular',
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#121851',
+  },
+  sejourOptionPeriode: {
+    fontFamily: 'Roboto_400Regular',
+    fontSize: 13,
+    color: '#636e72',
+    marginTop: 4,
   },
   welcomeBox: {
     marginLeft: 30,

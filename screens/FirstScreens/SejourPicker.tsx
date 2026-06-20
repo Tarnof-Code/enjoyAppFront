@@ -13,6 +13,7 @@ import 'dayjs/locale/fr';
 
 import { getUserFacingErrorMessage } from '../../helpers/axiosError';
 import { enregistrerDernierSejourVisite } from '../../helpers/dernierSejour';
+import { formatPeriodeSejour } from '../../helpers/sejourPeriode';
 import type { RootStackParamList } from '../../Navigators/types';
 import { sejourService } from '../../services/sejour.service';
 import type { SejourDTO } from '../../types/api';
@@ -22,12 +23,6 @@ import { setSejourCourant, setSejoursDisponibles } from '../../store/sejourSlice
 dayjs.locale('fr');
 
 type SejourPickerProps = NativeStackScreenProps<RootStackParamList, 'SejourPicker'>;
-
-function formatPeriodeSejour(sejour: SejourDTO): string {
-  const debut = dayjs(sejour.dateDebut).format('DD MMM YYYY');
-  const fin = dayjs(sejour.dateFin).format('DD MMM YYYY');
-  return `${debut} — ${fin}`;
-}
 
 function SejourPicker({ navigation }: SejourPickerProps) {
   const dispatch = useAppDispatch();
