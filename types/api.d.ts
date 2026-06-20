@@ -59,3 +59,45 @@ export interface ReunionDto {
   ordreDuJour: string | null;
   contenu: ReunionContenuTipTapJson;
 }
+
+export type TypeChambre = 'ENFANT' | 'EQUIPE';
+
+export type GenreChambre = 'MASCULIN' | 'FEMININ' | 'MIXTE';
+
+export interface GroupeResumeDto {
+  id: number;
+  libelle: string;
+}
+
+export interface ChambreReferentInfos {
+  tokenId: string;
+  nom: string;
+  prenom: string;
+}
+
+export interface ChambreOccupantDto {
+  id: number;
+  typeOccupant: TypeChambre;
+  enfantId: number | null;
+  membreTokenId: string | null;
+  nom: string;
+  prenom: string;
+  numeroLit: number | null;
+}
+
+export interface ChambreDto {
+  id: number;
+  sejourId: number;
+  typeChambre: TypeChambre;
+  identifiant: string;
+  nom: string | null;
+  capaciteMax: number;
+  genreAutorise: GenreChambre;
+  description: string | null;
+  batiment: string | null;
+  couloir: string | null;
+  etage: number | null;
+  groupe: GroupeResumeDto | null;
+  referents: ChambreReferentInfos[];
+  occupants: ChambreOccupantDto[];
+}
