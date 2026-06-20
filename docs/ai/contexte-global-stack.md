@@ -13,7 +13,7 @@ Application **mobile** Enjoy (Expo / React Native) destinée aux **animateurs** 
 ## Structure des dossiers (rappel)
 
 - `App.tsx` : racine (Redux `Provider`, `GestureHandlerRootView`, `SafeAreaProvider`, `ThemeProvider` RNEUI) montant `BottomTabNavigator`.
-- **`Navigators/`** : `BottomTabNavigator.tsx` (Stack `Login` → `SejourPicker` → `BottomTab` + bootstrap session), `TopTab*` (un par zone), `types.ts` (param lists typés).
+- **`Navigators/`** : `BottomTabNavigator.tsx` (Stack `Login` → `SejourPicker` → `BottomTab` + bootstrap session), `navigationRef.ts` (ref root hors cycle d'import), `TopTab*` (un par zone), `types.ts` (param lists typés).
 - **`screens/`** : organisés par zone — `FirstScreens/` (`Login`, `Home`, `SejourPicker`), `Lists/`, `Plannings/`, `Activities/`, `Health/`, `Infos/`.
 - **`services/`** : `httpClient.ts` (axios + intercepteurs auth), `account.service.ts`, `accountStorage.ts`, `tokenStorage.ts`, `sejour.service.ts`, `sejour-reunion.service.ts`, `utilisateur.service.ts`.
 - **`store/`** : Redux Toolkit — `authSlice`, `sejourSlice`, `animNameSlice`, `overlaySlice`, `hooks.ts`, `index.ts`.

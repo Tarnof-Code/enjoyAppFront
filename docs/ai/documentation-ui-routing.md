@@ -19,7 +19,7 @@ App.tsx
 ```
 
 - **Bootstrap** : restaure profil + dernier séjour → `Login` / `SejourPicker` / `BottomTab`.
-- **Session expirée** : reset store + `navigationRef` → `Login`.
+- **Session expirée / déconnexion** : reset store + `navigationRef` (`Navigators/navigationRef.ts`) → `Login`.
 
 ## Onglets Listes (`TopTabLists`)
 

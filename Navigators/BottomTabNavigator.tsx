@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
-import {
-  createNavigationContainerRef,
-  NavigationContainer,
-} from '@react-navigation/native';
+import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
@@ -26,12 +23,11 @@ import TopTabLists from './TopTabLists';
 import Sanitaire from '../screens/Health/Sanitaire';
 import Menus from '../screens/Menus/Menus';
 import OrganisationNavigator from './OrganisationNavigator';
+import { navigationRef } from './navigationRef';
 import type { BottomTabParamList, RootStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<BottomTabParamList>();
-
-export const navigationRef = createNavigationContainerRef<RootStackParamList>();
 
 function BottomTab() {
   return (

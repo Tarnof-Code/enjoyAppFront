@@ -23,7 +23,7 @@ import { enregistrerDernierSejourVisite } from '../../helpers/dernierSejour';
 import { dateVeilleCalendaire, trouverReunionVeille } from '../../helpers/reunionVeille';
 import { extraireTexteBrutDepuisTipTapJson } from '../../helpers/reunionTipTapTexte';
 import { formatPeriodeSejour, formatPeriodeSejourCourte } from '../../helpers/sejourPeriode';
-import { navigationRef } from '../../Navigators/BottomTabNavigator';
+import { navigationRef } from '../../Navigators/navigationRef';
 import { accountService } from '../../services/account.service';
 import { sejourService } from '../../services/sejour.service';
 import { sejourReunionService } from '../../services/sejour-reunion.service';
