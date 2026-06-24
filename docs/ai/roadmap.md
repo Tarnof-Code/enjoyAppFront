@@ -10,6 +10,7 @@ Suivi synthétique. Plan détaillé : [`.cursor/plans/migration-api-mobile.plan.
 - [x] **Phase A** — Suppression Infos utiles, Plannings, groupes en dur, composants Sheets orphelins.
 - [x] **Phase B** — Listes (Équipe, Enfants, Groupes, Chambres), Menus, Organisation (+ détail grille), Activités/Sorties, Sanitaire (écran unique API).
 - [x] **Phase C** — Nettoyage Sheets (`config/api.ts`, `types/sheets.ts`, `overlaySlice`, clé Google) ; fabrique `creerTopTab` ; titres header dynamiques ; pull-to-refresh global.
+- [x] Écran Équipe : recherche, filtres rôle séjour (chip Direction), MultiSelect groupes, modal détail membre.
 - [x] Thème centralisé aligné web.
 - [x] Règles Cursor app web / API (`30-app-web.mdc`, `40-api.mdc`).
 

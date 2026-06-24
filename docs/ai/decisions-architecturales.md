@@ -36,7 +36,7 @@ Patterns et choix techniques de l'app mobile. Garder ce fichier comme référenc
 
 - Un service par domaine dans `services/`, appels via client partagé, erreurs via `helpers/axiosError.ts`.
 - **`useChargementRafraichissable`** (`hooks/useChargementRafraichissable.ts`) : pattern standard pour écrans API — `loading` (1er chargement), `refreshing` (pull-to-refresh), `error`, `refresh`. L'écran fournit un `executer` async.
-- **Cas particuliers** : `Animators` lit le store Redux (`sejourCourant`) et rafraîchit via `getSejourById` ; `Home` gère son propre refresh (CR veille + photo + liste séjours).
+- **Cas particuliers** : `Animators` lit le store Redux (`sejourCourant`) et rafraîchit via `getSejourById` ; charge en parallèle groupes, chambres et profil directeur (tél./e-mail) ; modal détail au tap. `Home` gère son propre refresh (CR veille + photo + liste séjours).
 - Utilisateur référencé par **`tokenId`**, jamais id SQL.
 
 ## State (Redux Toolkit)

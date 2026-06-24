@@ -13,12 +13,12 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | Domaine | Endpoint | Écran / usage |
 |---------|----------|---------------|
 | Auth | `POST /auth/connexion`, `/refresh-token`, `/logout` | Connexion, session |
-| Profil | `GET /utilisateurs/profil`, `GET /utilisateurs/{tokenId}/photo-profil` | Bootstrap, `Home` |
+| Profil | `GET /utilisateurs/profil?tokenId=`, `GET /utilisateurs/{tokenId}/photo-profil` | Bootstrap, `Home`, `Animators` (coordonnées directeur) |
 | Séjours | `GET /sejours/utilisateur/{tokenId}`, `GET /sejours/{id}` | `SejourPicker`, `Home`, `Animators` (refresh) |
 | Réunions | `GET /sejours/{sejourId}/reunions` | `Home` (CR veille) |
 | Enfants | `GET /sejours/{id}/enfants` | `Children` |
-| Groupes | `GET /sejours/{id}/groupes` | `Groups`, résolution libellés (Activités, Sorties, GrilleDetail) |
-| Chambres | `GET /sejours/{id}/chambres` | `Bedrooms` |
+| Groupes | `GET /sejours/{id}/groupes` | `Groups`, `Animators` (filtre + modal), résolution libellés (Activités, Sorties, GrilleDetail) |
+| Chambres | `GET /sejours/{id}/chambres` | `Bedrooms`, `Animators` (modal chambre occupant) |
 | Menus | `GET /sejours/{id}/menus?dateDebut&dateFin` | `Menus` |
 | Plannings | `GET /sejours/{id}/planning-grilles`, `GET …/{grilleId}` | `Organisation`, `GrilleDetail` |
 | Réf. planning | `GET …/moments`, `…/lieux`, `…/horaires` | `GrilleDetail` (résolution libellés) |
@@ -26,7 +26,7 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | Sorties | `GET /sejours/{id}/activites-prestataires` | `Sorties` |
 | Sanitaire | `GET /sejours/{id}/dossiers-enfants` | `Sanitaire` |
 
-> Équipe (`Animators`) : données `directeur` + `equipe` déjà présentes dans `SejourDTO` (store), pas d'appel dédié au montage. Chaque membre porte `roleSejour` (`ANIM`/`AS`/`ADJOINT`/`SB`/`AUTRE`) ; le directeur (champ séparé) n'en a pas.
+> Équipe (`Animators`) : données `directeur` + `equipe` dans `SejourDTO` (store) ; refresh via `getSejourById`. Compléments : groupes/chambres du séjour, profil directeur si absent de `equipe`. Chaque membre d'équipe porte `roleSejour` ; le directeur (champ séparé, sans `roleSejour`) est rattaché au filtre chip **Direction** avec les adjoints.
 
 ## Services (`services/`)
 
@@ -37,7 +37,7 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | `accountStorage.ts` / `tokenStorage.ts` | SecureStore |
 | `sejour.service.ts` | Séjours utilisateur et détail |
 | `sejour-reunion.service.ts` | Réunions (CR veille) |
-| `utilisateur.service.ts` | Photo profil |
+| `utilisateur.service.ts` | Profil par `tokenId`, photo profil |
 | `enfant.service.ts` | Enfants du séjour |
 | `groupe.service.ts` | Groupes |
 | `chambre.service.ts` | Chambres |

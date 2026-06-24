@@ -1,10 +1,27 @@
-import React, { useCallback, useState } from 'react';
-import { FlatList, Pressable, RefreshControl, StyleSheet, Text, TextInput, View } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import {
+  FlatList,
+  Linking,
+  Modal,
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
+import { MultiSelect } from 'react-native-element-dropdown';
+import { MaterialIcons } from '@expo/vector-icons';
 
 import { sejourService } from '../../services/sejour.service';
+import { groupeService } from '../../services/groupe.service';
+import { chambreService } from '../../services/chambre.service';
+import { utilisateurService } from '../../services/utilisateur.service';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { setSejourCourant } from '../../store/sejourSlice';
-import { colors } from '../../config/theme';
+import { colors, fontSizes, radius, spacing } from '../../config/theme';
+import type { ChambreDto, GroupeDto } from '../../types/api';
 import { ROLES_SEJOUR, libelleRoleSejour, libelleRoleSejourCourt } from '../../helpers/roleSejour';
 
 interface TeamRow {
@@ -14,9 +31,11 @@ interface TeamRow {
   roleLabel: string;
   roleFiltre: string;
   telephone?: string;
+  email?: string;
 }
 
 const FILTRE_TOUT = 'TOUT';
+const FILTRE_DIRECTION = 'DIRECTION';
 
 function normaliser(valeur: string): string {
   return valeur
@@ -26,6 +45,20 @@ function normaliser(valeur: string): string {
     .trim();
 }
 
+function groupesDuMembre(tokenId: string, groupes: GroupeDto[]): string[] {
+  return groupes
+    .filter((groupe) => (groupe.referents ?? []).some((ref) => ref.tokenId === tokenId))
+    .map((groupe) => groupe.nom);
+}
+
+function chambresDuMembre(tokenId: string, chambres: ChambreDto[]): string[] {
+  return chambres
+    .filter((chambre) =>
+      (chambre.occupants ?? []).some((occ) => occ.membreTokenId === tokenId),
+    )
+    .map((chambre) => (chambre.nom ? `${chambre.identifiant} (${chambre.nom})` : chambre.identifiant));
+}
+
 export default function Animators() {
   const sejour = useAppSelector((state) => state.sejour.sejourCourant);
   const dispatch = useAppDispatch();
@@ -33,6 +66,29 @@ export default function Animators() {
   const [refreshing, setRefreshing] = useState(false);
   const [recherche, setRecherche] = useState('');
   const [filtreRole, setFiltreRole] = useState<string>(FILTRE_TOUT);
+  const [groupesSelectionnes, setGroupesSelectionnes] = useState<string[]>([]);
+  const [membreSelectionne, setMembreSelectionne] = useState<TeamRow | null>(null);
+  const [groupes, setGroupes] = useState<GroupeDto[]>([]);
+  const [chambres, setChambres] = useState<ChambreDto[]>([]);
+  const [contactDirecteur, setContactDirecteur] = useState<{ telephone?: string; email?: string }>();
+
+  const chargerAffectations = useCallback(async () => {
+    if (sejourId == null) return;
+    try {
+      const [g, c] = await Promise.all([
+        groupeService.getGroupesBySejour(sejourId),
+        chambreService.getChambresBySejour(sejourId),
+      ]);
+      setGroupes(g);
+      setChambres(c);
+    } catch {
+      // chargement silencieux : groupes/chambres restent vides si indisponibles
+    }
+  }, [sejourId]);
+
+  useEffect(() => {
+    chargerAffectations();
+  }, [chargerAffectations]);
 
   const onRefresh = useCallback(async () => {
     if (sejourId == null) return;
@@ -40,15 +96,49 @@ export default function Animators() {
     try {
       const maj = await sejourService.getSejourById(sejourId);
       dispatch(setSejourCourant(maj));
+      await chargerAffectations();
     } catch {
       // rafraîchissement silencieux : on conserve les données déjà affichées
     } finally {
       setRefreshing(false);
     }
-  }, [sejourId, dispatch]);
+  }, [sejourId, dispatch, chargerAffectations]);
 
   const directeur = sejour?.directeur;
   const membres = sejour?.equipe ?? [];
+  const directeurTokenId = directeur?.tokenId;
+
+  useEffect(() => {
+    if (!directeurTokenId) {
+      setContactDirecteur(undefined);
+      return;
+    }
+    const profilEquipe = membres.find((membre) => membre.tokenId === directeurTokenId);
+    if (profilEquipe) {
+      setContactDirecteur({
+        telephone: profilEquipe.telephone || undefined,
+        email: profilEquipe.email || undefined,
+      });
+      return;
+    }
+    let annule = false;
+    utilisateurService
+      .getProfilByTokenId(directeurTokenId)
+      .then((profil) => {
+        if (!annule) {
+          setContactDirecteur({
+            telephone: profil.telephone || undefined,
+            email: profil.email || undefined,
+          });
+        }
+      })
+      .catch(() => {
+        if (!annule) setContactDirecteur(undefined);
+      });
+    return () => {
+      annule = true;
+    };
+  }, [directeurTokenId, membres]);
 
   const rows: TeamRow[] = [];
   if (directeur) {
@@ -58,6 +148,8 @@ export default function Animators() {
       nom: directeur.nom,
       roleLabel: 'Directeur',
       roleFiltre: 'DIRECTEUR',
+      telephone: contactDirecteur?.telephone,
+      email: contactDirecteur?.email,
     });
   }
   membres
@@ -70,24 +162,43 @@ export default function Animators() {
         roleLabel: libelleRoleSejour(membre.roleSejour, membre.genre),
         roleFiltre: String(membre.roleSejour ?? 'AUTRE'),
         telephone: membre.telephone || undefined,
+        email: membre.email || undefined,
       });
     });
 
   const rolesPresents = new Set(membres.map((membre) => String(membre.roleSejour ?? 'AUTRE')));
-  const filtresRole = [
-    { cle: FILTRE_TOUT, libelle: 'Tous' },
-    ...ROLES_SEJOUR.filter((role) => rolesPresents.has(role)).map((role) => ({
-      cle: role,
-      libelle: libelleRoleSejourCourt(role),
-    })),
-  ];
+  const aDirection = !!directeur || rolesPresents.has('ADJOINT');
+  const filtresRole: { cle: string; libelle: string }[] = [{ cle: FILTRE_TOUT, libelle: 'Tous' }];
+  for (const role of ROLES_SEJOUR) {
+    if (role === 'ADJOINT') {
+      if (aDirection) filtresRole.push({ cle: FILTRE_DIRECTION, libelle: 'Direction' });
+    } else if (rolesPresents.has(role)) {
+      filtresRole.push({ cle: role, libelle: libelleRoleSejourCourt(role) });
+    }
+  }
+
+  const optionsGroupes = groupes.map((groupe) => ({ label: groupe.nom, value: String(groupe.id) }));
 
   const filtreRoleActif = filtresRole.some((f) => f.cle === filtreRole) ? filtreRole : FILTRE_TOUT;
   const termeRecherche = normaliser(recherche);
   const lignesVisibles = rows.filter((ligne) => {
-    if (filtreRoleActif !== FILTRE_TOUT && ligne.roleFiltre !== filtreRoleActif) return false;
+    if (filtreRoleActif !== FILTRE_TOUT) {
+      if (filtreRoleActif === FILTRE_DIRECTION) {
+        if (ligne.roleFiltre !== 'DIRECTEUR' && ligne.roleFiltre !== 'ADJOINT') return false;
+      } else if (ligne.roleFiltre !== filtreRoleActif) {
+        return false;
+      }
+    }
+    if (groupesSelectionnes.length > 0) {
+      const estReferent = groupes.some(
+        (groupe) =>
+          groupesSelectionnes.includes(String(groupe.id)) &&
+          (groupe.referents ?? []).some((ref) => ref.tokenId === ligne.key),
+      );
+      if (!estReferent) return false;
+    }
     if (termeRecherche === '') return true;
-    const cible = normaliser(`${ligne.prenom} ${ligne.nom} ${ligne.telephone ?? ''}`);
+    const cible = normaliser(`${ligne.prenom} ${ligne.nom} ${ligne.telephone ?? ''} ${ligne.email ?? ''}`);
     return cible.includes(termeRecherche);
   });
 
@@ -101,15 +212,49 @@ export default function Animators() {
 
   return (
     <View style={styles.container}>
-      <TextInput
-        style={styles.recherche}
-        value={recherche}
-        onChangeText={setRecherche}
-        placeholder="Rechercher un membre…"
-        placeholderTextColor={colors.muted}
-        autoCorrect={false}
-        clearButtonMode="while-editing"
-      />
+      <View style={styles.barreFiltres}>
+        <TextInput
+          style={styles.recherche}
+          value={recherche}
+          onChangeText={setRecherche}
+          placeholder="Rechercher…"
+          placeholderTextColor={colors.muted}
+          autoCorrect={false}
+          clearButtonMode="while-editing"
+        />
+
+        {optionsGroupes.length > 0 ? (
+          <MultiSelect
+            style={styles.dropdown}
+            containerStyle={styles.dropdownContainer}
+            placeholderStyle={styles.dropdownPlaceholder}
+            selectedTextStyle={styles.dropdownPlaceholder}
+            itemTextStyle={styles.dropdownItemText}
+            activeColor={colors.primarySoft}
+            data={optionsGroupes}
+            labelField="label"
+            valueField="value"
+            value={groupesSelectionnes}
+            onChange={setGroupesSelectionnes}
+            placeholder={
+              groupesSelectionnes.length > 0
+                ? `${groupesSelectionnes.length} groupe${groupesSelectionnes.length > 1 ? 's' : ''}`
+                : 'Groupes'
+            }
+            visibleSelectedItem={false}
+            renderItem={(item, selected) => (
+              <View style={styles.dropdownItem}>
+                <MaterialIcons
+                  name={selected ? 'check-box' : 'check-box-outline-blank'}
+                  size={20}
+                  color={selected ? colors.primary : colors.muted}
+                />
+                <Text style={styles.dropdownItemText}>{item.label}</Text>
+              </View>
+            )}
+          />
+        ) : null}
+      </View>
 
       {filtresRole.length > 1 ? (
         <View style={styles.filtres}>
@@ -136,7 +281,10 @@ export default function Animators() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.primary]} tintColor={colors.primary} />
         }
         renderItem={({ item }) => (
-          <View style={styles.card}>
+          <Pressable
+            style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
+            onPress={() => setMembreSelectionne(item)}
+          >
             <View style={styles.cardMain}>
               <Text style={styles.name}>
                 {item.prenom} {item.nom.toUpperCase()}
@@ -146,7 +294,7 @@ export default function Animators() {
               ) : null}
             </View>
             <Text style={styles.role}>{item.roleLabel}</Text>
-          </View>
+          </Pressable>
         )}
         ListEmptyComponent={
           <Text style={styles.empty}>
@@ -156,7 +304,119 @@ export default function Animators() {
           </Text>
         }
       />
+
+      <Modal
+        visible={membreSelectionne != null}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setMembreSelectionne(null)}
+      >
+        <Pressable style={styles.modalOverlay} onPress={() => setMembreSelectionne(null)}>
+          <Pressable style={styles.modalCard} onPress={() => {}}>
+            {membreSelectionne ? (
+              <DetailMembre
+                membre={membreSelectionne}
+                groupes={groupes}
+                chambres={chambres}
+                onFermer={() => setMembreSelectionne(null)}
+              />
+            ) : null}
+          </Pressable>
+        </Pressable>
+      </Modal>
     </View>
+  );
+}
+
+function LigneInfo({
+  libelle,
+  valeur,
+  onPress,
+}: {
+  libelle: string;
+  valeur: string;
+  onPress?: () => void;
+}) {
+  return (
+    <View style={styles.infoLigne}>
+      <Text style={styles.infoLibelle}>{libelle}</Text>
+      {onPress ? (
+        <Text style={[styles.infoValeur, styles.infoValeurLien]} onPress={onPress}>
+          {valeur}
+        </Text>
+      ) : (
+        <Text style={styles.infoValeur}>{valeur}</Text>
+      )}
+    </View>
+  );
+}
+
+function DetailMembre({
+  membre,
+  groupes,
+  chambres,
+  onFermer,
+}: {
+  membre: TeamRow;
+  groupes: GroupeDto[];
+  chambres: ChambreDto[];
+  onFermer: () => void;
+}) {
+  const groupesMembre = groupesDuMembre(membre.key, groupes);
+  const chambresMembre = chambresDuMembre(membre.key, chambres);
+  const aDesInfos = !!(
+    membre.telephone ||
+    membre.email ||
+    groupesMembre.length ||
+    chambresMembre.length
+  );
+
+  return (
+    <>
+      <Text style={styles.modalNom}>
+        {membre.prenom} {membre.nom.toUpperCase()}
+      </Text>
+      <Text style={styles.modalRole}>{membre.roleLabel}</Text>
+
+      <ScrollView style={styles.modalCorps} contentContainerStyle={styles.modalCorpsContenu}>
+        {membre.telephone ? (
+          <LigneInfo
+            libelle="Téléphone"
+            valeur={membre.telephone}
+            onPress={() => Linking.openURL(`tel:${membre.telephone}`)}
+          />
+        ) : null}
+        {membre.email ? (
+          <LigneInfo
+            libelle="E-mail"
+            valeur={membre.email}
+            onPress={() => Linking.openURL(`mailto:${membre.email}`)}
+          />
+        ) : null}
+        {groupesMembre.length > 0 ? (
+          <LigneInfo
+            libelle={groupesMembre.length > 1 ? 'Groupes' : 'Groupe'}
+            valeur={groupesMembre.join(', ')}
+          />
+        ) : null}
+        {chambresMembre.length > 0 ? (
+          <LigneInfo
+            libelle={chambresMembre.length > 1 ? 'Chambres' : 'Chambre'}
+            valeur={chambresMembre.join(', ')}
+          />
+        ) : null}
+        {!aDesInfos ? (
+          <Text style={styles.modalAucuneInfo}>Aucune information complémentaire.</Text>
+        ) : null}
+      </ScrollView>
+
+      <Pressable
+        style={({ pressed }) => [styles.modalFermer, pressed && styles.modalFermerPressed]}
+        onPress={onFermer}
+      >
+        <Text style={styles.modalFermerTexte}>Fermer</Text>
+      </Pressable>
+    </>
   );
 }
 
@@ -171,15 +431,48 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.surface,
   },
+  barreFiltres: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 12,
+    paddingTop: 10,
+  },
   recherche: {
-    marginHorizontal: 12,
-    marginTop: 10,
-    paddingVertical: 10,
+    flex: 1,
+    height: 44,
     paddingHorizontal: 14,
     borderRadius: 10,
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.surface,
+    fontSize: 15,
+    color: colors.text,
+  },
+  dropdown: {
+    flex: 1,
+    height: 44,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  dropdownContainer: {
+    borderRadius: 10,
+  },
+  dropdownPlaceholder: {
+    fontSize: 15,
+    color: colors.text,
+  },
+  dropdownItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+  },
+  dropdownItemText: {
     fontSize: 15,
     color: colors.text,
   },
@@ -225,6 +518,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     marginBottom: 10,
   },
+  cardPressed: {
+    backgroundColor: colors.background,
+  },
   cardMain: {
     flex: 1,
     paddingRight: 12,
@@ -251,5 +547,77 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: colors.muted,
     marginTop: 24,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: colors.overlay,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: spacing.xxl,
+  },
+  modalCard: {
+    width: '100%',
+    maxHeight: '70%',
+    backgroundColor: colors.surface,
+    borderRadius: radius.sm,
+    padding: spacing.xl,
+  },
+  modalNom: {
+    fontSize: fontSizes.lg,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  modalRole: {
+    marginTop: spacing.xs,
+    fontSize: fontSizes.sm,
+    fontWeight: '600',
+    color: colors.primary,
+  },
+  modalCorps: {
+    marginTop: spacing.lg,
+  },
+  modalCorpsContenu: {
+    gap: spacing.md,
+  },
+  infoLigne: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    gap: spacing.md,
+  },
+  infoLibelle: {
+    fontSize: fontSizes.sm,
+    color: colors.muted,
+  },
+  infoValeur: {
+    flexShrink: 1,
+    fontSize: fontSizes.sm,
+    color: colors.text,
+    textAlign: 'right',
+  },
+  infoValeurLien: {
+    color: colors.link,
+    fontWeight: '600',
+  },
+  modalAucuneInfo: {
+    fontSize: fontSizes.sm,
+    color: colors.muted,
+    fontStyle: 'italic',
+  },
+  modalFermer: {
+    marginTop: spacing.xl,
+    alignSelf: 'flex-end',
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    borderRadius: radius.sm,
+    backgroundColor: colors.primary,
+  },
+  modalFermerPressed: {
+    backgroundColor: colors.primaryDark,
+  },
+  modalFermerTexte: {
+    color: colors.surface,
+    fontWeight: '700',
+    fontSize: fontSizes.sm,
   },
 });

@@ -12,4 +12,4 @@ Fiches utiles :
 
 Rappels essentiels : réponses en français ; `npm` + `legacy-peer-deps` ; secrets interdits ; types dans `types/api.d.ts` (alignés web) ; **`tokenId`** jamais id SQL ; client **`services/httpClient.ts`** ; auth SecureStore + refresh single-flight. **Navigation** : Stack `Login` → `SejourPicker` → **6 onglets** (`Home`, `Listes`, `Organisation`, `Menus`, `Activités`, `Sanitaire`) ; top-tabs via **`creerTopTab`** ; stack Organisation (grilles + détail). **Données** : **API Enjoy uniquement** (Google Sheets retiré) ; chargement écrans via **`useChargementRafraichissable`** + pull-to-refresh. App web = source de vérité (règle `30-app-web.mdc`).
 
-Mise à jour mémoire : commande **`/maj`**. Dernière MAJ : **2026-06-24** (recherche + filtre rôle séjour sur `Animators`, helper `roleSejour.ts`, type `RoleSejour`).
+Mise à jour mémoire : commande **`/maj`**. Dernière MAJ : **2026-06-24** (Équipe : modal détail, MultiSelect groupes, filtre Direction, profil directeur).

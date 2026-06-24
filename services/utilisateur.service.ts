@@ -1,6 +1,19 @@
+import type { ProfilUtilisateurDTO } from '../types/api';
 import { adaptAxiosError } from '../helpers/axiosError';
 import { arrayBufferToDataUri } from '../helpers/photoProfil';
 import Axios from './httpClient';
+
+export async function getProfilByTokenId(tokenId: string): Promise<ProfilUtilisateurDTO> {
+  try {
+    const response = await Axios.get<ProfilUtilisateurDTO>(`/utilisateurs/profil?tokenId=${tokenId}`);
+    return response.data;
+  } catch (error: unknown) {
+    adaptAxiosError(error, {
+      defaultMessage: 'Erreur lors du chargement du profil utilisateur',
+      logContext: 'utilisateur getProfilByTokenId',
+    });
+  }
+}
 
 export async function getPhotoProfilDataUri(
   tokenId: string,
@@ -28,5 +41,6 @@ export async function getPhotoProfilDataUri(
 }
 
 export const utilisateurService = {
+  getProfilByTokenId,
   getPhotoProfilDataUri,
 };
