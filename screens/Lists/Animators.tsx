@@ -1,23 +1,29 @@
 import React, { useCallback, useState } from 'react';
-import { FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Pressable, RefreshControl, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { sejourService } from '../../services/sejour.service';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { setSejourCourant } from '../../store/sejourSlice';
 import { colors } from '../../config/theme';
+import { ROLES_SEJOUR, libelleRoleSejour, libelleRoleSejourCourt } from '../../helpers/roleSejour';
 
 interface TeamRow {
   key: string;
   prenom: string;
   nom: string;
   roleLabel: string;
+  roleFiltre: string;
   telephone?: string;
 }
 
-function libelleRole(role: string): string {
-  if (role === 'DIRECTION') return 'Directeur';
-  if (role === 'ADMIN') return 'Admin';
-  return 'Animateur';
+const FILTRE_TOUT = 'TOUT';
+
+function normaliser(valeur: string): string {
+  return valeur
+    .normalize('NFD')
+    .replace(/\p{M}/gu, '')
+    .toLowerCase()
+    .trim();
 }
 
 export default function Animators() {
@@ -25,6 +31,8 @@ export default function Animators() {
   const dispatch = useAppDispatch();
   const sejourId = sejour?.id;
   const [refreshing, setRefreshing] = useState(false);
+  const [recherche, setRecherche] = useState('');
+  const [filtreRole, setFiltreRole] = useState<string>(FILTRE_TOUT);
 
   const onRefresh = useCallback(async () => {
     if (sejourId == null) return;
@@ -49,6 +57,7 @@ export default function Animators() {
       prenom: directeur.prenom,
       nom: directeur.nom,
       roleLabel: 'Directeur',
+      roleFiltre: 'DIRECTEUR',
     });
   }
   membres
@@ -58,10 +67,29 @@ export default function Animators() {
         key: membre.tokenId,
         prenom: membre.prenom,
         nom: membre.nom,
-        roleLabel: libelleRole(String(membre.role)),
+        roleLabel: libelleRoleSejour(membre.roleSejour, membre.genre),
+        roleFiltre: String(membre.roleSejour ?? 'AUTRE'),
         telephone: membre.telephone || undefined,
       });
     });
+
+  const rolesPresents = new Set(membres.map((membre) => String(membre.roleSejour ?? 'AUTRE')));
+  const filtresRole = [
+    { cle: FILTRE_TOUT, libelle: 'Tous' },
+    ...ROLES_SEJOUR.filter((role) => rolesPresents.has(role)).map((role) => ({
+      cle: role,
+      libelle: libelleRoleSejourCourt(role),
+    })),
+  ];
+
+  const filtreRoleActif = filtresRole.some((f) => f.cle === filtreRole) ? filtreRole : FILTRE_TOUT;
+  const termeRecherche = normaliser(recherche);
+  const lignesVisibles = rows.filter((ligne) => {
+    if (filtreRoleActif !== FILTRE_TOUT && ligne.roleFiltre !== filtreRoleActif) return false;
+    if (termeRecherche === '') return true;
+    const cible = normaliser(`${ligne.prenom} ${ligne.nom} ${ligne.telephone ?? ''}`);
+    return cible.includes(termeRecherche);
+  });
 
   if (!sejour) {
     return (
@@ -73,8 +101,35 @@ export default function Animators() {
 
   return (
     <View style={styles.container}>
+      <TextInput
+        style={styles.recherche}
+        value={recherche}
+        onChangeText={setRecherche}
+        placeholder="Rechercher un membre…"
+        placeholderTextColor={colors.muted}
+        autoCorrect={false}
+        clearButtonMode="while-editing"
+      />
+
+      {filtresRole.length > 1 ? (
+        <View style={styles.filtres}>
+          {filtresRole.map(({ cle, libelle }) => {
+            const actif = cle === filtreRoleActif;
+            return (
+              <Pressable
+                key={cle}
+                onPress={() => setFiltreRole(cle)}
+                style={[styles.chip, actif && styles.chipActif]}
+              >
+                <Text style={[styles.chipTexte, actif && styles.chipTexteActif]}>{libelle}</Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      ) : null}
+
       <FlatList
-        data={rows}
+        data={lignesVisibles}
         keyExtractor={(item) => item.key}
         contentContainerStyle={styles.list}
         refreshControl={
@@ -94,7 +149,11 @@ export default function Animators() {
           </View>
         )}
         ListEmptyComponent={
-          <Text style={styles.empty}>Aucun membre dans l’équipe de ce séjour.</Text>
+          <Text style={styles.empty}>
+            {rows.length === 0
+              ? 'Aucun membre dans l’équipe de ce séjour.'
+              : 'Aucun membre ne correspond à la recherche.'}
+          </Text>
         }
       />
     </View>
@@ -111,6 +170,45 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: colors.surface,
+  },
+  recherche: {
+    marginHorizontal: 12,
+    marginTop: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    fontSize: 15,
+    color: colors.text,
+  },
+  filtres: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    paddingHorizontal: 12,
+    paddingTop: 10,
+    gap: 8,
+  },
+  chip: {
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+    borderRadius: 9999,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  chipActif: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  chipTexte: {
+    fontSize: 13,
+    color: colors.text,
+  },
+  chipTexteActif: {
+    color: colors.surface,
+    fontWeight: '700',
   },
   list: {
     padding: 12,
@@ -145,6 +243,9 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
     color: colors.primary,
+    flexShrink: 0,
+    maxWidth: '40%',
+    textAlign: 'right',
   },
   empty: {
     textAlign: 'center',

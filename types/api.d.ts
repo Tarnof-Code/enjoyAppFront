@@ -4,6 +4,8 @@
 
 export type RoleSysteme = 'ADMIN' | 'DIRECTION' | 'BASIC_USER';
 
+export type RoleSejour = 'ANIM' | 'AS' | 'ADJOINT' | 'SB' | 'AUTRE';
+
 export interface SejourDTO {
   id: number;
   nom: string;
@@ -25,6 +27,7 @@ export interface ProfilUtilisateurDTO {
   id: number;
   tokenId: string;
   role: RoleSysteme | string;
+  roleSejour?: RoleSejour | string;
   nom: string;
   prenom: string;
   genre: string;

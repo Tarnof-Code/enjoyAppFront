@@ -25,7 +25,7 @@ App.tsx
 
 | Sous-onglet | Écran | Titre header | Source données |
 |-------------|-------|--------------|----------------|
-| Animators | `screens/Lists/Animators` | Équipe | Redux `sejourCourant` (+ refresh API séjour) |
+| Animators | `screens/Lists/Animators` | Équipe | Redux `sejourCourant` (+ refresh API séjour) — recherche texte + chips filtre rôle séjour |
 | Children | `screens/Lists/Children` | Enfants | `GET /enfants` |
 | Groups | `screens/Lists/Groups` | Groupes | `GET /groupes` |
 | Bedrooms | `screens/Lists/Bedrooms` | Chambres | `GET /chambres` |
@@ -58,6 +58,7 @@ App.tsx
 ## UX transverse
 
 - **Pull-to-refresh** sur tous les écrans de données (hook `useChargementRafraichissable` ou logique dédiée).
+- **Recherche + filtre liste** (modèle `Animators`) : `TextInput` (normalisation casse/accents) au-dessus de la liste + chips de filtre ; chips construits dynamiquement selon les valeurs présentes. Filtres par chips aussi sur `Sanitaire` (Tout/Traitements/Régime/Médical).
 - Thème RNEUI + tokens `config/theme.ts`.
 - États : `ActivityIndicator` au 1er chargement ; indicateur natif au refresh.
 

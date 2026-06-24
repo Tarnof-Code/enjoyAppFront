@@ -26,7 +26,7 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | Sorties | `GET /sejours/{id}/activites-prestataires` | `Sorties` |
 | Sanitaire | `GET /sejours/{id}/dossiers-enfants` | `Sanitaire` |
 
-> Équipe (`Animators`) : données `directeur` + `equipe` déjà présentes dans `SejourDTO` (store), pas d'appel dédié au montage.
+> Équipe (`Animators`) : données `directeur` + `equipe` déjà présentes dans `SejourDTO` (store), pas d'appel dédié au montage. Chaque membre porte `roleSejour` (`ANIM`/`AS`/`ADJOINT`/`SB`/`AUTRE`) ; le directeur (champ séparé) n'en a pas.
 
 ## Services (`services/`)
 
@@ -58,6 +58,7 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | `sejourPeriode.ts` | Formatage périodes séjour |
 | `reunionVeille.ts`, `reunionTipTapTexte.ts` | CR réunion J−1 (`Home`) |
 | `photoProfil.ts` | Blob photo profil |
+| `roleSejour.ts` | Libellés rôle séjour : courts (chips) + longs adaptés au genre (badge) |
 
 ## Glossaire
 
