@@ -48,7 +48,7 @@ Onglet bottom tab : route **`Orga`**, libellé **Orga**. Titre header liste : «
 
 ## Écrans autonomes
 
-- **`Menus`** : menus repas groupés par jour (`SectionList`).
+- **`Menus`** : grille calendrier repas × jours (`screens/Menus/Menus.tsx`) — fenêtre 1/3/5 j., swipe + flèches (bonds = taille vue), **Aujourd'hui** ; ouverture centrée sur aujourd'hui (si dans le séjour) ou 1er jour ; pull-to-refresh ; lecture seule.
 - **`Sanitaire`** : fiches sanitaires agrégées, tri/libellé enfants selon `triListesEnfants`, refresh séjour au pull-to-refresh ; filtres Tout / Traitements / Régime / Médical.
 - **`Home`** : titre Enjoy, sélecteur séjour (modal), bienvenue, date, encart CR veille.
 
@@ -67,7 +67,7 @@ Onglet bottom tab : route **`Orga`**, libellé **Orga**. Titre header liste : «
 - **Pull-to-refresh** sur tous les écrans de données (hook `useChargementRafraichissable` ou logique dédiée). Écrans avec personnes : inclure **`useRafraichirSejourCourant`** dans le `executer` pour synchroniser le tri listes (`triListesEnfants` / `triListesEquipe`).
 - **Tri et libellés personnes** (`helpers/triListesSejour.ts`) : ordre et affichage « Nom Prénom » ou « Prénom Nom » selon réglage séjour (lecture seule, aligné web).
 - **Recherche + filtre liste** (modèle `Animators` / `Children`) : barre compacte (`TextInput` + normalisation casse/accents) + **MultiSelect** groupes (`react-native-element-dropdown`, cases à cocher) + chips (rôle séjour sur Équipe ; genre sur Enfants). **Carte** : nom + badge droite (rôle ou groupes) ; **modal** `FichePersonneModal` au tap. Filtres par chips sur **`Groups`** (type de groupe), **`Bedrooms`** (chip Places dispo) et `Sanitaire` (Tout/Traitements/Régime/Médical). **`Bedrooms`** : menus déroulants Type / Genre / Groupe sur une ligne (`Dropdown` single-select). **Orga** (liste plannings, écran `Organisation.tsx`) : recherche titre seule + bouton ✕ pour vider (cross-platform).
-- **Planning matrice** (`GrilleDetail`) : colonne libellés fixe ; colonnes jours en `flex: 1` ; en-tête jour = nom du jour + date ; cellules `MEMBRE_EQUIPE` = prénom(s), un membre par ligne, désambiguïsation homonymes ; retour navigation sur la ligne des filtres 1j/3j/5j (pas dans `Header`).
+- **Planning matrice** (`GrilleDetail`, **`Menus`**) : colonne libellés fixe (108 px) ; colonnes jours en `flex: 1` ; en-tête jour = nom + date ; fenêtre 1/3/5 j. via **`useFenetreJoursPlanning`** (flèches/swipe par bonds = taille vue) ; **`GrilleDetail`** : toolbar **‹ Retour** + chips sous le header ; **`Menus`** : chips 1j/3j/5j sans retour (écran racine onglet).
 - **Accordéons listes** (`Groups`, `Bedrooms` via **`ListeAccordion`**) : plusieurs items ouverts possibles (`Set` d'ids). **`Bedrooms`** : actions CRUD et affectation occupants dans modales dédiées (confirmations `Alert` pour suppression/retrait).
 - **Bottom sheets formulaire** : éviter `react-native-element-dropdown` dans un `ScrollView` (conflits gestes) ; préférer pills / liste dépliable + `ScrollView` de `react-native-gesture-handler`.
 - **Anniversaire pendant séjour** (`Children`) : icône gâteau avant le nom ; modale « Anniversaire : {jour date} » (`helpers/anniversaireSejour.ts`).

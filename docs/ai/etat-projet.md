@@ -56,7 +56,7 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 |---------|------|
 | `useChargementRafraichissable.ts` | Chargement initial + pull-to-refresh |
 | `useRafraichirSejourCourant.ts` | Recharge `sejourCourant` (critères tri listes) au refresh |
-| `useFenetreJoursPlanning.ts` | Fenêtre glissante 1/3/5 jours dans le détail planning |
+| `useFenetreJoursPlanning.ts` | Fenêtre glissante 1/3/5 jours ; navigation par bonds (= taille vue) ; partagé **`GrilleDetail`** et **`Menus`** |
 
 ## Helpers (`helpers/`)
 
@@ -64,7 +64,7 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 |---------|------|
 | `axiosError.ts` | Messages d'erreur utilisateur |
 | `dateApi.ts` | Normalisation dates API (ISO, timestamp, tableau Jackson) |
-| `menuRepas.ts` | Types repas, ordre, alias date menu |
+| `menuRepas.ts` | Types repas, ordre, indexation jour×type, résumé cellule grille, jour focus défaut, couleurs affichage |
 | `dernierSejour.ts` | Dernier séjour visité (SecureStore) |
 | `sejourPeriode.ts` | Formatage périodes séjour |
 | `reunionVeille.ts`, `reunionTipTapTexte.ts` | CR réunion J−1 (`Home`) |

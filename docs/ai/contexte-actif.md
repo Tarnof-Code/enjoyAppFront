@@ -10,6 +10,11 @@ Reste mineur : photos animateurs codées en dur dans `Header.tsx`, composant orp
 
 ## Journal
 
+### 2026-06-25 (suite 7)
+- **Menus (UX mobile)** — aligné modèle plannings orga / web : **`Menus.tsx`** remplace l'ancienne **`SectionList`** par une **grille calendrier** (lignes = types repas, colonnes = jours) ; fenêtre **1 / 3 / 5 jours** via **`useFenetreJoursPlanning`** ; swipe + flèches (bonds = taille de la vue) + bouton **Aujourd'hui** ; ouverture directe sur l'onglet (pas de liste intermédiaire) — jour par défaut = **aujourd'hui** si dans le séjour, sinon **premier jour** (`jourFocusDefautMenus`).
+- **Helpers menus** : **`menuRepas.ts`** étendu — `indexerMenusParJourEtType`, `resumeMenuCellule`, `metaAllergenesRegimesMenu`, libellés/couleurs repas (`LABELS_TYPE_REPAS`, `COULEUR_FOND_CARTE_MENU`).
+- **Hook partagé** : **`useFenetreJoursPlanning`** — `decalage` / `definirDebutFenetre` stabilisés (`useCallback`) ; navigation par page entière (1, 3 ou 5 jours selon la vue) ; bénéficie aussi à **`GrilleDetail`**.
+
 ### 2026-06-25 (suite 6)
 - **Onglet bas plannings** : route bottom tab **`Organisation` → `Orga`** (`BottomTabParamList`, `BottomTabNavigator`) ; libellé barre d'onglets « Orga » ; icône `calendar-alt` inchangée ; stack interne `OrganisationNavigator` et header liste « Organisation » conservés.
 

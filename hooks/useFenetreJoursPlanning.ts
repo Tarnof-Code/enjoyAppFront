@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import {
   addDaysToYmd,
@@ -9,7 +9,7 @@ import {
   type NombreJoursVuePlanning,
 } from '../helpers/planningGrilleUtils';
 
-/** Fenêtre glissante 1 ou 3 jours dans la liste des jours du planning. */
+/** Fenêtre glissante 1, 3 ou 5 jours ; navigation par bonds de la taille de la vue. */
 export function useFenetreJoursPlanning(jours: string[]) {
   const [nombreJoursVue, setNombreJoursVue] = useState<NombreJoursVuePlanning>(3);
   const [debutYmd, setDebutYmd] = useState('');
@@ -47,20 +47,27 @@ export function useFenetreJoursPlanning(jours: string[]) {
   const peutReculer = bornes != null && debutEffectif > bornes.minStartYmd;
   const peutAvancer = bornes != null && debutEffectif < bornes.maxStartYmd;
 
-  const decalage = (delta: number) => {
-    if (!bornes) return;
-    setDebutYmd((prev) => {
-      const base = prev ? clampYmdEntre(prev, bornes.minStartYmd, bornes.maxStartYmd) : bornes.minStartYmd;
-      const next = addDaysToYmd(base, delta);
-      if (!next) return base;
-      return clampYmdEntre(next, bornes.minStartYmd, bornes.maxStartYmd);
-    });
-  };
+  const decalage = useCallback(
+    (delta: number) => {
+      if (!bornes) return;
+      const pasJours = delta * nombreJoursVue;
+      setDebutYmd((prev) => {
+        const base = prev ? clampYmdEntre(prev, bornes.minStartYmd, bornes.maxStartYmd) : bornes.minStartYmd;
+        const next = addDaysToYmd(base, pasJours);
+        if (!next) return base;
+        return clampYmdEntre(next, bornes.minStartYmd, bornes.maxStartYmd);
+      });
+    },
+    [bornes, nombreJoursVue],
+  );
 
-  const definirDebutFenetre = (ymd: string) => {
-    if (!bornes || !ymd) return;
-    setDebutYmd(clampYmdEntre(ymd, bornes.minStartYmd, bornes.maxStartYmd));
-  };
+  const definirDebutFenetre = useCallback(
+    (ymd: string) => {
+      if (!bornes || !ymd) return;
+      setDebutYmd(clampYmdEntre(ymd, bornes.minStartYmd, bornes.maxStartYmd));
+    },
+    [bornes],
+  );
 
   return {
     nombreJoursVue,

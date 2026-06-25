@@ -1,71 +1,48 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
+  Pressable,
   RefreshControl,
-  SectionList,
+  ScrollView,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import dayjs from 'dayjs';
 import 'dayjs/locale/fr';
 
 import Header from '../../Components/Header';
-import { useChargementRafraichissable } from '../../hooks/useChargementRafraichissable';
+import { enumererJoursSejour } from '../../helpers/enumererJoursSejour';
 import {
+  COULEUR_FOND_CARTE_MENU,
+  indexerMenusParJourEtType,
+  jourFocusDefautMenus,
+  LABELS_TYPE_REPAS,
+  menuCelluleEstVide,
+  metaAllergenesRegimesMenu,
   ORDRE_REPAS,
-  jourISOdepuisDateRepas,
-  typeRepasNormalise,
+  resumeMenuCellule,
 } from '../../helpers/menuRepas';
+import {
+  aujourdhuiYmd,
+  debutFenetrePourJour,
+  type NombreJoursVuePlanning,
+} from '../../helpers/planningGrilleUtils';
+import { useChargementRafraichissable } from '../../hooks/useChargementRafraichissable';
+import { useFenetreJoursPlanning } from '../../hooks/useFenetreJoursPlanning';
 import { menuService } from '../../services/menu.service';
 import type { MenuRepasDto, TypeRepas } from '../../types/api';
 import { useAppSelector } from '../../store/hooks';
-import { colors } from '../../config/theme';
+import { colors, fontSizes, radius, spacing } from '../../config/theme';
 
 dayjs.locale('fr');
 
-const LIBELLE_REPAS: Record<TypeRepas, string> = {
-  PETIT_DEJEUNER: 'Petit-déjeuner',
-  DEJEUNER: 'Déjeuner',
-  GOUTER: 'Goûter',
-  DINER: 'Dîner',
-};
+const LARGEUR_COLONNE_REPAS = 108;
+const SWIPE_SEUIL = 48;
 
-interface JourSection {
-  title: string;
-  data: MenuRepasDto[];
-}
-
-function lignesRepas(menu: MenuRepasDto): string[] {
-  if (menu.typeRepas === 'PETIT_DEJEUNER' || menu.typeRepas === 'GOUTER') {
-    return [menu.detailPetitDejeunerOuGouter].filter((v): v is string => !!v);
-  }
-  return [menu.entree, menu.plat, menu.fromageOuEntremet, menu.dessert].filter(
-    (v): v is string => !!v,
-  );
-}
-
-function construireSections(menus: MenuRepasDto[]): JourSection[] {
-  const parJour = new Map<string, MenuRepasDto[]>();
-  for (const menu of menus) {
-    const jour = jourISOdepuisDateRepas(menu.dateRepas as unknown);
-    const type = typeRepasNormalise(menu.typeRepas as unknown);
-    if (!jour || !type) continue;
-    const liste = parJour.get(jour) ?? [];
-    liste.push({ ...menu, dateRepas: jour, typeRepas: type });
-    parJour.set(jour, liste);
-  }
-  return [...parJour.keys()].sort().map((jour) => ({
-    title: dayjs(jour).format('dddd D MMMM'),
-    data: parJour
-      .get(jour)!
-      .slice()
-      .sort((a, b) => ORDRE_REPAS.indexOf(a.typeRepas) - ORDRE_REPAS.indexOf(b.typeRepas)),
-  }));
-}
-
-function MenusList() {
+function MenusContent() {
   const sejour = useAppSelector((state) => state.sejour.sejourCourant);
   const sejourId = sejour?.id;
   const [menus, setMenus] = useState<MenuRepasDto[]>([]);
@@ -82,7 +59,53 @@ function MenusList() {
     'Impossible de charger les menus.',
   );
 
-  const sections = construireSections(menus);
+  const jours = useMemo(() => {
+    if (!sejour) return [];
+    return enumererJoursSejour(sejour.dateDebut, sejour.dateFin);
+  }, [sejour]);
+
+  const aujourdhui = aujourdhuiYmd();
+  const jourFocus = useMemo(() => jourFocusDefautMenus(jours, aujourdhui), [jours, aujourdhui]);
+
+  const menusParJour = useMemo(() => indexerMenusParJourEtType(menus), [menus]);
+
+  const {
+    nombreJoursVue,
+    setNombreJoursVue,
+    joursFenetre,
+    libellePlage,
+    peutReculer,
+    peutAvancer,
+    decalage,
+    definirDebutFenetre,
+  } = useFenetreJoursPlanning(jours);
+
+  useEffect(() => {
+    if (jours.length === 0 || !jourFocus) return;
+    definirDebutFenetre(debutFenetrePourJour(jours, jourFocus, nombreJoursVue));
+  }, [sejourId, jourFocus, jours, nombreJoursVue, definirDebutFenetre]);
+
+  const afficherBoutonAujourdhui =
+    jours.includes(aujourdhui) &&
+    joursFenetre.length > 0 &&
+    (aujourdhui < joursFenetre[0].ymd || aujourdhui > joursFenetre[joursFenetre.length - 1].ymd);
+
+  const allerAujourdhui = () => {
+    definirDebutFenetre(debutFenetrePourJour(jours, aujourdhui, nombreJoursVue));
+  };
+
+  const swipeGesture = Gesture.Pan()
+    .activeOffsetX([-24, 24])
+    .onEnd((event) => {
+      if (event.translationX <= -SWIPE_SEUIL && peutAvancer) {
+        decalage(1);
+      } else if (event.translationX >= SWIPE_SEUIL && peutReculer) {
+        decalage(-1);
+      }
+    });
+
+  const menuPour = (jour: string, type: TypeRepas): MenuRepasDto | undefined =>
+    menusParJour.get(jour)?.get(type);
 
   if (!sejourId) {
     return (
@@ -108,51 +131,173 @@ function MenusList() {
     );
   }
 
+  if (jours.length === 0) {
+    return (
+      <View style={styles.center}>
+        <Text style={styles.empty}>Dates du séjour indisponibles.</Text>
+      </View>
+    );
+  }
+
   return (
-    <SectionList
-      sections={sections}
-      keyExtractor={(item) => String(item.id)}
-      contentContainerStyle={styles.list}
-      stickySectionHeadersEnabled={false}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={refresh} colors={[colors.primary]} tintColor={colors.primary} />
-      }
-      renderSectionHeader={({ section }) => (
-        <Text style={styles.jour}>{section.title}</Text>
-      )}
-      renderItem={({ item }) => {
-        const lignes = lignesRepas(item);
-        const allergenes = item.allergenes ?? [];
-        const regimes = item.regimesEtPreferences ?? [];
-        return (
-          <View style={styles.card}>
-            <Text style={styles.repas}>{LIBELLE_REPAS[item.typeRepas]}</Text>
-            {lignes.length > 0 ? (
-              lignes.map((ligne, index) => (
-                <Text key={index} style={styles.plat}>
-                  {ligne}
-                </Text>
-              ))
-            ) : (
-              <Text style={styles.platVide}>Non renseigné</Text>
-            )}
-            {allergenes.length > 0 ? (
-              <Text style={styles.refs}>
-                Allergènes : {allergenes.map((a) => a.libelle).join(', ')}
+    <View style={styles.container}>
+      <View style={styles.barreOutils}>
+        <View style={styles.segmentVue}>
+          {([1, 3, 5] as NombreJoursVuePlanning[]).map((n) => (
+            <Pressable
+              key={n}
+              onPress={() => setNombreJoursVue(n)}
+              style={({ pressed }) => [
+                styles.segmentBtn,
+                nombreJoursVue === n && styles.segmentBtnActif,
+                pressed && styles.segmentBtnPressed,
+              ]}
+            >
+              <Text
+                style={[styles.segmentBtnTexte, nombreJoursVue === n && styles.segmentBtnTexteActif]}
+              >
+                {n} j.
               </Text>
-            ) : null}
-            {regimes.length > 0 ? (
-              <Text style={styles.refs}>
-                Régimes : {regimes.map((r) => r.libelle).join(', ')}
-              </Text>
-            ) : null}
+            </Pressable>
+          ))}
+        </View>
+
+        <View style={styles.navPeriode}>
+          <Pressable
+            onPress={() => decalage(-1)}
+            disabled={!peutReculer}
+            style={({ pressed }) => [
+              styles.navBtn,
+              (!peutReculer || pressed) && styles.navBtnDisabled,
+            ]}
+            accessibilityLabel="Période précédente"
+          >
+            <Text style={styles.navBtnTexte}>‹</Text>
+          </Pressable>
+          <Text style={styles.plageLabel} numberOfLines={2}>
+            {libellePlage}
+          </Text>
+          <Pressable
+            onPress={() => decalage(1)}
+            disabled={!peutAvancer}
+            style={({ pressed }) => [
+              styles.navBtn,
+              (!peutAvancer || pressed) && styles.navBtnDisabled,
+            ]}
+            accessibilityLabel="Période suivante"
+          >
+            <Text style={styles.navBtnTexte}>›</Text>
+          </Pressable>
+        </View>
+
+        {afficherBoutonAujourdhui ? (
+          <Pressable
+            onPress={allerAujourdhui}
+            style={({ pressed }) => [styles.btnAujourdhui, pressed && styles.btnAujourdhuiPressed]}
+          >
+            <Text style={styles.btnAujourdhuiTexte}>Aujourd’hui</Text>
+          </Pressable>
+        ) : null}
+      </View>
+
+      <GestureDetector gesture={swipeGesture}>
+        <ScrollView
+          style={styles.grilleScroll}
+          contentContainerStyle={styles.grilleContenu}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={refresh}
+              colors={[colors.primary]}
+              tintColor={colors.primary}
+            />
+          }
+        >
+          <View style={styles.grille}>
+            <View style={styles.enteteLigne}>
+              <View style={[styles.celluleRepas, styles.enteteCoin]} />
+              {joursFenetre.map(({ ymd, jourSemaine, dateReste }, index) => {
+                const estAujourdhui = ymd === aujourdhui;
+                const derniereColonne = index === joursFenetre.length - 1;
+                const dansSejour = jours.includes(ymd);
+                return (
+                  <View
+                    key={ymd}
+                    style={[
+                      styles.celluleJourEntete,
+                      styles.celluleJourFlexible,
+                      derniereColonne && styles.celluleSansBordureDroite,
+                      !dansSejour && styles.celluleHorsSejour,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.enteteJourSemaine,
+                        estAujourdhui && styles.enteteJourAujourdhui,
+                      ]}
+                    >
+                      {jourSemaine}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.enteteJourDate,
+                        estAujourdhui && styles.enteteJourAujourdhui,
+                      ]}
+                    >
+                      {dateReste}
+                    </Text>
+                  </View>
+                );
+              })}
+            </View>
+
+            {ORDRE_REPAS.map((type, indexRepas) => (
+              <View
+                key={type}
+                style={[styles.ligneDonnees, indexRepas === ORDRE_REPAS.length - 1 && styles.derniereLigne]}
+              >
+                <View style={[styles.celluleRepas, styles.celluleRepasLibelle]}>
+                  <Text style={styles.libelleRepasTexte} numberOfLines={3}>
+                    {LABELS_TYPE_REPAS[type]}
+                  </Text>
+                </View>
+                {joursFenetre.map(({ ymd }, jourIndex) => {
+                  const menu = menuPour(ymd, type);
+                  const vide = menuCelluleEstVide(menu);
+                  const texte = resumeMenuCellule(menu);
+                  const meta = metaAllergenesRegimesMenu(menu);
+                  const derniereColonne = jourIndex === joursFenetre.length - 1;
+                  return (
+                    <View
+                      key={`${type}-${ymd}`}
+                      style={[
+                        styles.celluleDonnees,
+                        styles.celluleJourFlexible,
+                        derniereColonne && styles.celluleSansBordureDroite,
+                        vide && styles.celluleVide,
+                        { backgroundColor: COULEUR_FOND_CARTE_MENU[type] },
+                      ]}
+                    >
+                      <Text
+                        style={[styles.celluleTexte, vide && styles.celluleTexteVide]}
+                        numberOfLines={4}
+                      >
+                        {texte}
+                      </Text>
+                      {meta ? (
+                        <Text style={styles.celluleMeta} numberOfLines={2}>
+                          {meta}
+                        </Text>
+                      ) : null}
+                    </View>
+                  );
+                })}
+              </View>
+            ))}
           </View>
-        );
-      }}
-      ListEmptyComponent={
-        <Text style={styles.empty}>Aucun menu pour ce séjour.</Text>
-      }
-    />
+        </ScrollView>
+      </GestureDetector>
+    </View>
   );
 }
 
@@ -160,67 +305,217 @@ export default function Menus() {
   return (
     <SafeAreaProvider>
       <Header iconName="utensils" title="Menus" />
-      <MenusList />
+      <MenusContent />
     </SafeAreaProvider>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.surface,
+  },
   center: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: colors.surface,
   },
-  list: {
-    padding: 12,
-    backgroundColor: colors.surface,
+  barreOutils: {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    gap: spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
   },
-  jour: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: colors.primary,
-    marginTop: 12,
-    marginBottom: 6,
-    textTransform: 'capitalize',
-  },
-  card: {
-    backgroundColor: colors.surface,
+  segmentVue: {
+    flexDirection: 'row',
+    alignSelf: 'flex-start',
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 10,
+    borderRadius: radius.sm,
+    overflow: 'hidden',
   },
-  repas: {
-    fontSize: 15,
+  segmentBtn: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    backgroundColor: colors.surface,
+  },
+  segmentBtnActif: {
+    backgroundColor: colors.primary,
+  },
+  segmentBtnPressed: {
+    opacity: 0.85,
+  },
+  segmentBtnTexte: {
+    fontSize: fontSizes.sm,
     fontWeight: '600',
     color: colors.text,
-    marginBottom: 4,
   },
-  plat: {
-    fontSize: 14,
+  segmentBtnTexteActif: {
+    color: colors.surface,
+  },
+  navPeriode: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  navBtn: {
+    width: 40,
+    height: 36,
+    borderRadius: radius.sm,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  navBtnDisabled: {
+    opacity: 0.4,
+  },
+  navBtnTexte: {
+    color: colors.surface,
+    fontSize: 22,
+    fontWeight: '700',
+    lineHeight: 24,
+  },
+  plageLabel: {
+    flex: 1,
+    textAlign: 'center',
+    fontSize: fontSizes.sm,
+    fontWeight: '700',
+    color: colors.primary,
+    textTransform: 'capitalize',
+  },
+  btnAujourdhui: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.full,
+    backgroundColor: colors.primarySoft,
+  },
+  btnAujourdhuiPressed: {
+    opacity: 0.85,
+  },
+  btnAujourdhuiTexte: {
+    fontSize: fontSizes.sm,
+    fontWeight: '600',
+    color: colors.primaryDark,
+  },
+  grilleScroll: {
+    flex: 1,
+  },
+  grilleContenu: {
+    padding: spacing.md,
+    paddingBottom: spacing.xxl,
+  },
+  grille: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.sm,
+    overflow: 'hidden',
+    backgroundColor: colors.surface,
+  },
+  enteteLigne: {
+    flexDirection: 'row',
+    backgroundColor: colors.background,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  enteteCoin: {
+    backgroundColor: colors.background,
+  },
+  celluleRepas: {
+    width: LARGEUR_COLONNE_REPAS,
+    borderRightWidth: 1,
+    borderRightColor: colors.border,
+    backgroundColor: colors.background,
+  },
+  celluleJourEntete: {
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.xs,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRightWidth: 1,
+    borderRightColor: colors.border,
+  },
+  celluleJourFlexible: {
+    flex: 1,
+    minWidth: 0,
+  },
+  celluleSansBordureDroite: {
+    borderRightWidth: 0,
+  },
+  celluleHorsSejour: {
+    opacity: 0.5,
+  },
+  enteteJourSemaine: {
+    fontSize: fontSizes.xs,
+    fontWeight: '700',
     color: colors.text,
+    textAlign: 'center',
+    textTransform: 'capitalize',
+  },
+  enteteJourDate: {
     marginTop: 2,
-  },
-  platVide: {
-    fontSize: 14,
+    fontSize: fontSizes.xs,
+    fontWeight: '600',
     color: colors.muted,
-    fontStyle: 'italic',
+    textAlign: 'center',
   },
-  refs: {
-    marginTop: 6,
-    fontSize: 13,
+  enteteJourAujourdhui: {
+    color: colors.primary,
+  },
+  ligneDonnees: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    minHeight: 56,
+  },
+  derniereLigne: {
+    borderBottomWidth: 0,
+  },
+  celluleRepasLibelle: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.sm,
+    justifyContent: 'center',
+  },
+  libelleRepasTexte: {
+    fontSize: fontSizes.xs,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  celluleDonnees: {
+    paddingHorizontal: spacing.xs,
+    paddingVertical: spacing.sm,
+    justifyContent: 'center',
+    borderRightWidth: 1,
+    borderRightColor: colors.border,
+    minHeight: 56,
+  },
+  celluleVide: {
+    opacity: 0.65,
+  },
+  celluleTexte: {
+    fontSize: fontSizes.xs,
+    color: colors.text,
+    textAlign: 'center',
+  },
+  celluleTexteVide: {
     color: colors.muted,
+  },
+  celluleMeta: {
+    marginTop: 2,
+    fontSize: 10,
+    color: colors.muted,
+    textAlign: 'center',
   },
   empty: {
     textAlign: 'center',
     color: colors.muted,
-    marginTop: 24,
+    marginTop: spacing.xxl,
   },
   errorText: {
     color: colors.danger,
     textAlign: 'center',
-    paddingHorizontal: 24,
+    paddingHorizontal: spacing.xxl,
   },
 });
