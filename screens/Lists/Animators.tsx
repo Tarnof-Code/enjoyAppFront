@@ -2,10 +2,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 import {
   FlatList,
   Linking,
-  Modal,
   Pressable,
   RefreshControl,
-  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -20,7 +18,8 @@ import { chambreService } from '../../services/chambre.service';
 import { utilisateurService } from '../../services/utilisateur.service';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { setSejourCourant } from '../../store/sejourSlice';
-import { colors, fontSizes, radius, spacing } from '../../config/theme';
+import FichePersonneModal, { LigneInfoFiche } from '../../Components/FichePersonneModal';
+import { colors } from '../../config/theme';
 import type { ChambreDto, GroupeDto } from '../../types/api';
 import { ROLES_SEJOUR, libelleRoleSejour, libelleRoleSejourCourt } from '../../helpers/roleSejour';
 
@@ -302,48 +301,12 @@ export default function Animators() {
         }
       />
 
-      <Modal
-        visible={membreSelectionne != null}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setMembreSelectionne(null)}
-      >
-        <Pressable style={styles.modalOverlay} onPress={() => setMembreSelectionne(null)}>
-          <Pressable style={styles.modalCard} onPress={() => {}}>
-            {membreSelectionne ? (
-              <DetailMembre
-                membre={membreSelectionne}
-                groupes={groupes}
-                chambres={chambres}
-                onFermer={() => setMembreSelectionne(null)}
-              />
-            ) : null}
-          </Pressable>
-        </Pressable>
-      </Modal>
-    </View>
-  );
-}
-
-function LigneInfo({
-  libelle,
-  valeur,
-  onPress,
-}: {
-  libelle: string;
-  valeur: string;
-  onPress?: () => void;
-}) {
-  return (
-    <View style={styles.infoLigne}>
-      <Text style={styles.infoLibelle}>{libelle}</Text>
-      {onPress ? (
-        <Text style={[styles.infoValeur, styles.infoValeurLien]} onPress={onPress}>
-          {valeur}
-        </Text>
-      ) : (
-        <Text style={styles.infoValeur}>{valeur}</Text>
-      )}
+      <DetailMembre
+        membre={membreSelectionne}
+        groupes={groupes}
+        chambres={chambres}
+        onFermer={() => setMembreSelectionne(null)}
+      />
     </View>
   );
 }
@@ -354,66 +317,56 @@ function DetailMembre({
   chambres,
   onFermer,
 }: {
-  membre: TeamRow;
+  membre: TeamRow | null;
   groupes: GroupeDto[];
   chambres: ChambreDto[];
   onFermer: () => void;
 }) {
-  const groupesMembre = groupesDuMembre(membre.key, groupes);
-  const chambresMembre = chambresDuMembre(membre.key, chambres);
+  const groupesMembre = membre ? groupesDuMembre(membre.key, groupes) : [];
+  const chambresMembre = membre ? chambresDuMembre(membre.key, chambres) : [];
   const aDesInfos = !!(
-    membre.telephone ||
-    membre.email ||
+    membre?.telephone ||
+    membre?.email ||
     groupesMembre.length ||
     chambresMembre.length
   );
 
   return (
-    <>
-      <Text style={styles.modalNom}>
-        {membre.prenom} {membre.nom.toUpperCase()}
-      </Text>
-      <Text style={styles.modalRole}>{membre.roleLabel}</Text>
-
-      <ScrollView style={styles.modalCorps} contentContainerStyle={styles.modalCorpsContenu}>
-        {membre.telephone ? (
-          <LigneInfo
-            libelle="Téléphone"
-            valeur={membre.telephone}
-            onPress={() => Linking.openURL(`tel:${membre.telephone}`)}
-          />
-        ) : null}
-        {membre.email ? (
-          <LigneInfo
-            libelle="E-mail"
-            valeur={membre.email}
-            onPress={() => Linking.openURL(`mailto:${membre.email}`)}
-          />
-        ) : null}
-        {groupesMembre.length > 0 ? (
-          <LigneInfo
-            libelle={groupesMembre.length > 1 ? 'Groupes' : 'Groupe'}
-            valeur={groupesMembre.join(', ')}
-          />
-        ) : null}
-        {chambresMembre.length > 0 ? (
-          <LigneInfo
-            libelle={chambresMembre.length > 1 ? 'Chambres' : 'Chambre'}
-            valeur={chambresMembre.join(', ')}
-          />
-        ) : null}
-        {!aDesInfos ? (
-          <Text style={styles.modalAucuneInfo}>Aucune information complémentaire.</Text>
-        ) : null}
-      </ScrollView>
-
-      <Pressable
-        style={({ pressed }) => [styles.modalFermer, pressed && styles.modalFermerPressed]}
-        onPress={onFermer}
-      >
-        <Text style={styles.modalFermerTexte}>Fermer</Text>
-      </Pressable>
-    </>
+    <FichePersonneModal
+      visible={membre != null}
+      onFermer={onFermer}
+      prenom={membre?.prenom ?? ''}
+      nom={membre?.nom ?? ''}
+      sousTitre={membre?.roleLabel ?? ''}
+      aucuneInfo={!aDesInfos}
+    >
+      {membre?.telephone ? (
+        <LigneInfoFiche
+          libelle="Téléphone"
+          valeur={membre.telephone}
+          onPress={() => Linking.openURL(`tel:${membre.telephone}`)}
+        />
+      ) : null}
+      {membre?.email ? (
+        <LigneInfoFiche
+          libelle="E-mail"
+          valeur={membre.email}
+          onPress={() => Linking.openURL(`mailto:${membre.email}`)}
+        />
+      ) : null}
+      {groupesMembre.length > 0 ? (
+        <LigneInfoFiche
+          libelle={groupesMembre.length > 1 ? 'Groupes' : 'Groupe'}
+          valeur={groupesMembre.join(', ')}
+        />
+      ) : null}
+      {chambresMembre.length > 0 ? (
+        <LigneInfoFiche
+          libelle={chambresMembre.length > 1 ? 'Chambres' : 'Chambre'}
+          valeur={chambresMembre.join(', ')}
+        />
+      ) : null}
+    </FichePersonneModal>
   );
 }
 
@@ -539,77 +492,5 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: colors.muted,
     marginTop: 24,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: colors.overlay,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: spacing.xxl,
-  },
-  modalCard: {
-    width: '100%',
-    maxHeight: '70%',
-    backgroundColor: colors.surface,
-    borderRadius: radius.sm,
-    padding: spacing.xl,
-  },
-  modalNom: {
-    fontSize: fontSizes.lg,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  modalRole: {
-    marginTop: spacing.xs,
-    fontSize: fontSizes.sm,
-    fontWeight: '600',
-    color: colors.primary,
-  },
-  modalCorps: {
-    marginTop: spacing.lg,
-  },
-  modalCorpsContenu: {
-    gap: spacing.md,
-  },
-  infoLigne: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    gap: spacing.md,
-  },
-  infoLibelle: {
-    fontSize: fontSizes.sm,
-    color: colors.muted,
-  },
-  infoValeur: {
-    flexShrink: 1,
-    fontSize: fontSizes.sm,
-    color: colors.text,
-    textAlign: 'right',
-  },
-  infoValeurLien: {
-    color: colors.link,
-    fontWeight: '600',
-  },
-  modalAucuneInfo: {
-    fontSize: fontSizes.sm,
-    color: colors.muted,
-    fontStyle: 'italic',
-  },
-  modalFermer: {
-    marginTop: spacing.xl,
-    alignSelf: 'flex-end',
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.lg,
-    borderRadius: radius.sm,
-    backgroundColor: colors.primary,
-  },
-  modalFermerPressed: {
-    backgroundColor: colors.primaryDark,
-  },
-  modalFermerTexte: {
-    color: colors.surface,
-    fontWeight: '700',
-    fontSize: fontSizes.sm,
   },
 });

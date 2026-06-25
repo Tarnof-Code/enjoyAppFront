@@ -17,14 +17,14 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | Séjours | `GET /sejours/utilisateur/{tokenId}`, `GET /sejours/{id}` | `SejourPicker`, `Home`, `Animators` (refresh) |
 | Réunions | `GET /sejours/{sejourId}/reunions` | `Home` (CR veille) |
 | Enfants | `GET /sejours/{id}/enfants` | `Children` |
-| Groupes | `GET /sejours/{id}/groupes` | `Groups`, `Animators` (filtre + modal), résolution libellés (Activités, Sorties, GrilleDetail) |
-| Chambres | `GET /sejours/{id}/chambres` | `Bedrooms`, `Animators` (modal chambre occupant) |
+| Groupes | `GET /sejours/{id}/groupes` | `Groups`, `Animators`, `Children` (filtre + modal), résolution libellés (Activités, Sorties, GrilleDetail) |
+| Chambres | `GET /sejours/{id}/chambres` | `Bedrooms`, `Animators`, `Children` (modal chambre occupant) |
 | Menus | `GET /sejours/{id}/menus?dateDebut&dateFin` | `Menus` |
 | Plannings | `GET /sejours/{id}/planning-grilles`, `GET …/{grilleId}` | `Organisation`, `GrilleDetail` |
 | Réf. planning | `GET …/moments`, `…/lieux`, `…/horaires` | `GrilleDetail` (résolution libellés) |
 | Activités | `GET /sejours/{id}/activites` | `Activites` |
 | Sorties | `GET /sejours/{id}/activites-prestataires` | `Sorties` |
-| Sanitaire | `GET /sejours/{id}/dossiers-enfants` | `Sanitaire` |
+| Sanitaire | `GET /sejours/{id}/dossiers-enfants` | `Sanitaire`, `Children` (contacts parents dans modal ; chargement silencieux si indisponible) |
 
 > Équipe (`Animators`) : données `directeur` + `equipe` dans `SejourDTO` (store) ; refresh via `getSejourById`. Compléments : groupes/chambres du séjour, profil directeur si absent de `equipe`. Chaque membre d'équipe porte `roleSejour` ; le directeur (champ séparé, sans `roleSejour`) est rattaché au filtre chip **Direction** avec les adjoints.
 
@@ -45,7 +45,7 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | `planningGrille.service.ts` | Grilles planning (liste + détail) |
 | `moment.service.ts`, `lieu.service.ts`, `horaire.service.ts` | Référentiels planning |
 | `activite.service.ts`, `activitePrestataire.service.ts` | Activités internes et sorties |
-| `dossierEnfant.service.ts` | Fiches sanitaires agrégées |
+| `dossierEnfant.service.ts` | Fiches sanitaires agrégées (`getDossiersSanitairesBySejour`) |
 
 ## Helpers (`helpers/`)
 
@@ -59,6 +59,7 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | `reunionVeille.ts`, `reunionTipTapTexte.ts` | CR réunion J−1 (`Home`) |
 | `photoProfil.ts` | Blob photo profil |
 | `roleSejour.ts` | Libellés rôle séjour : courts (chips) + longs adaptés au genre (badge) |
+| `anniversaireSejour.ts` | Date d'anniversaire pendant la période du séjour (affichage liste Enfants) |
 
 ## Glossaire
 

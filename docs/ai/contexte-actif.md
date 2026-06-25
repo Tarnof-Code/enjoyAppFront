@@ -10,6 +10,11 @@ Reste mineur : photos animateurs codées en dur dans `Header.tsx`, composant orp
 
 ## Journal
 
+### 2026-06-25
+- **Liste Enfants** (`screens/Lists/Children.tsx`) : cartes prénom/nom + badge groupes (style Équipe) ; recherche + **MultiSelect groupes** + chips genre (Garçons/Filles) ; tap → modal détail (âge, niveau scolaire, groupes, chambre, contacts parents via dossier).
+- **Modal partagée** : `Components/FichePersonneModal.tsx` (+ `LigneInfoFiche`) factorisée depuis Équipe et Enfants.
+- **Anniversaire pendant séjour** : helper `helpers/anniversaireSejour.ts` ; icône gâteau (`MaterialIcons` `cake`) avant le nom sur la carte ; ligne **Anniversaire : {date}** dans la modale (dates séjour Redux `sejourCourant`).
+
 ### 2026-06-24 (suite 2)
 - **Cartes liste Équipe** : affichage épuré (prénom/nom + badge rôle uniquement) ; tél./e-mail/groupes/chambre réservés au **modal** au tap.
 
