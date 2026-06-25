@@ -44,7 +44,7 @@ Onglet bottom tab : route **`Orga`**, libellé **Orga**. Titre header liste : «
 | Écran | Composant | Navigation |
 |-------|-----------|------------|
 | GrillesList | `screens/Organisation/Organisation` | Liste plannings tri alpha ; recherche titre (normalisation casse/accents, bouton ✕) ; tap → détail |
-| GrilleDetail | `screens/Organisation/GrilleDetail` | Matrice multi-jours (1/3/5) : colonnes jours, lignes libellés, sections regroupement ; toolbar **‹ Retour** + chips 1j/3j/5j ; swipe + flèches + **Aujourd'hui** ; tap cellule → `PlanningCelluleModal` si droits ; refresh séjour au pull-to-refresh |
+| GrilleDetail | `screens/Organisation/GrilleDetail` | Matrice multi-jours (1/3/5) : colonnes jours, lignes libellés, sections regroupement ; toolbar **‹ Retour** + chips 1j/3j/5j ; swipe + flèches + **Aujourd'hui** ; tap cellule → `PlanningCelluleModal` si droits **sur cette ligne** ; refresh séjour au pull-to-refresh |
 
 ## Écrans autonomes
 
@@ -59,7 +59,7 @@ Onglet bottom tab : route **`Orga`**, libellé **Orga**. Titre header liste : «
 - **`ListeAccordion`** : coque accordéon liste (chevron, carte, en-tête/corps) + styles `listeAccordionStyles` ; contenu métier dans l'écran (`Groups`, `Bedrooms`).
 - **`ChambreFormulaireModal`** : création/édition chambre (bottom sheet, scroll gesture-handler).
 - **`AffecterOccupantsModal`** : sélection multi occupants (enfants ou équipe) pour une chambre.
-- **`PlanningCelluleModal`** : édition cellule planning (bottom sheet) ; directeur/adjoint = contenu complet ; animateur = ma présence sur grille équipe.
+- **`PlanningCelluleModal`** : édition cellule planning (bottom sheet) ; directeur/adjoint = contenu complet ; animateur = ma présence (contenu `MEMBRE_EQUIPE`) ou édition complète **sur sa ligne** (libellé `MEMBRE_EQUIPE`).
 - **`BoutonModePaysageGrille`** / **`ConteneurGrillePaysage`** : paysage visuel du tableau sur **`Menus`** et **`GrilleDetail`** (rotation 90°, appareil en portrait).
 - **`DropdownAnim.tsx`** : orphelin (plus référencé).
 

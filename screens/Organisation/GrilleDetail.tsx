@@ -37,7 +37,7 @@ import {
   lieuxPourPlanning,
   lignesTriPourAffichageGrille,
   membresDirecteurEtEquipe,
-  peutModifierCellulesPlanning,
+  peutModifierCellulePlanning,
   resumeCellule,
   sourceContenuCellulesEffectif,
   type NombreJoursVuePlanning,
@@ -137,7 +137,11 @@ function GrilleDetailContent({ route, navigation, modePaysage, basculerModePaysa
     () => peutGererMembresEquipeSejour(tokenUtilisateur, sejour?.directeur, sejour?.equipe),
     [tokenUtilisateur, sejour],
   );
-  const peutModifier = grille ? peutModifierCellulesPlanning(grille, peutGererStructure) : false;
+
+  const celluleEditable = (ligne: PlanningLigneDto): boolean =>
+    grille
+      ? peutModifierCellulePlanning(grille, ligne, peutGererStructure, tokenUtilisateur)
+      : false;
   const afficherColonneLibelle = grille ? !grilleLibelleLignesDesactive(grille) : false;
 
   const lignesTriees = useMemo(
@@ -158,7 +162,7 @@ function GrilleDetailContent({ route, navigation, modePaysage, basculerModePaysa
   };
 
   const ouvrirCellule = (ligne: PlanningLigneDto, jour: string) => {
-    if (!grille || !peutModifier) return;
+    if (!grille || !celluleEditable(ligne)) return;
     setCellError(null);
     setCellLigne(ligne);
     setCellJour(jour);
@@ -427,7 +431,7 @@ function GrilleDetailContent({ route, navigation, modePaysage, basculerModePaysa
                     {joursFenetre.map(({ ymd }, jourIndex) => {
                       const texte = texteCellule(ligne, ymd);
                       const vide = celluleEstVide(texte);
-                      const editable = peutModifier;
+                      const editable = celluleEditable(ligne);
                       const derniereColonne = jourIndex === joursFenetre.length - 1;
                       return (
                         <Pressable

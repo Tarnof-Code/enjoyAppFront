@@ -65,8 +65,9 @@ Patterns et choix techniques de l'app mobile. Garder ce fichier comme référenc
 
 - **Liste** (`Organisation.tsx`) : tri alpha titre (`localeCompare` `fr`) ; filtre `TextInput` + normalisation NFD ; bouton ✕ cross-platform pour vider la recherche.
 - **Détail matrice** (`GrilleDetail.tsx`) : lignes triées + bandeaux regroupement ; fenêtre 1/3/5 jours sur tous les jours du séjour (`enumererJoursSejour`) ; hook **`useFenetreJoursPlanning`** (navigation par bonds = taille vue ; `decalage`/`definirDebutFenetre` en `useCallback`) ; navigation ‹ › swipe + **Aujourd'hui** ; toolbar **‹ Retour** + chips 1j/3j/5j compacts + **paysage tableau** (hors `Header`).
-- **Logique métier** : **`helpers/planningGrilleUtils.ts`** (libellés lignes/cellules, validation payload, permissions, fenêtre jours, résumé cellule, membres équipe) ; **`helpers/peutGererMembresEquipeSejour.ts`** (directeur ou adjoint = édition structure) ; **`helpers/enumererJoursSejour.ts`** (plage séjour).
-- **Écriture API** : directeur/adjoint → `PUT …/lignes/{ligneId}/cellules` ; animateur sur grille équipe → `PATCH …/cellules/{jour}/ma-presence` si `planningAnimateurPeutModifierCellules`.
+- **Logique métier** : **`helpers/planningGrilleUtils.ts`** (libellés lignes/cellules, validation payload, permissions **par ligne**, fenêtre jours, résumé cellule, membres équipe) ; **`helpers/peutGererMembresEquipeSejour.ts`** (directeur ou adjoint = édition structure) ; **`helpers/enumererJoursSejour.ts`** (plage séjour).
+- **Permissions cellules** : **`peutModifierCellulePlanning(detail, ligne, peutGererStructure, tokenId)`** — directeur/adjoint → toutes les lignes ; contenu cellule **`MEMBRE_EQUIPE`** → animateur sur toute ligne (PATCH **ma-presence**, case connectée seule) ; libellé ligne **`MEMBRE_EQUIPE`** → animateur **PUT** uniquement sur la ligne où `libelleUtilisateurTokenId` = connecté.
+- **Écriture API** : directeur/adjoint → `PUT …/lignes/{ligneId}/cellules` ; animateur contenu équipe → `PATCH …/ma-presence` ; animateur libellé membre (autre contenu) → `PUT` sur sa ligne (`ACCES_SEJOUR` + vérif. serveur).
 - **Cas particulier** : `GrilleDetail` charge grille + référentiels (moments, lieux, horaires, groupes) + refresh séjour ; libellés membres selon `triListesEquipe`.
 
 ## Menus repas

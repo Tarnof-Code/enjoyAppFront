@@ -10,6 +10,11 @@ Reste mineur : photos animateurs codées en dur dans `Header.tsx`, composant orp
 
 ## Journal
 
+### 2026-06-25 (suite 9)
+- **Plannings — droits animateur par ligne** : si **`sourceLibelleLignes = MEMBRE_EQUIPE`**, l’animateur ne peut éditer que les cellules de **sa** ligne (`libelleUtilisateurTokenId` = `tokenId` connecté) ; contenu cellule **`MEMBRE_EQUIPE`** → PATCH **ma-presence** sur toute ligne (sa case uniquement) ; directeur/adjoint inchangés (PUT toutes lignes).
+- **Helpers** : **`peutModifierCellulePlanning`**, **`ligneEstCelleDeUtilisateur`**, **`planningAnimateurAUneCelluleEditable`** dans **`planningGrilleUtils.ts`** ; **`GrilleDetail`** : clic cellule filtré par ligne (plus de flag global `peutModifier`).
+- **API (enjoyApi, aligné web)** : `PUT …/cellules` accepte **`ACCES_SEJOUR`** pour la propre ligne membre ; contrôle métier côté serveur — déploiement API requis pour l’enregistrement animateur hors directeur/adjoint.
+
 ### 2026-06-25 (suite 8)
 - **Mode paysage des grilles** (`Menus`, **`GrilleDetail`**) : bouton rotation dans la toolbar (à côté des chips 1/3/5 j.) ; **`ConteneurGrillePaysage`** applique une rotation 90° **uniquement au tableau** (header + barre d'outils + app restent en portrait) ; hook **`useModePaysageGrille`** (état local, pas de verrou orientation appareil).
 - **Composants** : **`BoutonModePaysageGrille`** (icône `screen-rotation`, état actif) ; segment 1/3/5 j. en largeur compacte (`alignSelf: 'flex-start'`, sans `flex: 1`).

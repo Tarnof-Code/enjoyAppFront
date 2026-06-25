@@ -67,11 +67,50 @@ export function planningAnimateurPeutModifierCellules(detail: PlanningGrilleDeta
   );
 }
 
+export function ligneEstCelleDeUtilisateur(
+  ligne: PlanningLigneDto,
+  tokenUtilisateur: string | null | undefined,
+): boolean {
+  const tid = tokenUtilisateur?.trim();
+  if (!tid) return false;
+  return (ligne.libelleUtilisateurTokenId?.trim() ?? '') === tid;
+}
+
+/** Animateur : au moins une cellule éditable sur la grille. */
+export function planningAnimateurAUneCelluleEditable(
+  detail: PlanningGrilleDetailDto,
+  tokenUtilisateur: string | null | undefined,
+): boolean {
+  if (sourceContenuCellulesEffectif(detail) === 'MEMBRE_EQUIPE') return true;
+  if (detail.sourceLibelleLignes === 'MEMBRE_EQUIPE') {
+    const tid = tokenUtilisateur?.trim();
+    if (!tid) return false;
+    return detail.lignes.some((l) => ligneEstCelleDeUtilisateur(l, tid));
+  }
+  return false;
+}
+
+export function peutModifierCellulePlanning(
+  detail: PlanningGrilleDetailDto,
+  ligne: PlanningLigneDto,
+  peutGererStructure: boolean,
+  tokenUtilisateur: string | null | undefined,
+): boolean {
+  if (peutGererStructure) return true;
+  if (sourceContenuCellulesEffectif(detail) === 'MEMBRE_EQUIPE') return true;
+  if (detail.sourceLibelleLignes === 'MEMBRE_EQUIPE') {
+    return ligneEstCelleDeUtilisateur(ligne, tokenUtilisateur);
+  }
+  return false;
+}
+
 export function peutModifierCellulesPlanning(
   detail: PlanningGrilleDetailDto,
   peutGererStructure: boolean,
+  tokenUtilisateur?: string | null,
 ): boolean {
-  return peutGererStructure || planningAnimateurPeutModifierCellules(detail);
+  if (peutGererStructure) return true;
+  return planningAnimateurAUneCelluleEditable(detail, tokenUtilisateur);
 }
 
 export function lignesTriPourAffichageGrille(lignes: PlanningLigneDto[]): PlanningLigneDto[] {

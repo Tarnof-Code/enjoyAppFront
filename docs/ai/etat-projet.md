@@ -21,7 +21,7 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | Groupes | `GET /sejours/{id}/groupes` | `Groups`, `Bedrooms` (filtre), `Animators`, `Children` (filtre + modal), résolution libellés (Activités, Sorties, GrilleDetail) |
 | Menus | `GET /sejours/{id}/menus?dateDebut&dateFin` | `Menus` |
 | Plannings | `GET /sejours/{id}/planning-grilles`, `GET …/{grilleId}` | `Organisation`, `GrilleDetail` |
-| Plannings (écriture) | `PUT …/{grilleId}/lignes/{ligneId}/cellules`, `PATCH …/cellules/{jour}/ma-presence` | `GrilleDetail` (directeur/adjoint : cellule complète ; animateur : ma présence sur grille équipe) |
+| Plannings (écriture) | `PUT …/{grilleId}/lignes/{ligneId}/cellules` (`GESTION_SEJOURS` ou **`ACCES_SEJOUR`** sur sa ligne si libellé `MEMBRE_EQUIPE`), `PATCH …/cellules/{jour}/ma-presence` | `GrilleDetail` — directeur/adjoint : toutes lignes ; animateur : PATCH si contenu `MEMBRE_EQUIPE`, PUT sa ligne si libellé `MEMBRE_EQUIPE` |
 | Réf. planning | `GET …/moments`, `…/lieux`, `…/horaires` | `GrilleDetail` (résolution libellés + édition cellule) |
 | Activités | `GET /sejours/{id}/activites` | `Activites` |
 | Sorties | `GET /sejours/{id}/activites-prestataires` | `Sorties` |
@@ -77,7 +77,7 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | `chambreOccupantsUtils.ts` | Éligibilité occupants, validation modification chambre, fusion liste locale après affectation |
 | `enumererJoursSejour.ts` | Liste des jours ISO entre date début/fin séjour |
 | `peutGererMembresEquipeSejour.ts` | Directeur ou adjoint (droits édition structure planning) |
-| `planningGrilleUtils.ts` | Affichage/validation cellules planning, fenêtre jours, permissions, résumés |
+| `planningGrilleUtils.ts` | Affichage/validation cellules planning, fenêtre jours, permissions par ligne (`peutModifierCellulePlanning`, `ligneEstCelleDeUtilisateur`), résumés |
 
 ## Composants (`Components/` — complément)
 
