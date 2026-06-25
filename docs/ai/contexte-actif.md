@@ -10,6 +10,11 @@ Reste mineur : photos animateurs codées en dur dans `Header.tsx`, composant orp
 
 ## Journal
 
+### 2026-06-25 (suite 3)
+- **Tri des listes de personnes** (réglage partagé API, lecture seule mobile) : champs `triListesEnfants` / `triListesEquipe` sur `SejourDTO` (`CritereTriListeApi` : `NOM` | `PRENOM`) ; helpers `helpers/trierUtilisateurs.ts` (comparateurs locale `fr`) + `helpers/triListesSejour.ts` (tri + libellé « Nom Prénom » ou « Prénom Nom »).
+- **Hook `useRafraichirSejourCourant`** : recharge le séjour courant dans le store au pull-to-refresh (pour prendre en compte un changement de tri côté web) ; inclus dans le `executer` de **Équipe, Enfants, Groupes, Chambres, Sanitaire, Activités, GrilleDetail**.
+- **Écrans concernés** : tri + libellé harmonisés — enfants (`trierEnfantsDuSejour`, `libelleEnfantDuSejour`) sur Enfants, Groupes (accordéons), Chambres (occupants enfants), Sanitaire ; équipe (`trierEquipeDuSejour`, `libelleEquipeDuSejour`) sur Équipe, Chambres (occupants équipe), Activités (animateurs), GrilleDetail (membres).
+
 ### 2026-06-25 (suite 2)
 - **Liste Chambres** (`screens/Lists/Bedrooms.tsx`) : accordéons via **`ListeAccordion`** (identifiant/nom, badge type style Équipe, genre, jauge remplissage, groupe âge/niveau) ; déplié → enfants ou membres équipe selon `typeChambre` ; **filtres sur une ligne** : menus déroulants Type / Genre / Groupe (choix unique, groupes âge-niveau ; masqué si type Équipe) + **chip** Places dispo ; chargement parallèle chambres + groupes ; tri par identifiant.
 - **Composant partagé** : `Components/ListeAccordion.tsx` — coque accordéon (chevron, en-tête, corps) ; utilisé par **Groupes** et **Chambres** (`Groups.tsx` refactorisé).

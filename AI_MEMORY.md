@@ -10,6 +10,6 @@ Fiches utiles :
 - `docs/ai/documentation-ui-routing.md` : navigateurs, écrans, onglets, UX listes.
 - `docs/ai/roadmap.md` : suivi des tâches.
 
-Rappels essentiels : réponses en français ; `npm` + `legacy-peer-deps` ; secrets interdits ; types dans `types/api.d.ts` (alignés web) ; **`tokenId`** jamais id SQL ; client **`services/httpClient.ts`** ; auth SecureStore + refresh single-flight. **Navigation** : Stack `Login` → `SejourPicker` → **6 onglets** ; top-tabs **`creerTopTab`**. **Données** : API Enjoy uniquement ; **`useChargementRafraichissable`** + pull-to-refresh. **Listes** : modal **`FichePersonneModal`** (Équipe, Enfants) ; accordéons **`ListeAccordion`** (Groupes, Chambres).
+Rappels essentiels : réponses en français ; `npm` + `legacy-peer-deps` ; secrets interdits ; types dans `types/api.d.ts` (alignés web) ; **`tokenId`** jamais id SQL ; client **`services/httpClient.ts`** ; auth SecureStore + refresh single-flight. **Navigation** : Stack `Login` → `SejourPicker` → **6 onglets** ; top-tabs **`creerTopTab`**. **Données** : API Enjoy uniquement ; **`useChargementRafraichissable`** + pull-to-refresh ; **`useRafraichirSejourCourant`** pour resync séjour. **Listes** : modal **`FichePersonneModal`** (Équipe, Enfants) ; accordéons **`ListeAccordion`** (Groupes, Chambres) ; tri/libellés via **`triListesSejour`** (`triListesEnfants` / `triListesEquipe` sur `SejourDTO`, lecture seule).
 
-Mise à jour mémoire : commande **`/maj`**. Dernière MAJ : **2026-06-25** (Chambres : accordéons, filtres ; `ListeAccordion` partagé Groupes/Chambres).
+Mise à jour mémoire : commande **`/maj`**. Dernière MAJ : **2026-06-25** (tri listes enfants/équipe selon réglage API ; `useRafraichirSejourCourant`).

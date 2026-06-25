@@ -11,9 +11,11 @@ import {
 
 import { ListeAccordion, listeAccordionStyles } from '../../Components/ListeAccordion';
 import { useChargementRafraichissable } from '../../hooks/useChargementRafraichissable';
+import { useRafraichirSejourCourant } from '../../hooks/useRafraichirSejourCourant';
 import { groupeService } from '../../services/groupe.service';
-import type { GroupeDto, TypeGroupe } from '../../types/api';
+import type { GroupeDto, SejourDTO, TypeGroupe } from '../../types/api';
 import { useAppSelector } from '../../store/hooks';
+import { libelleEnfantDuSejour, trierEnfantsDuSejour } from '../../helpers/triListesSejour';
 import { colors, fontSizes } from '../../config/theme';
 
 const FILTRE_TOUT = 'TOUT';
@@ -65,11 +67,12 @@ function groupesAgeOuNiveauDeEnfant(enfantId: number, groupes: GroupeDto[]): str
 type GroupeAccordionProps = {
   groupe: GroupeDto;
   tousLesGroupes: GroupeDto[];
+  sejour: SejourDTO | null;
   ouvert: boolean;
   onToggle: () => void;
 };
 
-function GroupeAccordion({ groupe, tousLesGroupes, ouvert, onToggle }: GroupeAccordionProps) {
+function GroupeAccordion({ groupe, tousLesGroupes, sejour, ouvert, onToggle }: GroupeAccordionProps) {
   return (
     <ListeAccordion
       ouvert={ouvert}
@@ -93,7 +96,7 @@ function GroupeAccordion({ groupe, tousLesGroupes, ouvert, onToggle }: GroupeAcc
         groupe.enfants.length === 0 ? (
           <Text style={listeAccordionStyles.vide}>Aucun enfant dans ce groupe.</Text>
         ) : (
-          groupe.enfants.map((enfant) => {
+          trierEnfantsDuSejour(groupe.enfants, sejour).map((enfant) => {
             const groupesTranche =
               groupe.typeGroupe === 'THEMATIQUE'
                 ? groupesAgeOuNiveauDeEnfant(enfant.id, tousLesGroupes)
@@ -101,7 +104,7 @@ function GroupeAccordion({ groupe, tousLesGroupes, ouvert, onToggle }: GroupeAcc
             return (
               <View key={enfant.id} style={listeAccordionStyles.ligneListe}>
                 <Text style={listeAccordionStyles.ligneListeNom}>
-                  {enfant.prenom} {enfant.nom}
+                  {libelleEnfantDuSejour(enfant, sejour)}
                 </Text>
                 {groupesTranche.length > 0 ? (
                   <Text style={styles.enfantGroupe} numberOfLines={2}>
@@ -118,15 +121,21 @@ function GroupeAccordion({ groupe, tousLesGroupes, ouvert, onToggle }: GroupeAcc
 }
 
 export default function Groups() {
-  const sejourId = useAppSelector((state) => state.sejour.sejourCourant?.id);
+  const sejour = useAppSelector((state) => state.sejour.sejourCourant);
+  const sejourId = sejour?.id;
   const [groupes, setGroupes] = useState<GroupeDto[]>([]);
   const [ouverts, setOuverts] = useState<Set<number>>(() => new Set());
   const [filtreType, setFiltreType] = useState<string>(FILTRE_TOUT);
+  const rafraichirSejour = useRafraichirSejourCourant();
 
   const executer = useCallback(async () => {
     if (sejourId == null) return;
-    setGroupes(await groupeService.getGroupesBySejour(sejourId));
-  }, [sejourId]);
+    const [, listeGroupes] = await Promise.all([
+      rafraichirSejour(),
+      groupeService.getGroupesBySejour(sejourId),
+    ]);
+    setGroupes(listeGroupes);
+  }, [sejourId, rafraichirSejour]);
 
   const { loading, refreshing, error, refresh } = useChargementRafraichissable(
     executer,
@@ -208,6 +217,7 @@ export default function Groups() {
           <GroupeAccordion
             groupe={item}
             tousLesGroupes={groupes}
+            sejour={sejour}
             ouvert={ouverts.has(item.id)}
             onToggle={() => basculerGroupe(item.id)}
           />

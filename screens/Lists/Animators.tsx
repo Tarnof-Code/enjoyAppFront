@@ -22,6 +22,7 @@ import FichePersonneModal, { LigneInfoFiche } from '../../Components/FichePerson
 import { colors } from '../../config/theme';
 import type { ChambreDto, GroupeDto } from '../../types/api';
 import { ROLES_SEJOUR, libelleRoleSejour, libelleRoleSejourCourt } from '../../helpers/roleSejour';
+import { libelleEquipeDuSejour, trierEquipeDuSejour } from '../../helpers/triListesSejour';
 
 interface TeamRow {
   key: string;
@@ -151,19 +152,20 @@ export default function Animators() {
       email: contactDirecteur?.email,
     });
   }
-  membres
-    .filter((membre) => !directeur || membre.tokenId !== directeur.tokenId)
-    .forEach((membre) => {
-      rows.push({
-        key: membre.tokenId,
-        prenom: membre.prenom,
-        nom: membre.nom,
-        roleLabel: libelleRoleSejour(membre.roleSejour, membre.genre),
-        roleFiltre: String(membre.roleSejour ?? 'AUTRE'),
-        telephone: membre.telephone || undefined,
-        email: membre.email || undefined,
-      });
+  const membresHorsDirecteur = membres.filter(
+    (membre) => !directeur || membre.tokenId !== directeur.tokenId,
+  );
+  trierEquipeDuSejour(membresHorsDirecteur, sejour).forEach((membre) => {
+    rows.push({
+      key: membre.tokenId,
+      prenom: membre.prenom,
+      nom: membre.nom,
+      roleLabel: libelleRoleSejour(membre.roleSejour, membre.genre),
+      roleFiltre: String(membre.roleSejour ?? 'AUTRE'),
+      telephone: membre.telephone || undefined,
+      email: membre.email || undefined,
     });
+  });
 
   const rolesPresents = new Set(membres.map((membre) => String(membre.roleSejour ?? 'AUTRE')));
   const aDirection = !!directeur || rolesPresents.has('ADJOINT');
@@ -286,7 +288,7 @@ export default function Animators() {
           >
             <View style={styles.cardMain}>
               <Text style={styles.name}>
-                {item.prenom} {item.nom.toUpperCase()}
+                {libelleEquipeDuSejour(item, sejour, { nomEnMajuscules: true })}
               </Text>
             </View>
             <Text style={styles.role}>{item.roleLabel}</Text>

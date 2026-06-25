@@ -12,9 +12,11 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import Header from '../../Components/Header';
 import { useChargementRafraichissable } from '../../hooks/useChargementRafraichissable';
+import { useRafraichirSejourCourant } from '../../hooks/useRafraichirSejourCourant';
 import { dossierEnfantService } from '../../services/dossierEnfant.service';
-import type { DossierEnfantDto, EnfantDossierSanitaireLigneDto } from '../../types/api';
+import type { DossierEnfantDto, EnfantDossierSanitaireLigneDto, SejourDTO } from '../../types/api';
 import { useAppSelector } from '../../store/hooks';
+import { libelleEnfantDuSejour, trierEnfantsDuSejour } from '../../helpers/triListesSejour';
 import { colors } from '../../config/theme';
 
 type Filtre = 'TOUT' | 'TRAITEMENTS' | 'REGIME' | 'MEDICAL';
@@ -53,7 +55,7 @@ function correspondAuFiltre(d: DossierEnfantDto, filtre: Filtre): boolean {
   return aContenu(d);
 }
 
-function Ligne({ item }: { item: EnfantDossierSanitaireLigneDto }) {
+function Ligne({ item, sejour }: { item: EnfantDossierSanitaireLigneDto; sejour: SejourDTO | null }) {
   const d = item.dossier!;
   const groupes = item.groupes.map((g) => g.libelle).filter(Boolean);
   const allergenes = d.allergenes.map((a) => a.libelle).filter(Boolean);
@@ -63,7 +65,7 @@ function Ligne({ item }: { item: EnfantDossierSanitaireLigneDto }) {
     <View style={styles.card}>
       <View style={styles.cardHeader}>
         <Text style={styles.nom}>
-          {item.prenom} {item.nom}
+          {libelleEnfantDuSejour(item, sejour)}
         </Text>
         {groupes.length > 0 ? <Text style={styles.groupes}>{groupes.join(', ')}</Text> : null}
       </View>
@@ -125,21 +127,30 @@ function Ligne({ item }: { item: EnfantDossierSanitaireLigneDto }) {
 }
 
 function Liste() {
-  const sejourId = useAppSelector((state) => state.sejour.sejourCourant?.id);
+  const sejour = useAppSelector((state) => state.sejour.sejourCourant);
+  const sejourId = sejour?.id;
   const [lignes, setLignes] = useState<EnfantDossierSanitaireLigneDto[]>([]);
   const [filtre, setFiltre] = useState<Filtre>('TOUT');
+  const rafraichirSejour = useRafraichirSejourCourant();
 
   const executer = useCallback(async () => {
     if (sejourId == null) return;
-    setLignes(await dossierEnfantService.getDossiersSanitairesBySejour(sejourId));
-  }, [sejourId]);
+    const [, lignesSanitaire] = await Promise.all([
+      rafraichirSejour(),
+      dossierEnfantService.getDossiersSanitairesBySejour(sejourId),
+    ]);
+    setLignes(lignesSanitaire);
+  }, [sejourId, rafraichirSejour]);
 
   const { loading, refreshing, error, refresh } = useChargementRafraichissable(
     executer,
     'Impossible de charger les fiches sanitaires.',
   );
 
-  const visibles = lignes.filter((l) => l.dossier && correspondAuFiltre(l.dossier, filtre));
+  const visibles = trierEnfantsDuSejour(
+    lignes.filter((l) => l.dossier && correspondAuFiltre(l.dossier, filtre)),
+    sejour,
+  );
 
   if (!sejourId) {
     return (
@@ -189,7 +200,7 @@ function Liste() {
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={refresh} colors={[colors.primary]} tintColor={colors.primary} />
         }
-        renderItem={({ item }) => <Ligne item={item} />}
+        renderItem={({ item }) => <Ligne item={item} sejour={sejour} />}
         ListEmptyComponent={
           <Text style={styles.empty}>Aucune information sanitaire pour ce filtre.</Text>
         }

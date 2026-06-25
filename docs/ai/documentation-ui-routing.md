@@ -25,16 +25,16 @@ App.tsx
 
 | Sous-onglet | Écran | Titre header | Source données |
 |-------------|-------|--------------|----------------|
-| Animators | `screens/Lists/Animators` | Équipe | Redux `sejourCourant` (+ refresh séjour) ; groupes/chambres/profil directeur en parallèle — recherche, chips rôle séjour (chip **Direction**), MultiSelect groupes ; cartes nom+rôle, modal `FichePersonneModal` (contact, groupes, chambre) |
-| Children | `screens/Lists/Children` | Enfants | `GET /enfants` + groupes/chambres/dossiers en parallèle ; dates séjour (Redux) pour anniversaire — recherche, MultiSelect groupes, chips genre ; cartes nom (+ icône gâteau si anniversaire) + badge groupes ; modal `FichePersonneModal` (âge, niveau, groupes, chambre, contacts parents) |
-| Groups | `screens/Lists/Groups` | Groupes | `GET /groupes` — accordéons par groupe (en-tête : nom, type, tranche ou description thématique, nb enfants) ; chips filtre **type** (Tous / Par âge / Par niveau / Thématique) ; déplié → liste enfants ; groupes thématiques : à droite du nom, groupes par âge/niveau de l'enfant |
-| Bedrooms | `screens/Lists/Bedrooms` | Chambres | `GET /chambres` + `GET /groupes` (filtre) — accordéons (`ListeAccordion`) : en-tête identifiant/nom, type, genre, jauge, groupe ; déplié → occupants (enfants ou équipe) ; **filtres** : menus Type / Genre / Groupe (unique, masqué si type Équipe) + chip **Places dispo** |
+| Animators | `screens/Lists/Animators` | Équipe | Redux `sejourCourant` (+ `useRafraichirSejourCourant`) ; groupes/chambres/profil directeur en parallèle — tri/libellé équipe selon `triListesEquipe` ; recherche, chips rôle séjour (chip **Direction**), MultiSelect groupes ; cartes nom+rôle, modal `FichePersonneModal` (contact, groupes, chambre) |
+| Children | `screens/Lists/Children` | Enfants | `GET /enfants` + groupes/chambres/dossiers + refresh séjour en parallèle ; tri/libellé selon `triListesEnfants` ; dates séjour pour anniversaire — recherche, MultiSelect groupes, chips genre ; cartes nom (+ icône gâteau si anniversaire) + badge groupes ; modal `FichePersonneModal` (âge, niveau, groupes, chambre, contacts parents) |
+| Groups | `screens/Lists/Groups` | Groupes | `GET /groupes` + refresh séjour — accordéons par groupe ; enfants triés/libellés selon `triListesEnfants` ; chips filtre **type** ; groupes thématiques : à droite du nom, groupes par âge/niveau de l'enfant |
+| Bedrooms | `screens/Lists/Bedrooms` | Chambres | `GET /chambres` + `GET /groupes` + refresh séjour — accordéons (`ListeAccordion`) ; occupants triés/libellés (enfant ou équipe selon type chambre) ; **filtres** : menus Type / Genre / Groupe + chip **Places dispo** |
 
 ## Onglets Activités (`TopTabActivities`)
 
 | Sous-onglet | Écran | Titre header | Source |
 |-------------|-------|--------------|--------|
-| Activites | `screens/Activities/Activites` | Activités | `GET /activites` |
+| Activites | `screens/Activities/Activites` | Activités | `GET /activites` + refresh séjour ; libellés animateurs selon `triListesEquipe` |
 | Sorties | `screens/Activities/Sorties` | Sorties | `GET /activites-prestataires` |
 
 ## Organisation (`OrganisationNavigator`)
@@ -42,12 +42,12 @@ App.tsx
 | Écran | Composant | Navigation |
 |-------|-----------|------------|
 | GrillesList | `screens/Organisation/Organisation` | Liste des grilles → tap → détail |
-| GrilleDetail | `screens/Organisation/GrilleDetail` | Vue jour par jour, libellés résolus |
+| GrilleDetail | `screens/Organisation/GrilleDetail` | Vue jour par jour, libellés résolus ; membres équipe selon `triListesEquipe` ; refresh séjour au pull-to-refresh |
 
 ## Écrans autonomes
 
 - **`Menus`** : menus repas groupés par jour (`SectionList`).
-- **`Sanitaire`** : fiches sanitaires agrégées, filtres Tout / Traitements / Régime / Médical.
+- **`Sanitaire`** : fiches sanitaires agrégées, tri/libellé enfants selon `triListesEnfants`, refresh séjour au pull-to-refresh ; filtres Tout / Traitements / Régime / Médical.
 - **`Home`** : titre Enjoy, sélecteur séjour (modal), bienvenue, date, encart CR veille.
 
 ## Composants partagés
@@ -59,7 +59,8 @@ App.tsx
 
 ## UX transverse
 
-- **Pull-to-refresh** sur tous les écrans de données (hook `useChargementRafraichissable` ou logique dédiée).
+- **Pull-to-refresh** sur tous les écrans de données (hook `useChargementRafraichissable` ou logique dédiée). Écrans avec personnes : inclure **`useRafraichirSejourCourant`** dans le `executer` pour synchroniser le tri listes (`triListesEnfants` / `triListesEquipe`).
+- **Tri et libellés personnes** (`helpers/triListesSejour.ts`) : ordre et affichage « Nom Prénom » ou « Prénom Nom » selon réglage séjour (lecture seule, aligné web).
 - **Recherche + filtre liste** (modèle `Animators` / `Children`) : barre compacte (`TextInput` + normalisation casse/accents) + **MultiSelect** groupes (`react-native-element-dropdown`, cases à cocher) + chips (rôle séjour sur Équipe ; genre sur Enfants). **Carte** : nom + badge droite (rôle ou groupes) ; **modal** `FichePersonneModal` au tap. Filtres par chips sur **`Groups`** (type de groupe), **`Bedrooms`** (chip Places dispo) et `Sanitaire` (Tout/Traitements/Régime/Médical). **`Bedrooms`** : menus déroulants Type / Genre / Groupe sur une ligne (`Dropdown` single-select).
 - **Accordéons listes** (`Groups`, `Bedrooms` via **`ListeAccordion`**) : plusieurs items ouverts possibles (`Set` d'ids) ; pas de modal occupant/enfant pour l'instant.
 - **Anniversaire pendant séjour** (`Children`) : icône gâteau avant le nom ; modale « Anniversaire : {jour date} » (`helpers/anniversaireSejour.ts`).

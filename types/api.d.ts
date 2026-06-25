@@ -6,6 +6,9 @@ export type RoleSysteme = 'ADMIN' | 'DIRECTION' | 'BASIC_USER';
 
 export type RoleSejour = 'ANIM' | 'AS' | 'ADJOINT' | 'SB' | 'AUTRE';
 
+/** Critère de tri des listes de personnes côté API (miroir de l'enum Java CritereTriListe). */
+export type CritereTriListeApi = 'NOM' | 'PRENOM';
+
 export interface SejourDTO {
   id: number;
   nom: string;
@@ -13,6 +16,10 @@ export interface SejourDTO {
   dateDebut: string | number;
   dateFin: string | number;
   lieuDuSejour: string;
+  /** Ordre d'affichage des listes d'enfants (réglage partagé, lecture seule côté mobile). */
+  triListesEnfants?: CritereTriListeApi;
+  /** Ordre d'affichage des listes d'équipe (réglage partagé, lecture seule côté mobile). */
+  triListesEquipe?: CritereTriListeApi;
   directeur?: DirecteurInfos;
   equipe?: ProfilUtilisateurDTO[];
 }

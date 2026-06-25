@@ -15,6 +15,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import dayjs from 'dayjs';
 
 import { useChargementRafraichissable } from '../../hooks/useChargementRafraichissable';
+import { useRafraichirSejourCourant } from '../../hooks/useRafraichirSejourCourant';
 import { enfantService } from '../../services/enfant.service';
 import { groupeService } from '../../services/groupe.service';
 import { chambreService } from '../../services/chambre.service';
@@ -23,6 +24,7 @@ import type { ChambreDto, DossierEnfantDto, EnfantDto, GroupeDto } from '../../t
 import { useAppSelector } from '../../store/hooks';
 import FichePersonneModal, { LigneInfoFiche } from '../../Components/FichePersonneModal';
 import { anniversairePendantSejour } from '../../helpers/anniversaireSejour';
+import { libelleEnfantDuSejour, trierEnfantsDuSejour } from '../../helpers/triListesSejour';
 import { colors, fontSizes } from '../../config/theme';
 
 const FILTRE_TOUT = 'TOUT';
@@ -86,10 +88,12 @@ export default function Children() {
   const [groupesSelectionnes, setGroupesSelectionnes] = useState<string[]>([]);
   const [filtreGenre, setFiltreGenre] = useState<string>(FILTRE_TOUT);
   const [enfantSelectionne, setEnfantSelectionne] = useState<EnfantDto | null>(null);
+  const rafraichirSejour = useRafraichirSejourCourant();
 
   const executer = useCallback(async () => {
     if (sejourId == null) return;
-    const [listeEnfants, listeGroupes, listeChambres, lignesDossiers] = await Promise.all([
+    const [, listeEnfants, listeGroupes, listeChambres, lignesDossiers] = await Promise.all([
+      rafraichirSejour(),
       enfantService.getEnfantsBySejour(sejourId),
       groupeService.getGroupesBySejour(sejourId),
       chambreService.getChambresBySejour(sejourId),
@@ -103,7 +107,7 @@ export default function Children() {
     setGroupes(listeGroupes);
     setChambres(listeChambres);
     setDossiersParEnfant(dossiers);
-  }, [sejourId]);
+  }, [sejourId, rafraichirSejour]);
 
   const { loading, refreshing, error, refresh } = useChargementRafraichissable(
     executer,
@@ -135,6 +139,7 @@ export default function Children() {
     const cible = normaliser(`${enfant.prenom} ${enfant.nom}`);
     return cible.includes(termeRecherche);
   });
+  const enfantsAffiches = trierEnfantsDuSejour(enfantsVisibles, sejour);
 
   if (!sejourId) {
     return (
@@ -224,7 +229,7 @@ export default function Children() {
       ) : null}
 
       <FlatList
-        data={enfantsVisibles}
+        data={enfantsAffiches}
         keyExtractor={(item) => String(item.id)}
         contentContainerStyle={styles.list}
         refreshControl={
@@ -247,7 +252,7 @@ export default function Children() {
                     <MaterialIcons name="cake" size={18} color={colors.primary} />
                   ) : null}
                   <Text style={styles.name}>
-                    {item.prenom} {item.nom.toUpperCase()}
+                    {libelleEnfantDuSejour(item, sejour, { nomEnMajuscules: true })}
                   </Text>
                 </View>
               </View>

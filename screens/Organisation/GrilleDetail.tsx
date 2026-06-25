@@ -15,6 +15,7 @@ import 'dayjs/locale/fr';
 
 import Header from '../../Components/Header';
 import { useChargementRafraichissable } from '../../hooks/useChargementRafraichissable';
+import { useRafraichirSejourCourant } from '../../hooks/useRafraichirSejourCourant';
 import { jourISOdepuisValeurApi } from '../../helpers/dateApi';
 import { planningGrilleService } from '../../services/planningGrille.service';
 import { momentService } from '../../services/moment.service';
@@ -28,6 +29,7 @@ import type {
   PlanningLigneDto,
 } from '../../types/api';
 import { useAppSelector } from '../../store/hooks';
+import { libelleEquipeDuSejour } from '../../helpers/triListesSejour';
 import { colors } from '../../config/theme';
 
 dayjs.locale('fr');
@@ -56,15 +58,18 @@ function GrilleDetailContent({ route }: Props) {
 
   const membres = new Map<string, string>();
   if (sejour?.directeur) {
-    membres.set(sejour.directeur.tokenId, `${sejour.directeur.prenom} ${sejour.directeur.nom}`);
+    membres.set(sejour.directeur.tokenId, libelleEquipeDuSejour(sejour.directeur, sejour));
   }
   for (const m of sejour?.equipe ?? []) {
-    membres.set(m.tokenId, `${m.prenom} ${m.nom}`);
+    membres.set(m.tokenId, libelleEquipeDuSejour(m, sejour));
   }
+
+  const rafraichirSejour = useRafraichirSejourCourant();
 
   const executer = useCallback(async () => {
     if (sejourId == null) return;
-    const [detail, momentsArr, lieuxArr, groupesArr, horairesArr] = await Promise.all([
+    const [, detail, momentsArr, lieuxArr, groupesArr, horairesArr] = await Promise.all([
+      rafraichirSejour(),
       planningGrilleService.getPlanningGrilleById(sejourId, grilleId),
       momentService.getMomentsBySejour(sejourId).catch(() => []),
       lieuService.getLieuxBySejour(sejourId).catch(() => []),
@@ -76,7 +81,7 @@ function GrilleDetailContent({ route }: Props) {
     setLieux(new Map(lieuxArr.map((l) => [l.id, l.nom])));
     setGroupes(new Map(groupesArr.map((g) => [g.id, g.nom])));
     setHoraires(new Map(horairesArr.map((h) => [h.id, h.libelle])));
-  }, [sejourId, grilleId]);
+  }, [sejourId, grilleId, rafraichirSejour]);
 
   const { loading, refreshing, error, refresh } = useChargementRafraichissable(
     executer,

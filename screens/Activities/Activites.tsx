@@ -11,11 +11,13 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/fr';
 
 import { useChargementRafraichissable } from '../../hooks/useChargementRafraichissable';
+import { useRafraichirSejourCourant } from '../../hooks/useRafraichirSejourCourant';
 import { jourISOdepuisValeurApi } from '../../helpers/dateApi';
 import { activiteService } from '../../services/activite.service';
 import { groupeService } from '../../services/groupe.service';
 import type { ActiviteDto } from '../../types/api';
 import { useAppSelector } from '../../store/hooks';
+import { libelleEquipeDuSejour } from '../../helpers/triListesSejour';
 import { colors } from '../../config/theme';
 
 dayjs.locale('fr');
@@ -44,15 +46,18 @@ function construireSections(activites: ActiviteDto[]): JourSection[] {
 }
 
 function Liste() {
-  const sejourId = useAppSelector((state) => state.sejour.sejourCourant?.id);
+  const sejour = useAppSelector((state) => state.sejour.sejourCourant);
+  const sejourId = sejour?.id;
   const [activites, setActivites] = useState<ActiviteDto[]>([]);
   const [groupes, setGroupes] = useState<Map<number, string>>(new Map());
+  const rafraichirSejour = useRafraichirSejourCourant();
 
   const executer = useCallback(async () => {
     if (sejourId == null) return;
     const [activitesResult, groupesResult] = await Promise.allSettled([
       activiteService.getActivitesBySejour(sejourId),
       groupeService.getGroupesBySejour(sejourId),
+      rafraichirSejour(),
     ]);
     if (activitesResult.status === 'rejected') {
       throw activitesResult.reason;
@@ -61,7 +66,7 @@ function Liste() {
     if (groupesResult.status === 'fulfilled') {
       setGroupes(new Map(groupesResult.value.map((g) => [g.id, g.nom])));
     }
-  }, [sejourId]);
+  }, [sejourId, rafraichirSejour]);
 
   const { loading, refreshing, error, refresh } = useChargementRafraichissable(
     executer,
@@ -106,7 +111,7 @@ function Liste() {
       renderSectionHeader={({ section }) => <Text style={styles.jour}>{section.title}</Text>}
       renderItem={({ item }) => {
         const animateurs = (item.membres ?? [])
-          .map((m) => `${m.prenom} ${m.nom}`.trim())
+          .map((m) => libelleEquipeDuSejour(m, sejour))
           .filter(Boolean);
         const nomsGroupes = (item.groupeIds ?? [])
           .map((id) => groupes.get(id))

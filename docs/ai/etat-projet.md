@@ -14,7 +14,7 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 |---------|----------|---------------|
 | Auth | `POST /auth/connexion`, `/refresh-token`, `/logout` | Connexion, session |
 | Profil | `GET /utilisateurs/profil?tokenId=`, `GET /utilisateurs/{tokenId}/photo-profil` | Bootstrap, `Home`, `Animators` (coordonnées directeur) |
-| Séjours | `GET /sejours/utilisateur/{tokenId}`, `GET /sejours/{id}` | `SejourPicker`, `Home`, `Animators` (refresh) |
+| Séjours | `GET /sejours/utilisateur/{tokenId}`, `GET /sejours/{id}` | `SejourPicker`, `Home`, refresh séjour (`useRafraichirSejourCourant` sur listes, Sanitaire, Activités, GrilleDetail) |
 | Réunions | `GET /sejours/{sejourId}/reunions` | `Home` (CR veille) |
 | Enfants | `GET /sejours/{id}/enfants` | `Children` |
 | Chambres | `GET /sejours/{id}/chambres` | `Bedrooms` (filtre groupes), `Animators`, `Children` (modal chambre occupant) |
@@ -26,7 +26,9 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | Sorties | `GET /sejours/{id}/activites-prestataires` | `Sorties` |
 | Sanitaire | `GET /sejours/{id}/dossiers-enfants` | `Sanitaire`, `Children` (contacts parents dans modal ; chargement silencieux si indisponible) |
 
-> Équipe (`Animators`) : données `directeur` + `equipe` dans `SejourDTO` (store) ; refresh via `getSejourById`. Compléments : groupes/chambres du séjour, profil directeur si absent de `equipe`. Chaque membre d'équipe porte `roleSejour` ; le directeur (champ séparé, sans `roleSejour`) est rattaché au filtre chip **Direction** avec les adjoints.
+> **`SejourDTO`** : en plus de `directeur` / `equipe`, porte `triListesEnfants?` et `triListesEquipe?` (`CritereTriListeApi` : `NOM` | `PRENOM`) — réglage partagé web, lecture seule mobile ; tri et libellés via `helpers/triListesSejour.ts`.
+>
+> Équipe (`Animators`) : données `directeur` + `equipe` dans le store ; compléments : groupes/chambres du séjour, profil directeur si absent de `equipe`. Chaque membre d'équipe porte `roleSejour` ; le directeur (champ séparé, sans `roleSejour`) est rattaché au filtre chip **Direction** avec les adjoints.
 
 ## Services (`services/`)
 
@@ -47,6 +49,13 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | `activite.service.ts`, `activitePrestataire.service.ts` | Activités internes et sorties |
 | `dossierEnfant.service.ts` | Fiches sanitaires agrégées (`getDossiersSanitairesBySejour`) |
 
+## Hooks (`hooks/`)
+
+| Fichier | Rôle |
+|---------|------|
+| `useChargementRafraichissable.ts` | Chargement initial + pull-to-refresh |
+| `useRafraichirSejourCourant.ts` | Recharge `sejourCourant` (critères tri listes) au refresh |
+
 ## Helpers (`helpers/`)
 
 | Fichier | Rôle |
@@ -60,6 +69,8 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | `photoProfil.ts` | Blob photo profil |
 | `roleSejour.ts` | Libellés rôle séjour : courts (chips) + longs adaptés au genre (badge) |
 | `anniversaireSejour.ts` | Date d'anniversaire pendant la période du séjour (affichage liste Enfants) |
+| `trierUtilisateurs.ts` | Comparateurs locale `fr` nom/prénom |
+| `triListesSejour.ts` | Tri et libellés enfants/équipe selon `triListesEnfants` / `triListesEquipe` |
 
 ## Glossaire
 
@@ -67,4 +78,5 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 - **Bootstrap** : restauration session au démarrage → profil + dernier séjour → route initiale.
 - **Single-flight** : un seul refresh token concurrent.
 - **Compte rendu de la veille** : dernière réunion à J−1, affichée sur `Home`.
-- **Pull-to-refresh** : tirer vers le bas pour recharger (`useChargementRafraichissable` ou logique dédiée `Home` / `Animators`).
+- **Pull-to-refresh** : tirer vers le bas pour recharger (`useChargementRafraichissable` ou logique dédiée `Home`).
+- **`CritereTriListeApi`** : `NOM` ou `PRENOM` — ordre d'affichage des listes enfants/équipe, configuré côté web, appliqué côté mobile à l'affichage et au tri.

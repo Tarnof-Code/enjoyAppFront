@@ -13,10 +13,19 @@ import { MaterialIcons } from '@expo/vector-icons';
 
 import { ListeAccordion, listeAccordionStyles } from '../../Components/ListeAccordion';
 import { useChargementRafraichissable } from '../../hooks/useChargementRafraichissable';
+import { useRafraichirSejourCourant } from '../../hooks/useRafraichirSejourCourant';
 import { chambreService } from '../../services/chambre.service';
 import { groupeService } from '../../services/groupe.service';
-import type { ChambreDto, ChambreOccupantDto, GenreChambre, GroupeDto, TypeChambre } from '../../types/api';
+import type {
+  ChambreDto,
+  ChambreOccupantDto,
+  GenreChambre,
+  GroupeDto,
+  SejourDTO,
+  TypeChambre,
+} from '../../types/api';
 import { useAppSelector } from '../../store/hooks';
+import { libelleEnfantDuSejour, libelleEquipeDuSejour } from '../../helpers/triListesSejour';
 import { colors } from '../../config/theme';
 
 const FILTRE_TOUT = 'TOUT';
@@ -114,11 +123,22 @@ function JaugeRemplissage({ occupes, capacite }: JaugeRemplissageProps) {
 
 type ChambreAccordionProps = {
   chambre: ChambreDto;
+  sejour: SejourDTO | null;
   ouvert: boolean;
   onToggle: () => void;
 };
 
-function ChambreAccordion({ chambre, ouvert, onToggle }: ChambreAccordionProps) {
+function libelleOccupant(
+  occupant: ChambreOccupantDto,
+  typeChambre: TypeChambre,
+  sejour: SejourDTO | null,
+): string {
+  return typeChambre === 'EQUIPE'
+    ? libelleEquipeDuSejour(occupant, sejour)
+    : libelleEnfantDuSejour(occupant, sejour);
+}
+
+function ChambreAccordion({ chambre, sejour, ouvert, onToggle }: ChambreAccordionProps) {
   const occupants = occupantsVisibles(chambre);
   const groupeLibelle = chambre.typeChambre === 'ENFANT' ? chambre.groupe?.libelle?.trim() : null;
 
@@ -153,7 +173,7 @@ function ChambreAccordion({ chambre, ouvert, onToggle }: ChambreAccordionProps) 
             <View key={occupant.id} style={listeAccordionStyles.ligneListe}>
               <Text style={listeAccordionStyles.ligneListeNom}>
                 {occupant.numeroLit != null ? `Lit ${occupant.numeroLit} · ` : ''}
-                {occupant.prenom} {occupant.nom}
+                {libelleOccupant(occupant, chambre.typeChambre, sejour)}
               </Text>
             </View>
           ))
@@ -164,7 +184,8 @@ function ChambreAccordion({ chambre, ouvert, onToggle }: ChambreAccordionProps) 
 }
 
 export default function Bedrooms() {
-  const sejourId = useAppSelector((state) => state.sejour.sejourCourant?.id);
+  const sejour = useAppSelector((state) => state.sejour.sejourCourant);
+  const sejourId = sejour?.id;
   const [chambres, setChambres] = useState<ChambreDto[]>([]);
   const [groupes, setGroupes] = useState<GroupeDto[]>([]);
   const [ouverts, setOuverts] = useState<Set<number>>(() => new Set());
@@ -172,16 +193,18 @@ export default function Bedrooms() {
   const [filtreGenre, setFiltreGenre] = useState<string>(FILTRE_TOUT);
   const [filtreGroupe, setFiltreGroupe] = useState<string>(FILTRE_TOUT);
   const [filtrePlacesDispo, setFiltrePlacesDispo] = useState(false);
+  const rafraichirSejour = useRafraichirSejourCourant();
 
   const executer = useCallback(async () => {
     if (sejourId == null) return;
-    const [listeChambres, listeGroupes] = await Promise.all([
+    const [, listeChambres, listeGroupes] = await Promise.all([
+      rafraichirSejour(),
       chambreService.getChambresBySejour(sejourId),
       groupeService.getGroupesBySejour(sejourId),
     ]);
     setChambres(listeChambres);
     setGroupes(listeGroupes);
-  }, [sejourId]);
+  }, [sejourId, rafraichirSejour]);
 
   const { loading, refreshing, error, refresh } = useChargementRafraichissable(
     executer,
@@ -391,6 +414,7 @@ export default function Bedrooms() {
         renderItem={({ item }) => (
           <ChambreAccordion
             chambre={item}
+            sejour={sejour}
             ouvert={ouverts.has(item.id)}
             onToggle={() => basculerChambre(item.id)}
           />
