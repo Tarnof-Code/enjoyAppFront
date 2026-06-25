@@ -10,6 +10,9 @@ Reste mineur : photos animateurs codées en dur dans `Header.tsx`, composant orp
 
 ## Journal
 
+### 2026-06-25 (suite 6)
+- **Onglet bas plannings** : route bottom tab **`Organisation` → `Orga`** (`BottomTabParamList`, `BottomTabNavigator`) ; libellé barre d'onglets « Orga » ; icône `calendar-alt` inchangée ; stack interne `OrganisationNavigator` et header liste « Organisation » conservés.
+
 ### 2026-06-25 (suite 5)
 - **Plannings organisation (UX mobile)** — aligné web / API : refonte **`GrilleDetail`** en **matrice multi-jours** (colonnes = jours, lignes = libellés) ; fenêtre glissante **1 / 3 / 5 jours** (`useFenetreJoursPlanning`, jours du séjour via **`enumererJoursSejour`**) ; swipe horizontal + flèches + bouton **Aujourd'hui** ; en-têtes jour (nom + date) ; sections `libelleRegroupement` ; colonne libellés fixe 108 px.
 - **Édition cellules** : tap cellule → **`PlanningCelluleModal`** (bottom sheet ~92 %) ; directeur/adjoint (`peutGererMembresEquipeSejour`) → PUT cellules complètes ; animateur sur grille `MEMBRE_EQUIPE` → PATCH **ma-presence** uniquement ; validation + résumé via **`planningGrilleUtils`** (prénom seul en cellule équipe, désambiguïsation homonymes).

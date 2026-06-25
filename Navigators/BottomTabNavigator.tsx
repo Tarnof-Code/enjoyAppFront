@@ -40,7 +40,7 @@ function BottomTab() {
           let iconName: keyof typeof FontAwesome5.glyphMap = 'home';
           if (route.name === 'Listes') {
             iconName = 'list-ul';
-          } else if (route.name === 'Organisation') {
+          } else if (route.name === 'Orga') {
             iconName = 'calendar-alt';
           } else if (route.name === 'Menus') {
             iconName = 'utensils';
@@ -57,7 +57,7 @@ function BottomTab() {
     >
       <Tab.Screen name="Home" component={Home} />
       <Tab.Screen name="Listes" component={TopTabLists} />
-      <Tab.Screen name="Organisation" component={OrganisationNavigator} />
+      <Tab.Screen name="Orga" component={OrganisationNavigator} />
       <Tab.Screen name="Menus" component={Menus} />
       <Tab.Screen name="Activités" component={TopTabActivities} />
       <Tab.Screen name="Sanitaire" component={Sanitaire} />

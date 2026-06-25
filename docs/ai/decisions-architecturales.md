@@ -19,7 +19,7 @@ Patterns et choix techniques de l'app mobile. Garder ce fichier comme référenc
 - Racine `App.tsx` : `Provider` Redux + `GestureHandlerRootView` + `SafeAreaProvider` + `ThemeProvider` (RNEUI).
 - **Stack natif** (`BottomTabNavigator.tsx`) : `Login` → `SejourPicker` → `BottomTab`, `headerShown: false`.
 - **`navigationRef`** (`Navigators/navigationRef.ts`) : ref de navigation root, importée hors navigateur (`Home` déconnexion, `BottomTabNavigator` session expirée) pour éviter les cycles d'import avec les écrans.
-- **Bottom tabs (6)** : `Home`, `Listes`, `Organisation`, `Menus`, `Activités`, `Sanitaire` (icônes FontAwesome5).
+- **Bottom tabs (6)** : `Home`, `Listes`, **`Orga`**, `Menus`, `Activités`, `Sanitaire` (icônes FontAwesome5). L'onglet plannings s'affiche « Orga » ; route `Orga` dans `BottomTabParamList`.
 - **Top tabs** (`creerTopTab`) : `TopTabLists` (Animators, Children, Groups, Bedrooms), `TopTabActivities` (Activites, Sorties). Titre du `Header` suit l'onglet actif.
 - **Stack Organisation** (`OrganisationNavigator`) : `GrillesList` → `GrilleDetail` (params `grilleId`, `titre`).
 - **Écrans pleine page** (header propre) : `Menus`, `Sanitaire`, `Home`.
