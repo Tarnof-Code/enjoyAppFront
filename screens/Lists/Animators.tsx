@@ -289,9 +289,6 @@ export default function Animators() {
               <Text style={styles.name}>
                 {item.prenom} {item.nom.toUpperCase()}
               </Text>
-              {item.telephone ? (
-                <Text style={styles.phone}>{item.telephone}</Text>
-              ) : null}
             </View>
             <Text style={styles.role}>{item.roleLabel}</Text>
           </Pressable>
@@ -529,11 +526,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: colors.text,
-  },
-  phone: {
-    marginTop: 4,
-    fontSize: 14,
-    color: colors.muted,
   },
   role: {
     fontSize: 13,

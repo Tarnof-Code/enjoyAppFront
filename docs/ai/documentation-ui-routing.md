@@ -25,7 +25,7 @@ App.tsx
 
 | Sous-onglet | Écran | Titre header | Source données |
 |-------------|-------|--------------|----------------|
-| Animators | `screens/Lists/Animators` | Équipe | Redux `sejourCourant` (+ refresh séjour) ; groupes/chambres/profil directeur en parallèle — recherche, chips rôle séjour (chip **Direction** = directeur + adjoints), MultiSelect groupes, modal détail membre |
+| Animators | `screens/Lists/Animators` | Équipe | Redux `sejourCourant` (+ refresh séjour) ; groupes/chambres/profil directeur en parallèle — recherche, chips rôle séjour (chip **Direction**), MultiSelect groupes ; cartes nom+rôle, modal détail (contact, groupes, chambre) |
 | Children | `screens/Lists/Children` | Enfants | `GET /enfants` |
 | Groups | `screens/Lists/Groups` | Groupes | `GET /groupes` |
 | Bedrooms | `screens/Lists/Bedrooms` | Chambres | `GET /chambres` |
@@ -58,7 +58,7 @@ App.tsx
 ## UX transverse
 
 - **Pull-to-refresh** sur tous les écrans de données (hook `useChargementRafraichissable` ou logique dédiée).
-- **Recherche + filtre liste** (modèle `Animators`) : barre compacte (`TextInput` + normalisation casse/accents) + **MultiSelect** groupes (`react-native-element-dropdown`, cases à cocher) + chips rôle séjour dynamiques. Tap carte → modal détail (contact, groupes référent, chambre occupant). Filtres par chips aussi sur `Sanitaire` (Tout/Traitements/Régime/Médical).
+- **Recherche + filtre liste** (modèle `Animators`) : barre compacte (`TextInput` + normalisation casse/accents) + **MultiSelect** groupes (`react-native-element-dropdown`, cases à cocher) + chips rôle séjour dynamiques. **Carte** : nom + rôle ; **modal** au tap : contact (tél./e-mail), groupes référent, chambre occupant. Filtres par chips aussi sur `Sanitaire` (Tout/Traitements/Régime/Médical).
 - Thème RNEUI + tokens `config/theme.ts`.
 - États : `ActivityIndicator` au 1er chargement ; indicateur natif au refresh.
 
