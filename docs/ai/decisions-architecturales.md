@@ -38,7 +38,7 @@ Patterns et choix techniques de l'app mobile. Garder ce fichier comme référenc
 - **`useChargementRafraichissable`** (`hooks/useChargementRafraichissable.ts`) : pattern standard pour écrans API — `loading` (1er chargement), `refreshing` (pull-to-refresh), `error`, `refresh`. L'écran fournit un `executer` async.
 - **`useRafraichirSejourCourant`** (`hooks/useRafraichirSejourCourant.ts`) : callback async qui recharge `sejourCourant` via `sejourService.getSejourById` et `setSejourCourant`. À inclure dans le `executer` (souvent en parallèle `Promise.all`) des écrans affichant des personnes, pour que le pull-to-refresh reflète les réglages séjour (tri listes) modifiés côté web.
 - **Tri des listes de personnes** (`helpers/triListesSejour.ts`, `helpers/trierUtilisateurs.ts`) : critères lus sur `SejourDTO.triListesEnfants` / `triListesEquipe` (API `NOM` | `PRENOM`, lecture seule mobile). Tri locale `fr` ; libellé affiché avec le champ de tri en premier (`libelleEnfantDuSejour` / `libelleEquipeDuSejour`, option `nomEnMajuscules` sur cartes listes).
-- **Cas particuliers** : `Animators` lit le store Redux (`sejourCourant`) ; charge en parallèle groupes, chambres et profil directeur (tél./e-mail) ; tri équipe + modal détail via **`FichePersonneModal`**. `Children` : chargement parallèle enfants/groupes/chambres/dossiers + refresh séjour ; dates séjour pour anniversaire. `Bedrooms` : chambres + groupes en parallèle ; filtres locaux (type, genre, groupe, places dispo). `Home` gère son propre refresh (CR veille + photo + liste séjours).
+- **Cas particuliers** : `Animators` lit le store Redux (`sejourCourant`) ; charge en parallèle groupes, chambres et profil directeur (tél./e-mail) ; tri équipe + modal détail via **`FichePersonneModal`**. `Children` : chargement parallèle enfants/groupes/chambres/dossiers + refresh séjour ; dates séjour pour anniversaire. `Bedrooms` : chambres + groupes + enfants en parallèle ; filtres locaux ; **CRUD chambres et occupants** (modales dédiées, mise à jour liste locale via `fusionnerChambreRetourneeDansListe`). `Home` gère son propre refresh (CR veille + photo + liste séjours).
 - Utilisateur référencé par **`tokenId`**, jamais id SQL.
 
 ## State (Redux Toolkit)
@@ -57,6 +57,7 @@ Patterns et choix techniques de l'app mobile. Garder ce fichier comme référenc
 
 - **`FichePersonneModal`** (`Components/FichePersonneModal.tsx`) : modal fiche personne (overlay, titre prénom/nom, sous-titre, scroll, bouton Fermer) + **`LigneInfoFiche`** (libellé/valeur, lien optionnel tél./e-mail). Consommé par `Animators` (`DetailMembre`) et `Children` (`DetailEnfant`).
 - **`ListeAccordion`** (`Components/ListeAccordion.tsx`) : coque accordéon réutilisable (chevron MaterialIcons, carte bordée, slot en-tête/corps) ; styles partagés exportés (`listeAccordionStyles`). Consommé par `Groups` et `Bedrooms` — contenu métier reste dans chaque écran.
+- **`ChambreFormulaireModal`** / **`AffecterOccupantsModal`** : bottom sheets (zone sombre cliquable au-dessus, feuille en bas) ; scroll via **`ScrollView` de `react-native-gesture-handler`** ; formulaire chambre sans `Dropdown` dans le scroll (pills + liste groupe dépliable) pour éviter conflits de gestes ; feuille affectation ~92 % hauteur écran, liste en `flex: 1`.
 
 ## Sécurité
 

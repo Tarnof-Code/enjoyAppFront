@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
   Pressable,
   RefreshControl,
@@ -11,22 +12,33 @@ import {
 import { Dropdown } from 'react-native-element-dropdown';
 import { MaterialIcons } from '@expo/vector-icons';
 
+import AffecterOccupantsModal from '../../Components/AffecterOccupantsModal';
+import ChambreFormulaireModal from '../../Components/ChambreFormulaireModal';
 import { ListeAccordion, listeAccordionStyles } from '../../Components/ListeAccordion';
 import { useChargementRafraichissable } from '../../hooks/useChargementRafraichissable';
 import { useRafraichirSejourCourant } from '../../hooks/useRafraichirSejourCourant';
+import {
+  equipePourChambres,
+  fusionnerChambreRetourneeDansListe,
+  libelleChambre,
+} from '../../helpers/chambreOccupantsUtils';
+import { getUserFacingErrorMessage } from '../../helpers/axiosError';
+import { libelleEnfantDuSejour, libelleEquipeDuSejour } from '../../helpers/triListesSejour';
 import { chambreService } from '../../services/chambre.service';
+import { enfantService } from '../../services/enfant.service';
 import { groupeService } from '../../services/groupe.service';
 import type {
   ChambreDto,
   ChambreOccupantDto,
+  EnfantDto,
   GenreChambre,
   GroupeDto,
+  SaveChambreRequest,
   SejourDTO,
   TypeChambre,
 } from '../../types/api';
 import { useAppSelector } from '../../store/hooks';
-import { libelleEnfantDuSejour, libelleEquipeDuSejour } from '../../helpers/triListesSejour';
-import { colors } from '../../config/theme';
+import { colors, fontSizes, radius, spacing } from '../../config/theme';
 
 const FILTRE_TOUT = 'TOUT';
 
@@ -57,13 +69,6 @@ function libelleGenre(genre: GenreChambre): string {
   return 'Mixte';
 }
 
-function titreChambre(chambre: ChambreDto): string {
-  const identifiant = chambre.identifiant.trim();
-  const nom = chambre.nom?.trim();
-  if (nom && nom !== identifiant) return `${identifiant} · ${nom}`;
-  return identifiant;
-}
-
 function groupesAgeOuNiveau(groupes: GroupeDto[]): GroupeDto[] {
   return groupes
     .filter((groupe) => groupe.typeGroupe === 'AGE' || groupe.typeGroupe === 'NIVEAU_SCOLAIRE')
@@ -77,7 +82,6 @@ function chambreAPlacesDispo(chambre: ChambreDto): boolean {
 function chambreCorrespondFiltreGroupe(chambre: ChambreDto, groupeId: string): boolean {
   if (groupeId === FILTRE_TOUT) return true;
   if (chambre.typeChambre !== 'ENFANT') return false;
-
   return chambre.groupe?.id != null && String(chambre.groupe.id) === groupeId;
 }
 
@@ -125,7 +129,12 @@ type ChambreAccordionProps = {
   chambre: ChambreDto;
   sejour: SejourDTO | null;
   ouvert: boolean;
+  actionEnCours: boolean;
   onToggle: () => void;
+  onModifier: () => void;
+  onAffecter: () => void;
+  onSupprimer: () => void;
+  onRetirerOccupant: (occupant: ChambreOccupantDto) => void;
 };
 
 function libelleOccupant(
@@ -138,9 +147,20 @@ function libelleOccupant(
     : libelleEnfantDuSejour(occupant, sejour);
 }
 
-function ChambreAccordion({ chambre, sejour, ouvert, onToggle }: ChambreAccordionProps) {
+function ChambreAccordion({
+  chambre,
+  sejour,
+  ouvert,
+  actionEnCours,
+  onToggle,
+  onModifier,
+  onAffecter,
+  onSupprimer,
+  onRetirerOccupant,
+}: ChambreAccordionProps) {
   const occupants = occupantsVisibles(chambre);
   const groupeLibelle = chambre.typeChambre === 'ENFANT' ? chambre.groupe?.libelle?.trim() : null;
+  const chambrePleine = chambre.occupants.length >= chambre.capaciteMax;
 
   return (
     <ListeAccordion
@@ -150,7 +170,7 @@ function ChambreAccordion({ chambre, sejour, ouvert, onToggle }: ChambreAccordio
         <>
           <View style={listeAccordionStyles.ligneTitre}>
             <Text style={listeAccordionStyles.titre} numberOfLines={2}>
-              {titreChambre(chambre)}
+              {libelleChambre(chambre)}
             </Text>
             <Text style={listeAccordionStyles.badge}>{libelleType(chambre.typeChambre)}</Text>
           </View>
@@ -166,18 +186,69 @@ function ChambreAccordion({ chambre, sejour, ouvert, onToggle }: ChambreAccordio
         </>
       }
       corps={
-        occupants.length === 0 ? (
-          <Text style={listeAccordionStyles.vide}>{messageOccupantsVides(chambre.typeChambre)}</Text>
-        ) : (
-          occupants.map((occupant) => (
-            <View key={occupant.id} style={listeAccordionStyles.ligneListe}>
-              <Text style={listeAccordionStyles.ligneListeNom}>
-                {occupant.numeroLit != null ? `Lit ${occupant.numeroLit} · ` : ''}
-                {libelleOccupant(occupant, chambre.typeChambre, sejour)}
-              </Text>
-            </View>
-          ))
-        )
+        <>
+          {occupants.length === 0 ? (
+            <Text style={listeAccordionStyles.vide}>{messageOccupantsVides(chambre.typeChambre)}</Text>
+          ) : (
+            occupants.map((occupant) => (
+              <View key={occupant.id} style={styles.ligneOccupant}>
+                <Text style={listeAccordionStyles.ligneListeNom}>
+                  {occupant.numeroLit != null ? `Lit ${occupant.numeroLit} · ` : ''}
+                  {libelleOccupant(occupant, chambre.typeChambre, sejour)}
+                </Text>
+                <Pressable
+                  onPress={() => onRetirerOccupant(occupant)}
+                  disabled={actionEnCours}
+                  style={({ pressed }) => [styles.boutonRetirer, pressed && styles.boutonRetirerPressed]}
+                  accessibilityLabel="Retirer l'occupant"
+                >
+                  <MaterialIcons name="person-remove" size={20} color={colors.actionDelete} />
+                </Pressable>
+              </View>
+            ))
+          )}
+
+          <View style={styles.actionsChambre}>
+            {!chambrePleine ? (
+              <Pressable
+                onPress={onAffecter}
+                disabled={actionEnCours}
+                style={({ pressed }) => [
+                  styles.boutonAction,
+                  styles.boutonAffecter,
+                  pressed && styles.boutonActionPressed,
+                ]}
+              >
+                <MaterialIcons name="person-add" size={16} color={colors.surface} />
+                <Text style={styles.boutonActionTexte}>Affecter</Text>
+              </Pressable>
+            ) : null}
+            <Pressable
+              onPress={onModifier}
+              disabled={actionEnCours}
+              style={({ pressed }) => [
+                styles.boutonAction,
+                styles.boutonModifier,
+                pressed && styles.boutonActionPressed,
+              ]}
+            >
+              <MaterialIcons name="edit" size={16} color={colors.surface} />
+              <Text style={styles.boutonActionTexte}>Modifier</Text>
+            </Pressable>
+            <Pressable
+              onPress={onSupprimer}
+              disabled={actionEnCours}
+              style={({ pressed }) => [
+                styles.boutonAction,
+                styles.boutonSupprimer,
+                pressed && styles.boutonActionPressed,
+              ]}
+            >
+              <MaterialIcons name="delete-outline" size={16} color={colors.surface} />
+              <Text style={styles.boutonActionTexte}>Supprimer</Text>
+            </Pressable>
+          </View>
+        </>
       }
     />
   );
@@ -187,29 +258,43 @@ export default function Bedrooms() {
   const sejour = useAppSelector((state) => state.sejour.sejourCourant);
   const sejourId = sejour?.id;
   const [chambres, setChambres] = useState<ChambreDto[]>([]);
+  const [enfants, setEnfants] = useState<EnfantDto[]>([]);
   const [groupes, setGroupes] = useState<GroupeDto[]>([]);
   const [ouverts, setOuverts] = useState<Set<number>>(() => new Set());
   const [filtreType, setFiltreType] = useState<string>(FILTRE_TOUT);
   const [filtreGenre, setFiltreGenre] = useState<string>(FILTRE_TOUT);
   const [filtreGroupe, setFiltreGroupe] = useState<string>(FILTRE_TOUT);
   const [filtrePlacesDispo, setFiltrePlacesDispo] = useState(false);
+  const [formulaireOuvert, setFormulaireOuvert] = useState(false);
+  const [chambreEnEdition, setChambreEnEdition] = useState<ChambreDto | null>(null);
+  const [affecterChambre, setAffecterChambre] = useState<ChambreDto | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
   const rafraichirSejour = useRafraichirSejourCourant();
+
+  const equipe = equipePourChambres(sejour?.equipe);
 
   const executer = useCallback(async () => {
     if (sejourId == null) return;
-    const [, listeChambres, listeGroupes] = await Promise.all([
+    const [, listeChambres, listeGroupes, listeEnfants] = await Promise.all([
       rafraichirSejour(),
       chambreService.getChambresBySejour(sejourId),
       groupeService.getGroupesBySejour(sejourId),
+      enfantService.getEnfantsBySejour(sejourId),
     ]);
     setChambres(listeChambres);
     setGroupes(listeGroupes);
+    setEnfants(listeEnfants);
   }, [sejourId, rafraichirSejour]);
 
   const { loading, refreshing, error, refresh } = useChargementRafraichissable(
     executer,
     'Impossible de charger les chambres.',
   );
+
+  const appliquerChambreRetournee = useCallback((chambreMiseAJour: ChambreDto) => {
+    setChambres((prev) => fusionnerChambreRetourneeDansListe(prev, chambreMiseAJour));
+  }, []);
 
   const basculerChambre = (chambreId: number) => {
     setOuverts((prev) => {
@@ -218,6 +303,165 @@ export default function Bedrooms() {
       else next.add(chambreId);
       return next;
     });
+  };
+
+  const ouvrirCreation = () => {
+    setActionError(null);
+    setChambreEnEdition(null);
+    setFormulaireOuvert(true);
+  };
+
+  const ouvrirEdition = (chambre: ChambreDto) => {
+    setActionError(null);
+    setChambreEnEdition(chambre);
+    setFormulaireOuvert(true);
+  };
+
+  const fermerFormulaire = () => {
+    if (submitting) return;
+    setFormulaireOuvert(false);
+    setChambreEnEdition(null);
+  };
+
+  const handleEnregistrerChambre = async (payload: SaveChambreRequest) => {
+    if (sejourId == null) return;
+    setSubmitting(true);
+    setActionError(null);
+    try {
+      if (chambreEnEdition == null) {
+        const created = await chambreService.creerChambre(sejourId, payload);
+        appliquerChambreRetournee(created);
+      } else {
+        const updated = await chambreService.modifierChambre(sejourId, chambreEnEdition.id, payload);
+        appliquerChambreRetournee(updated);
+      }
+      setFormulaireOuvert(false);
+      setChambreEnEdition(null);
+    } catch (err: unknown) {
+      const message = getUserFacingErrorMessage(
+        err,
+        chambreEnEdition == null
+          ? 'Impossible de créer la chambre'
+          : 'Impossible de modifier la chambre',
+      );
+      Alert.alert('Erreur', message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const confirmerSuppression = (chambre: ChambreDto) => {
+    Alert.alert(
+      'Supprimer la chambre',
+      `Voulez-vous vraiment supprimer la chambre « ${libelleChambre(chambre)} » ?`,
+      [
+        { text: 'Annuler', style: 'cancel' },
+        {
+          text: 'Supprimer',
+          style: 'destructive',
+          onPress: () => void supprimerChambre(chambre.id),
+        },
+      ],
+    );
+  };
+
+  const supprimerChambre = async (chambreId: number) => {
+    if (sejourId == null) return;
+    setSubmitting(true);
+    setActionError(null);
+    try {
+      await chambreService.supprimerChambre(sejourId, chambreId);
+      setChambres((prev) => prev.filter((c) => c.id !== chambreId));
+      setOuverts((prev) => {
+        const next = new Set(prev);
+        next.delete(chambreId);
+        return next;
+      });
+    } catch (err: unknown) {
+      setActionError(getUserFacingErrorMessage(err, 'Impossible de supprimer la chambre'));
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const confirmerRetraitOccupant = (chambre: ChambreDto, occupant: ChambreOccupantDto) => {
+    Alert.alert(
+      'Retirer un occupant',
+      `Retirer ${libelleOccupant(occupant, chambre.typeChambre, sejour)} de cette chambre ?`,
+      [
+        { text: 'Annuler', style: 'cancel' },
+        {
+          text: 'Retirer',
+          style: 'destructive',
+          onPress: () => void retirerOccupant(chambre, occupant),
+        },
+      ],
+    );
+  };
+
+  const retirerOccupant = async (chambre: ChambreDto, occupant: ChambreOccupantDto) => {
+    if (sejourId == null) return;
+    setSubmitting(true);
+    setActionError(null);
+    try {
+      if (occupant.enfantId != null) {
+        await chambreService.retirerEnfant(sejourId, chambre.id, occupant.enfantId);
+      } else if (occupant.membreTokenId?.trim()) {
+        await chambreService.retirerMembreEquipe(sejourId, chambre.id, occupant.membreTokenId.trim());
+      }
+      setChambres((prev) =>
+        prev.map((c) =>
+          c.id !== chambre.id
+            ? c
+            : { ...c, occupants: c.occupants.filter((o) => o.id !== occupant.id) },
+        ),
+      );
+    } catch (err: unknown) {
+      setActionError(getUserFacingErrorMessage(err, "Impossible de retirer l'occupant"));
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleAffecterSelection = async (selection: {
+    enfantIds: number[];
+    membreTokenIds: string[];
+  }) => {
+    if (sejourId == null || affecterChambre == null) return;
+    setSubmitting(true);
+    setActionError(null);
+    try {
+      let chambreMiseAJour: ChambreDto;
+      if (affecterChambre.typeChambre === 'ENFANT') {
+        const ids = selection.enfantIds;
+        if (ids.length === 1) {
+          chambreMiseAJour = await chambreService.affecterEnfant(sejourId, affecterChambre.id, ids[0]);
+        } else {
+          chambreMiseAJour = await chambreService.affecterEnfants(sejourId, affecterChambre.id, {
+            occupants: ids.map((enfantId) => ({ enfantId })),
+          });
+        }
+      } else {
+        const tokenIds = selection.membreTokenIds;
+        if (tokenIds.length === 1) {
+          chambreMiseAJour = await chambreService.affecterMembreEquipe(
+            sejourId,
+            affecterChambre.id,
+            tokenIds[0],
+          );
+        } else {
+          chambreMiseAJour = await chambreService.affecterMembresEquipe(sejourId, affecterChambre.id, {
+            occupants: tokenIds.map((membreTokenId) => ({ membreTokenId })),
+          });
+        }
+      }
+      appliquerChambreRetournee(chambreMiseAJour);
+      setAffecterChambre(null);
+    } catch (err: unknown) {
+      Alert.alert('Erreur', getUserFacingErrorMessage(err, "Impossible d'affecter la sélection"));
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const typesPresents = new Set(chambres.map((chambre) => chambre.typeChambre));
@@ -311,6 +555,15 @@ export default function Bedrooms() {
 
   return (
     <View style={styles.container}>
+      {actionError ? (
+        <View style={styles.bandeauErreur}>
+          <Text style={styles.bandeauErreurTexte}>{actionError}</Text>
+          <Pressable onPress={() => setActionError(null)} hitSlop={8}>
+            <MaterialIcons name="close" size={18} color={colors.danger} />
+          </Pressable>
+        </View>
+      ) : null}
+
       {afficherFiltres ? (
         <View style={styles.barreFiltres}>
           <View style={styles.ligneFiltres}>
@@ -416,16 +669,57 @@ export default function Bedrooms() {
             chambre={item}
             sejour={sejour}
             ouvert={ouverts.has(item.id)}
+            actionEnCours={submitting}
             onToggle={() => basculerChambre(item.id)}
+            onModifier={() => ouvrirEdition(item)}
+            onAffecter={() => {
+              setActionError(null);
+              setAffecterChambre(item);
+            }}
+            onSupprimer={() => confirmerSuppression(item)}
+            onRetirerOccupant={(occupant) => confirmerRetraitOccupant(item, occupant)}
           />
         )}
         ListEmptyComponent={
           <Text style={styles.empty}>
             {chambres.length === 0
-              ? 'Aucune chambre pour ce séjour.'
+              ? 'Aucune chambre pour ce séjour. Appuyez sur + pour en ajouter une.'
               : 'Aucune chambre ne correspond aux filtres.'}
           </Text>
         }
+      />
+
+      <Pressable
+        style={({ pressed }) => [styles.fab, pressed && styles.fabPressed]}
+        onPress={ouvrirCreation}
+        disabled={submitting}
+        accessibilityLabel="Ajouter une chambre"
+      >
+        <MaterialIcons name="add" size={28} color={colors.surface} />
+      </Pressable>
+
+      <ChambreFormulaireModal
+        visible={formulaireOuvert}
+        chambre={chambreEnEdition}
+        groupes={groupes}
+        enfants={enfants}
+        equipe={equipe}
+        submitting={submitting}
+        onFermer={fermerFormulaire}
+        onEnregistrer={(payload) => void handleEnregistrerChambre(payload)}
+      />
+
+      <AffecterOccupantsModal
+        visible={affecterChambre != null}
+        chambre={affecterChambre}
+        chambres={chambres}
+        enfants={enfants}
+        groupes={groupes}
+        equipe={equipe}
+        sejour={sejour}
+        submitting={submitting}
+        onFermer={() => !submitting && setAffecterChambre(null)}
+        onAffecter={(selection) => void handleAffecterSelection(selection)}
       />
     </View>
   );
@@ -441,6 +735,23 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: colors.surface,
+  },
+  bandeauErreur: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.sm,
+    marginHorizontal: spacing.md,
+    marginTop: spacing.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.sm,
+    backgroundColor: colors.dangerSoft,
+  },
+  bandeauErreurTexte: {
+    flex: 1,
+    fontSize: fontSizes.sm,
+    color: colors.danger,
   },
   barreFiltres: {
     paddingHorizontal: 10,
@@ -508,6 +819,7 @@ const styles = StyleSheet.create({
   },
   list: {
     padding: 12,
+    paddingBottom: 88,
   },
   metaLigne: {
     flexDirection: 'row',
@@ -549,6 +861,71 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
     color: colors.text,
+  },
+  ligneOccupant: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingVertical: 4,
+  },
+  boutonRetirer: {
+    padding: spacing.xs,
+  },
+  boutonRetirerPressed: {
+    opacity: 0.6,
+  },
+  actionsChambre: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+    marginTop: spacing.md,
+    paddingTop: spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  boutonAction: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.sm,
+  },
+  boutonAffecter: {
+    backgroundColor: colors.actionAdd,
+  },
+  boutonModifier: {
+    backgroundColor: colors.actionEdit,
+  },
+  boutonSupprimer: {
+    backgroundColor: colors.actionDelete,
+  },
+  boutonActionPressed: {
+    opacity: 0.85,
+  },
+  boutonActionTexte: {
+    fontSize: fontSizes.xs,
+    fontWeight: '700',
+    color: colors.surface,
+  },
+  fab: {
+    position: 'absolute',
+    right: spacing.lg,
+    bottom: spacing.lg,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: colors.actionAdd,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 4,
+    shadowColor: colors.ink,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  fabPressed: {
+    opacity: 0.9,
   },
   empty: {
     textAlign: 'center',

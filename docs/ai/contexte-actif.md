@@ -10,6 +10,12 @@ Reste mineur : photos animateurs codées en dur dans `Header.tsx`, composant orp
 
 ## Journal
 
+### 2026-06-25 (suite 4)
+- **Gestion des chambres (écriture)** — alignée web / API `ACCES_SEJOUR` : **`chambre.service.ts`** étendu (CRUD chambre + affectation/retrait occupants enfants et équipe) ; types `SaveChambreRequest`, `AffecterOccupants*` dans `types/api.d.ts`.
+- **Helper `helpers/chambreOccupantsUtils.ts`** : éligibilité occupants (genre, groupe), validation modification chambre, fusion locale après réaffectation (déplacement).
+- **Écran Chambres** (`Bedrooms.tsx`) : FAB **+** ; accordéon déplié → **Affecter** / **Modifier** / **Supprimer** ; retrait occupant (icône + confirmation) ; chargement parallèle chambres + groupes + **enfants**.
+- **Modales** : `ChambreFormulaireModal` (création/édition, pills type/genre, sélecteur groupe dépliable, `ScrollView` gesture-handler) ; `AffecterOccupantsModal` (feuille ~92 % écran, recherche, multi-sélection, hint déplacement depuis autre chambre). Pas de référents animateurs ni historique (hors périmètre mobile v1).
+
 ### 2026-06-25 (suite 3)
 - **Tri des listes de personnes** (réglage partagé API, lecture seule mobile) : champs `triListesEnfants` / `triListesEquipe` sur `SejourDTO` (`CritereTriListeApi` : `NOM` | `PRENOM`) ; helpers `helpers/trierUtilisateurs.ts` (comparateurs locale `fr`) + `helpers/triListesSejour.ts` (tri + libellé « Nom Prénom » ou « Prénom Nom »).
 - **Hook `useRafraichirSejourCourant`** : recharge le séjour courant dans le store au pull-to-refresh (pour prendre en compte un changement de tri côté web) ; inclus dans le `executer` de **Équipe, Enfants, Groupes, Chambres, Sanitaire, Activités, GrilleDetail**.

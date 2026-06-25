@@ -112,6 +112,43 @@ export interface ChambreDto {
   occupants: ChambreOccupantDto[];
 }
 
+/** Correspond à SaveChambreRequest.java (création et mise à jour). */
+export interface SaveChambreRequest {
+  typeChambre: TypeChambre;
+  identifiant: string;
+  nom?: string | null;
+  capaciteMax: number;
+  genreAutorise: GenreChambre;
+  description?: string | null;
+  batiment?: string | null;
+  couloir?: string | null;
+  etage?: number | null;
+  /** ENFANT uniquement ; null = pas de restriction par groupe. */
+  groupeId?: number | null;
+}
+
+export interface AffecterOccupantChambreRequest {
+  numeroLit?: number | null;
+}
+
+export interface AffecterOccupantEnfantItemRequest {
+  enfantId: number;
+  numeroLit?: number | null;
+}
+
+export interface AffecterOccupantsEnfantsRequest {
+  occupants: AffecterOccupantEnfantItemRequest[];
+}
+
+export interface AffecterOccupantEquipeItemRequest {
+  membreTokenId: string;
+  numeroLit?: number | null;
+}
+
+export interface AffecterOccupantsEquipeRequest {
+  occupants: AffecterOccupantEquipeItemRequest[];
+}
+
 export type TypeGroupe = 'THEMATIQUE' | 'AGE' | 'NIVEAU_SCOLAIRE';
 
 export interface ReferentInfos {

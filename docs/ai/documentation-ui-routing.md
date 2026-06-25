@@ -28,7 +28,7 @@ App.tsx
 | Animators | `screens/Lists/Animators` | Équipe | Redux `sejourCourant` (+ `useRafraichirSejourCourant`) ; groupes/chambres/profil directeur en parallèle — tri/libellé équipe selon `triListesEquipe` ; recherche, chips rôle séjour (chip **Direction**), MultiSelect groupes ; cartes nom+rôle, modal `FichePersonneModal` (contact, groupes, chambre) |
 | Children | `screens/Lists/Children` | Enfants | `GET /enfants` + groupes/chambres/dossiers + refresh séjour en parallèle ; tri/libellé selon `triListesEnfants` ; dates séjour pour anniversaire — recherche, MultiSelect groupes, chips genre ; cartes nom (+ icône gâteau si anniversaire) + badge groupes ; modal `FichePersonneModal` (âge, niveau, groupes, chambre, contacts parents) |
 | Groups | `screens/Lists/Groups` | Groupes | `GET /groupes` + refresh séjour — accordéons par groupe ; enfants triés/libellés selon `triListesEnfants` ; chips filtre **type** ; groupes thématiques : à droite du nom, groupes par âge/niveau de l'enfant |
-| Bedrooms | `screens/Lists/Bedrooms` | Chambres | `GET /chambres` + `GET /groupes` + refresh séjour — accordéons (`ListeAccordion`) ; occupants triés/libellés (enfant ou équipe selon type chambre) ; **filtres** : menus Type / Genre / Groupe + chip **Places dispo** |
+| Bedrooms | `screens/Lists/Bedrooms` | Chambres | `GET /chambres` + groupes + enfants + refresh séjour — accordéons (`ListeAccordion`) ; **FAB +** création ; déplié → **Affecter** (`AffecterOccupantsModal`, ~92 % écran), **Modifier** (`ChambreFormulaireModal`), **Supprimer**, retrait occupant ; occupants triés/libellés ; filtres Type / Genre / Groupe + chip **Places dispo** |
 
 ## Onglets Activités (`TopTabActivities`)
 
@@ -55,6 +55,8 @@ App.tsx
 - **`Header`** : icône FontAwesome5 + titre (script) + avatar animateur (mapping prénom → photo locale, legacy).
 - **`FichePersonneModal`** : modal fiche personne + `LigneInfoFiche` (Équipe, Enfants).
 - **`ListeAccordion`** : coque accordéon liste (chevron, carte, en-tête/corps) + styles `listeAccordionStyles` ; contenu métier dans l'écran (`Groups`, `Bedrooms`).
+- **`ChambreFormulaireModal`** : création/édition chambre (bottom sheet, scroll gesture-handler).
+- **`AffecterOccupantsModal`** : sélection multi occupants (enfants ou équipe) pour une chambre.
 - **`DropdownAnim.tsx`** : orphelin (plus référencé).
 
 ## UX transverse
@@ -62,7 +64,8 @@ App.tsx
 - **Pull-to-refresh** sur tous les écrans de données (hook `useChargementRafraichissable` ou logique dédiée). Écrans avec personnes : inclure **`useRafraichirSejourCourant`** dans le `executer` pour synchroniser le tri listes (`triListesEnfants` / `triListesEquipe`).
 - **Tri et libellés personnes** (`helpers/triListesSejour.ts`) : ordre et affichage « Nom Prénom » ou « Prénom Nom » selon réglage séjour (lecture seule, aligné web).
 - **Recherche + filtre liste** (modèle `Animators` / `Children`) : barre compacte (`TextInput` + normalisation casse/accents) + **MultiSelect** groupes (`react-native-element-dropdown`, cases à cocher) + chips (rôle séjour sur Équipe ; genre sur Enfants). **Carte** : nom + badge droite (rôle ou groupes) ; **modal** `FichePersonneModal` au tap. Filtres par chips sur **`Groups`** (type de groupe), **`Bedrooms`** (chip Places dispo) et `Sanitaire` (Tout/Traitements/Régime/Médical). **`Bedrooms`** : menus déroulants Type / Genre / Groupe sur une ligne (`Dropdown` single-select).
-- **Accordéons listes** (`Groups`, `Bedrooms` via **`ListeAccordion`**) : plusieurs items ouverts possibles (`Set` d'ids) ; pas de modal occupant/enfant pour l'instant.
+- **Accordéons listes** (`Groups`, `Bedrooms` via **`ListeAccordion`**) : plusieurs items ouverts possibles (`Set` d'ids). **`Bedrooms`** : actions CRUD et affectation occupants dans modales dédiées (confirmations `Alert` pour suppression/retrait).
+- **Bottom sheets formulaire** : éviter `react-native-element-dropdown` dans un `ScrollView` (conflits gestes) ; préférer pills / liste dépliable + `ScrollView` de `react-native-gesture-handler`.
 - **Anniversaire pendant séjour** (`Children`) : icône gâteau avant le nom ; modale « Anniversaire : {jour date} » (`helpers/anniversaireSejour.ts`).
 - Thème RNEUI + tokens `config/theme.ts`.
 - États : `ActivityIndicator` au 1er chargement ; indicateur natif au refresh.

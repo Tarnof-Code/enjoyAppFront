@@ -17,7 +17,7 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | Séjours | `GET /sejours/utilisateur/{tokenId}`, `GET /sejours/{id}` | `SejourPicker`, `Home`, refresh séjour (`useRafraichirSejourCourant` sur listes, Sanitaire, Activités, GrilleDetail) |
 | Réunions | `GET /sejours/{sejourId}/reunions` | `Home` (CR veille) |
 | Enfants | `GET /sejours/{id}/enfants` | `Children` |
-| Chambres | `GET /sejours/{id}/chambres` | `Bedrooms` (filtre groupes), `Animators`, `Children` (modal chambre occupant) |
+| Chambres | `GET/POST /sejours/{id}/chambres`, `GET/PUT/DELETE …/{chambreId}`, `POST/DELETE …/occupants/enfants[/{enfantId}]`, `POST/DELETE …/occupants/equipe[/{membreTokenId}]` | `Bedrooms` (lecture + CRUD + occupants), `Animators`, `Children` (modal chambre occupant) |
 | Groupes | `GET /sejours/{id}/groupes` | `Groups`, `Bedrooms` (filtre), `Animators`, `Children` (filtre + modal), résolution libellés (Activités, Sorties, GrilleDetail) |
 | Menus | `GET /sejours/{id}/menus?dateDebut&dateFin` | `Menus` |
 | Plannings | `GET /sejours/{id}/planning-grilles`, `GET …/{grilleId}` | `Organisation`, `GrilleDetail` |
@@ -42,7 +42,7 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | `utilisateur.service.ts` | Profil par `tokenId`, photo profil |
 | `enfant.service.ts` | Enfants du séjour |
 | `groupe.service.ts` | Groupes |
-| `chambre.service.ts` | Chambres |
+| `chambre.service.ts` | Chambres (liste, détail, CRUD, affectation/retrait occupants enfants et équipe) |
 | `menu.service.ts` | Menus repas |
 | `planningGrille.service.ts` | Grilles planning (liste + détail) |
 | `moment.service.ts`, `lieu.service.ts`, `horaire.service.ts` | Référentiels planning |
@@ -71,6 +71,7 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | `anniversaireSejour.ts` | Date d'anniversaire pendant la période du séjour (affichage liste Enfants) |
 | `trierUtilisateurs.ts` | Comparateurs locale `fr` nom/prénom |
 | `triListesSejour.ts` | Tri et libellés enfants/équipe selon `triListesEnfants` / `triListesEquipe` |
+| `chambreOccupantsUtils.ts` | Éligibilité occupants, validation modification chambre, fusion liste locale après affectation |
 
 ## Glossaire
 
