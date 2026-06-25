@@ -58,6 +58,15 @@ Patterns et choix techniques de l'app mobile. Garder ce fichier comme référenc
 - **`FichePersonneModal`** (`Components/FichePersonneModal.tsx`) : modal fiche personne (overlay, titre prénom/nom, sous-titre, scroll, bouton Fermer) + **`LigneInfoFiche`** (libellé/valeur, lien optionnel tél./e-mail). Consommé par `Animators` (`DetailMembre`) et `Children` (`DetailEnfant`).
 - **`ListeAccordion`** (`Components/ListeAccordion.tsx`) : coque accordéon réutilisable (chevron MaterialIcons, carte bordée, slot en-tête/corps) ; styles partagés exportés (`listeAccordionStyles`). Consommé par `Groups` et `Bedrooms` — contenu métier reste dans chaque écran.
 - **`ChambreFormulaireModal`** / **`AffecterOccupantsModal`** : bottom sheets (zone sombre cliquable au-dessus, feuille en bas) ; scroll via **`ScrollView` de `react-native-gesture-handler`** ; formulaire chambre sans `Dropdown` dans le scroll (pills + liste groupe dépliable) pour éviter conflits de gestes ; feuille affectation ~92 % hauteur écran, liste en `flex: 1`.
+- **`PlanningCelluleModal`** : bottom sheet édition cellule planning (~92 % écran) ; cases à cocher horaires/moments/groupes/lieux/membres ou texte libre selon `sourceContenuCellules` ; scroll gesture-handler ; retour `ResultatEnregistrementCellule` (`cellules` → PUT, `ma-presence` → PATCH).
+
+## Plannings organisation
+
+- **Liste** (`Organisation.tsx`) : tri alpha titre (`localeCompare` `fr`) ; filtre `TextInput` + normalisation NFD ; bouton ✕ cross-platform pour vider la recherche.
+- **Détail matrice** (`GrilleDetail.tsx`) : lignes triées + bandeaux regroupement ; fenêtre 1/3/5 jours sur tous les jours du séjour (`enumererJoursSejour`) ; hook **`useFenetreJoursPlanning`** ; navigation ‹ › swipe + **Aujourd'hui** ; toolbar **‹ Retour** + chips 1j/3j/5j (hors `Header`).
+- **Logique métier** : **`helpers/planningGrilleUtils.ts`** (libellés lignes/cellules, validation payload, permissions, fenêtre jours, résumé cellule, membres équipe) ; **`helpers/peutGererMembresEquipeSejour.ts`** (directeur ou adjoint = édition structure) ; **`helpers/enumererJoursSejour.ts`** (plage séjour).
+- **Écriture API** : directeur/adjoint → `PUT …/lignes/{ligneId}/cellules` ; animateur sur grille équipe → `PATCH …/cellules/{jour}/ma-presence` si `planningAnimateurPeutModifierCellules`.
+- **Cas particulier** : `GrilleDetail` charge grille + référentiels (moments, lieux, horaires, groupes) + refresh séjour ; libellés membres selon `triListesEquipe`.
 
 ## Sécurité
 

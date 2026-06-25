@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -6,6 +6,7 @@ import {
   RefreshControl,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -20,8 +21,17 @@ import type { OrganisationStackParamList } from '../../Navigators/types';
 import type { PlanningGrilleSummaryDto } from '../../types/api';
 import { useAppSelector } from '../../store/hooks';
 import { colors } from '../../config/theme';
+import { MaterialIcons } from '@expo/vector-icons';
 
 dayjs.locale('fr');
+
+function normaliser(valeur: string): string {
+  return valeur
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim();
+}
 
 type Props = NativeStackScreenProps<OrganisationStackParamList, 'GrillesList'>;
 
@@ -38,6 +48,7 @@ function formatMiseAJour(valeur: unknown): string {
 function GrillesList({ navigation }: Props) {
   const sejourId = useAppSelector((state) => state.sejour.sejourCourant?.id);
   const [grilles, setGrilles] = useState<PlanningGrilleSummaryDto[]>([]);
+  const [recherche, setRecherche] = useState('');
 
   const executer = useCallback(async () => {
     if (sejourId == null) return;
@@ -48,6 +59,15 @@ function GrillesList({ navigation }: Props) {
     executer,
     'Impossible de charger les plannings.',
   );
+
+  const termeRecherche = normaliser(recherche);
+  const grillesVisibles = useMemo(() => {
+    const triees = [...grilles].sort((a, b) =>
+      (a.titre ?? '').localeCompare(b.titre ?? '', 'fr', { sensitivity: 'base' }),
+    );
+    if (termeRecherche === '') return triees;
+    return triees.filter((grille) => normaliser(grille.titre).includes(termeRecherche));
+  }, [grilles, termeRecherche]);
 
   if (!sejourId) {
     return (
@@ -74,31 +94,59 @@ function GrillesList({ navigation }: Props) {
   }
 
   return (
-    <FlatList
-      data={grilles}
-      keyExtractor={(item) => String(item.id)}
-      contentContainerStyle={styles.list}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={refresh} colors={[colors.primary]} tintColor={colors.primary} />
-      }
-      renderItem={({ item }) => {
-        const maj = formatMiseAJour(item.miseAJour as unknown);
-        return (
-          <Pressable
-            style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
-            onPress={() =>
-              navigation.navigate('GrilleDetail', { grilleId: item.id, titre: item.titre })
-            }
-          >
-            <Text style={styles.titre}>{item.titre}</Text>
-            {maj ? <Text style={styles.meta}>Mis à jour le {maj}</Text> : null}
-          </Pressable>
-        );
-      }}
-      ListEmptyComponent={
-        <Text style={styles.empty}>Aucun planning pour ce séjour.</Text>
-      }
-    />
+    <View style={styles.container}>
+      <View style={styles.barreRecherche}>
+        <View style={styles.rechercheConteneur}>
+          <TextInput
+            style={styles.recherche}
+            value={recherche}
+            onChangeText={setRecherche}
+            placeholder="Rechercher un planning…"
+            placeholderTextColor={colors.muted}
+            autoCorrect={false}
+          />
+          {recherche.length > 0 ? (
+            <Pressable
+              style={styles.rechercheEffacer}
+              onPress={() => setRecherche('')}
+              hitSlop={8}
+              accessibilityLabel="Effacer la recherche"
+            >
+              <MaterialIcons name="close" size={20} color={colors.muted} />
+            </Pressable>
+          ) : null}
+        </View>
+      </View>
+      <FlatList
+        data={grillesVisibles}
+        keyExtractor={(item) => String(item.id)}
+        contentContainerStyle={styles.list}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={refresh} colors={[colors.primary]} tintColor={colors.primary} />
+        }
+        renderItem={({ item }) => {
+          const maj = formatMiseAJour(item.miseAJour as unknown);
+          return (
+            <Pressable
+              style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
+              onPress={() =>
+                navigation.navigate('GrilleDetail', { grilleId: item.id, titre: item.titre })
+              }
+            >
+              <Text style={styles.titre}>{item.titre}</Text>
+              {maj ? <Text style={styles.meta}>Mis à jour le {maj}</Text> : null}
+            </Pressable>
+          );
+        }}
+        ListEmptyComponent={
+          <Text style={styles.empty}>
+            {grilles.length === 0
+              ? 'Aucun planning pour ce séjour.'
+              : 'Aucun planning ne correspond à la recherche.'}
+          </Text>
+        }
+      />
+    </View>
   );
 }
 
@@ -112,11 +160,40 @@ export default function Organisation(props: Props) {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.surface,
+  },
   center: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: colors.surface,
+  },
+  barreRecherche: {
+    paddingHorizontal: 12,
+    paddingTop: 10,
+  },
+  rechercheConteneur: {
+    position: 'relative',
+  },
+  recherche: {
+    height: 44,
+    paddingHorizontal: 14,
+    paddingRight: 40,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    fontSize: 15,
+    color: colors.text,
+  },
+  rechercheEffacer: {
+    position: 'absolute',
+    right: 10,
+    top: 0,
+    bottom: 0,
+    justifyContent: 'center',
   },
   list: {
     padding: 12,

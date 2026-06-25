@@ -21,7 +21,8 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | Groupes | `GET /sejours/{id}/groupes` | `Groups`, `Bedrooms` (filtre), `Animators`, `Children` (filtre + modal), résolution libellés (Activités, Sorties, GrilleDetail) |
 | Menus | `GET /sejours/{id}/menus?dateDebut&dateFin` | `Menus` |
 | Plannings | `GET /sejours/{id}/planning-grilles`, `GET …/{grilleId}` | `Organisation`, `GrilleDetail` |
-| Réf. planning | `GET …/moments`, `…/lieux`, `…/horaires` | `GrilleDetail` (résolution libellés) |
+| Plannings (écriture) | `PUT …/{grilleId}/lignes/{ligneId}/cellules`, `PATCH …/cellules/{jour}/ma-presence` | `GrilleDetail` (directeur/adjoint : cellule complète ; animateur : ma présence sur grille équipe) |
+| Réf. planning | `GET …/moments`, `…/lieux`, `…/horaires` | `GrilleDetail` (résolution libellés + édition cellule) |
 | Activités | `GET /sejours/{id}/activites` | `Activites` |
 | Sorties | `GET /sejours/{id}/activites-prestataires` | `Sorties` |
 | Sanitaire | `GET /sejours/{id}/dossiers-enfants` | `Sanitaire`, `Children` (contacts parents dans modal ; chargement silencieux si indisponible) |
@@ -44,7 +45,7 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | `groupe.service.ts` | Groupes |
 | `chambre.service.ts` | Chambres (liste, détail, CRUD, affectation/retrait occupants enfants et équipe) |
 | `menu.service.ts` | Menus repas |
-| `planningGrille.service.ts` | Grilles planning (liste + détail) |
+| `planningGrille.service.ts` | Grilles planning (liste, détail, PUT cellules, PATCH ma-presence) |
 | `moment.service.ts`, `lieu.service.ts`, `horaire.service.ts` | Référentiels planning |
 | `activite.service.ts`, `activitePrestataire.service.ts` | Activités internes et sorties |
 | `dossierEnfant.service.ts` | Fiches sanitaires agrégées (`getDossiersSanitairesBySejour`) |
@@ -55,6 +56,7 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 |---------|------|
 | `useChargementRafraichissable.ts` | Chargement initial + pull-to-refresh |
 | `useRafraichirSejourCourant.ts` | Recharge `sejourCourant` (critères tri listes) au refresh |
+| `useFenetreJoursPlanning.ts` | Fenêtre glissante 1/3/5 jours dans le détail planning |
 
 ## Helpers (`helpers/`)
 
@@ -72,6 +74,15 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | `trierUtilisateurs.ts` | Comparateurs locale `fr` nom/prénom |
 | `triListesSejour.ts` | Tri et libellés enfants/équipe selon `triListesEnfants` / `triListesEquipe` |
 | `chambreOccupantsUtils.ts` | Éligibilité occupants, validation modification chambre, fusion liste locale après affectation |
+| `enumererJoursSejour.ts` | Liste des jours ISO entre date début/fin séjour |
+| `peutGererMembresEquipeSejour.ts` | Directeur ou adjoint (droits édition structure planning) |
+| `planningGrilleUtils.ts` | Affichage/validation cellules planning, fenêtre jours, permissions, résumés |
+
+## Composants (`Components/` — complément)
+
+| Fichier | Rôle |
+|---------|------|
+| `PlanningCelluleModal.tsx` | Bottom sheet édition cellule planning (horaires, moments, groupes, lieux, membres, texte libre) |
 
 ## Glossaire
 

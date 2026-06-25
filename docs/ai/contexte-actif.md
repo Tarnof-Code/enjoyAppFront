@@ -10,6 +10,12 @@ Reste mineur : photos animateurs codées en dur dans `Header.tsx`, composant orp
 
 ## Journal
 
+### 2026-06-25 (suite 5)
+- **Plannings organisation (UX mobile)** — aligné web / API : refonte **`GrilleDetail`** en **matrice multi-jours** (colonnes = jours, lignes = libellés) ; fenêtre glissante **1 / 3 / 5 jours** (`useFenetreJoursPlanning`, jours du séjour via **`enumererJoursSejour`**) ; swipe horizontal + flèches + bouton **Aujourd'hui** ; en-têtes jour (nom + date) ; sections `libelleRegroupement` ; colonne libellés fixe 108 px.
+- **Édition cellules** : tap cellule → **`PlanningCelluleModal`** (bottom sheet ~92 %) ; directeur/adjoint (`peutGererMembresEquipeSejour`) → PUT cellules complètes ; animateur sur grille `MEMBRE_EQUIPE` → PATCH **ma-presence** uniquement ; validation + résumé via **`planningGrilleUtils`** (prénom seul en cellule équipe, désambiguïsation homonymes).
+- **Service étendu** : `planningGrille.service` — `remplacerCellulesPlanning` (PUT), `modifierMaPresenceCellulePlanning` (PATCH) ; types `PlanningCellulePayload`, `UpsertPlanningCellulesRequest`, `ModifierMaPresenceCelluleMembreEquipeRequest`.
+- **Liste plannings** (`Organisation.tsx`) : tri alphabétique par titre ; recherche avec normalisation casse/accents ; bouton ✕ pour vider le champ (Android + iOS).
+
 ### 2026-06-25 (suite 4)
 - **Gestion des chambres (écriture)** — alignée web / API `ACCES_SEJOUR` : **`chambre.service.ts`** étendu (CRUD chambre + affectation/retrait occupants enfants et équipe) ; types `SaveChambreRequest`, `AffecterOccupants*` dans `types/api.d.ts`.
 - **Helper `helpers/chambreOccupantsUtils.ts`** : éligibilité occupants (genre, groupe), validation modification chambre, fusion locale après réaffectation (déplacement).

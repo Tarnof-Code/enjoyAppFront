@@ -270,6 +270,24 @@ export interface PlanningGrilleDetailDto {
   lignes: PlanningLigneDto[];
 }
 
+export interface PlanningCellulePayload {
+  jour: string;
+  membreTokenIds?: string[] | null;
+  horaireIds?: number[] | null;
+  texteLibre?: string | null;
+  momentIds?: number[] | null;
+  groupeIds?: number[] | null;
+  lieuIds?: number[] | null;
+}
+
+export interface UpsertPlanningCellulesRequest {
+  cellules: PlanningCellulePayload[];
+}
+
+export interface ModifierMaPresenceCelluleMembreEquipeRequest {
+  present: boolean;
+}
+
 export interface TypeActiviteDto {
   id: number;
   libelle: string;

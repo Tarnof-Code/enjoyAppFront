@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -8,15 +8,37 @@ import {
   Text,
   View,
 } from 'react-native';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import dayjs from 'dayjs';
 import 'dayjs/locale/fr';
 
 import Header from '../../Components/Header';
+import PlanningCelluleModal, {
+  type ResultatEnregistrementCellule,
+} from '../../Components/PlanningCelluleModal';
 import { useChargementRafraichissable } from '../../hooks/useChargementRafraichissable';
+import { useFenetreJoursPlanning } from '../../hooks/useFenetreJoursPlanning';
 import { useRafraichirSejourCourant } from '../../hooks/useRafraichirSejourCourant';
-import { jourISOdepuisValeurApi } from '../../helpers/dateApi';
+import { enumererJoursSejour } from '../../helpers/enumererJoursSejour';
+import { peutGererMembresEquipeSejour } from '../../helpers/peutGererMembresEquipeSejour';
+import {
+  aujourdhuiYmd,
+  celluleEstVide,
+  cellulePourJour,
+  debutFenetrePourJour,
+  grilleLibelleLignesDesactive,
+  infosRegroupementParLigne,
+  libelleLignePourAffichage,
+  lieuxPourPlanning,
+  lignesTriPourAffichageGrille,
+  membresDirecteurEtEquipe,
+  peutModifierCellulesPlanning,
+  resumeCellule,
+  sourceContenuCellulesEffectif,
+  type NombreJoursVuePlanning,
+} from '../../helpers/planningGrilleUtils';
 import { planningGrilleService } from '../../services/planningGrille.service';
 import { momentService } from '../../services/moment.service';
 import { lieuService } from '../../services/lieu.service';
@@ -24,45 +46,40 @@ import { horaireService } from '../../services/horaire.service';
 import { groupeService } from '../../services/groupe.service';
 import type { OrganisationStackParamList } from '../../Navigators/types';
 import type {
-  PlanningCelluleDto,
+  GroupeDto,
+  HoraireDto,
+  LieuDto,
+  MomentDto,
   PlanningGrilleDetailDto,
   PlanningLigneDto,
 } from '../../types/api';
 import { useAppSelector } from '../../store/hooks';
-import { libelleEquipeDuSejour } from '../../helpers/triListesSejour';
-import { colors } from '../../config/theme';
+import { colors, fontSizes, radius, spacing } from '../../config/theme';
 
 dayjs.locale('fr');
 
 type Props = NativeStackScreenProps<OrganisationStackParamList, 'GrilleDetail'>;
 
-function noms(ids: number[] | null | undefined, map: Map<number, string>): string[] {
-  return (ids ?? []).map((id) => map.get(id)).filter((v): v is string => !!v);
-}
+const LARGEUR_COLONNE_LIBELLE = 108;
+const SWIPE_SEUIL = 48;
 
-function celluleDuJour(ligne: PlanningLigneDto, jour: string): PlanningCelluleDto | undefined {
-  return ligne.cellules.find((c) => jourISOdepuisValeurApi(c.jour) === jour);
-}
-
-function GrilleDetailContent({ route }: Props) {
+function GrilleDetailContent({ route, navigation }: Props) {
   const { grilleId } = route.params;
   const sejour = useAppSelector((state) => state.sejour.sejourCourant);
+  const tokenUtilisateur = useAppSelector((state) => state.auth.tokenId);
   const sejourId = sejour?.id;
 
   const [grille, setGrille] = useState<PlanningGrilleDetailDto | null>(null);
-  const [moments, setMoments] = useState<Map<number, string>>(new Map());
-  const [lieux, setLieux] = useState<Map<number, string>>(new Map());
-  const [groupes, setGroupes] = useState<Map<number, string>>(new Map());
-  const [horaires, setHoraires] = useState<Map<number, string>>(new Map());
-  const [jourIndex, setJourIndex] = useState(0);
+  const [moments, setMoments] = useState<MomentDto[]>([]);
+  const [lieux, setLieux] = useState<LieuDto[]>([]);
+  const [groupes, setGroupes] = useState<GroupeDto[]>([]);
+  const [horaires, setHoraires] = useState<HoraireDto[]>([]);
 
-  const membres = new Map<string, string>();
-  if (sejour?.directeur) {
-    membres.set(sejour.directeur.tokenId, libelleEquipeDuSejour(sejour.directeur, sejour));
-  }
-  for (const m of sejour?.equipe ?? []) {
-    membres.set(m.tokenId, libelleEquipeDuSejour(m, sejour));
-  }
+  const [cellModalVisible, setCellModalVisible] = useState(false);
+  const [cellSubmitting, setCellSubmitting] = useState(false);
+  const [cellError, setCellError] = useState<string | null>(null);
+  const [cellLigne, setCellLigne] = useState<PlanningLigneDto | null>(null);
+  const [cellJour, setCellJour] = useState<string | null>(null);
 
   const rafraichirSejour = useRafraichirSejourCourant();
 
@@ -77,16 +94,139 @@ function GrilleDetailContent({ route }: Props) {
       horaireService.getHorairesBySejour(sejourId).catch(() => []),
     ]);
     setGrille(detail);
-    setMoments(new Map(momentsArr.map((m) => [m.id, m.nom])));
-    setLieux(new Map(lieuxArr.map((l) => [l.id, l.nom])));
-    setGroupes(new Map(groupesArr.map((g) => [g.id, g.nom])));
-    setHoraires(new Map(horairesArr.map((h) => [h.id, h.libelle])));
+    setMoments(momentsArr);
+    setLieux(lieuxArr);
+    setGroupes(groupesArr);
+    setHoraires(horairesArr);
   }, [sejourId, grilleId, rafraichirSejour]);
 
   const { loading, refreshing, error, refresh } = useChargementRafraichissable(
     executer,
     'Impossible de charger le planning.',
   );
+
+  const jours = useMemo(() => {
+    if (!sejour) return [];
+    return enumererJoursSejour(sejour.dateDebut, sejour.dateFin);
+  }, [sejour]);
+  const {
+    nombreJoursVue,
+    setNombreJoursVue,
+    joursFenetre,
+    libellePlage,
+    peutReculer,
+    peutAvancer,
+    decalage,
+    definirDebutFenetre,
+  } = useFenetreJoursPlanning(jours);
+
+  const lieuxPlanning = useMemo(() => lieuxPourPlanning(lieux), [lieux]);
+  const membres = useMemo(
+    () => membresDirecteurEtEquipe(sejour?.directeur, sejour?.equipe, sejour),
+    [sejour],
+  );
+  const peutGererStructure = useMemo(
+    () => peutGererMembresEquipeSejour(tokenUtilisateur, sejour?.directeur, sejour?.equipe),
+    [tokenUtilisateur, sejour],
+  );
+  const peutModifier = grille ? peutModifierCellulesPlanning(grille, peutGererStructure) : false;
+  const afficherColonneLibelle = grille ? !grilleLibelleLignesDesactive(grille) : false;
+
+  const lignesTriees = useMemo(
+    () => (grille ? lignesTriPourAffichageGrille(grille.lignes) : []),
+    [grille],
+  );
+  const regroupements = useMemo(() => infosRegroupementParLigne(lignesTriees), [lignesTriees]);
+
+  const aujourdhui = aujourdhuiYmd();
+  const afficherBoutonAujourdhui =
+    jours.includes(aujourdhui) &&
+    joursFenetre.length > 0 &&
+    (aujourdhui < joursFenetre[0].ymd ||
+      aujourdhui > joursFenetre[joursFenetre.length - 1].ymd);
+
+  const allerAujourdhui = () => {
+    definirDebutFenetre(debutFenetrePourJour(jours, aujourdhui, nombreJoursVue));
+  };
+
+  const ouvrirCellule = (ligne: PlanningLigneDto, jour: string) => {
+    if (!grille || !peutModifier) return;
+    setCellError(null);
+    setCellLigne(ligne);
+    setCellJour(jour);
+    setCellModalVisible(true);
+  };
+
+  const fermerCellule = () => {
+    if (cellSubmitting) return;
+    setCellModalVisible(false);
+    setCellLigne(null);
+    setCellJour(null);
+    setCellError(null);
+  };
+
+  const rechargerGrille = async () => {
+    if (sejourId == null) return;
+    setGrille(await planningGrilleService.getPlanningGrilleById(sejourId, grilleId));
+  };
+
+  const handleEnregistrerCellule = async (result: ResultatEnregistrementCellule) => {
+    if (sejourId == null || !grille || !cellLigne || !cellJour) return;
+    setCellSubmitting(true);
+    setCellError(null);
+    try {
+      if (result.type === 'ma-presence') {
+        await planningGrilleService.modifierMaPresenceCellulePlanning(
+          sejourId,
+          grille.id,
+          cellLigne.id,
+          cellJour,
+          { present: result.present },
+        );
+      } else {
+        await planningGrilleService.remplacerCellulesPlanning(sejourId, grille.id, cellLigne.id, {
+          cellules: [result.payload],
+        });
+      }
+      setCellModalVisible(false);
+      setCellLigne(null);
+      setCellJour(null);
+      await rechargerGrille();
+    } catch (e: unknown) {
+      setCellError(e instanceof Error ? e.message : 'Enregistrement impossible');
+    } finally {
+      setCellSubmitting(false);
+    }
+  };
+
+  const swipeGesture = Gesture.Pan()
+    .activeOffsetX([-24, 24])
+    .onEnd((event) => {
+      if (event.translationX <= -SWIPE_SEUIL && peutAvancer) {
+        decalage(1);
+      } else if (event.translationX >= SWIPE_SEUIL && peutReculer) {
+        decalage(-1);
+      }
+    });
+
+  const libelleLigne = (ligne: PlanningLigneDto): string =>
+    grille
+      ? libelleLignePourAffichage(ligne, grille, groupes, lieux, horaires, moments, membres, sejour)
+      : '';
+
+  const texteCellule = (ligne: PlanningLigneDto, jour: string): string => {
+    const cellule = cellulePourJour(ligne, jour);
+    return resumeCellule(
+      cellule,
+      horaires,
+      moments,
+      groupes,
+      lieuxPlanning,
+      membres,
+      sejour,
+      grille ? sourceContenuCellulesEffectif(grille) : undefined,
+    );
+  };
 
   if (!sejourId) {
     return (
@@ -112,15 +252,7 @@ function GrilleDetailContent({ route }: Props) {
     );
   }
 
-  const jours = [
-    ...new Set(
-      grille.lignes
-        .flatMap((ligne) => ligne.cellules.map((c) => jourISOdepuisValeurApi(c.jour)))
-        .filter(Boolean),
-    ),
-  ].sort();
-
-  if (jours.length === 0) {
+  if (grille.lignes.length === 0) {
     return (
       <View style={styles.center}>
         <Text style={styles.empty}>Aucun contenu dans ce planning.</Text>
@@ -128,52 +260,13 @@ function GrilleDetailContent({ route }: Props) {
     );
   }
 
-  const indexCourant = Math.min(jourIndex, jours.length - 1);
-  const jour = jours[indexCourant];
-
-  const libelleLigne = (ligne: PlanningLigneDto): string => {
-    switch (grille.sourceLibelleLignes) {
-      case 'SAISIE_LIBRE':
-        return ligne.libelleSaisieLibre ?? '';
-      case 'HORAIRE':
-        return (ligne.libelleHoraireId != null ? horaires.get(ligne.libelleHoraireId) : '') ?? '';
-      case 'MOMENT':
-        return (ligne.libelleMomentId != null ? moments.get(ligne.libelleMomentId) : '') ?? '';
-      case 'GROUPE':
-        return (ligne.libelleGroupeId != null ? groupes.get(ligne.libelleGroupeId) : '') ?? '';
-      case 'LIEU':
-        return (ligne.libelleLieuId != null ? lieux.get(ligne.libelleLieuId) : '') ?? '';
-      case 'MEMBRE_EQUIPE':
-        return (
-          (ligne.libelleUtilisateurTokenId
-            ? membres.get(ligne.libelleUtilisateurTokenId)
-            : '') ?? ''
-        );
-      default:
-        return ligne.libelleSaisieLibre ?? '';
-    }
-  };
-
-  const lignesCellule = (cellule: PlanningCelluleDto): { label: string; valeur: string }[] => {
-    const out: { label: string; valeur: string }[] = [];
-    if (cellule.texteLibre?.trim()) out.push({ label: '', valeur: cellule.texteLibre.trim() });
-    if (cellule.horaireLibelles?.length) {
-      out.push({ label: 'Horaires', valeur: cellule.horaireLibelles.join(', ') });
-    }
-    const m = noms(cellule.momentIds, moments);
-    if (m.length) out.push({ label: 'Moments', valeur: m.join(', ') });
-    const g = noms(cellule.groupeIds, groupes);
-    if (g.length) out.push({ label: 'Groupes', valeur: g.join(', ') });
-    const l = noms(cellule.lieuIds, lieux);
-    if (l.length) out.push({ label: 'Lieux', valeur: l.join(', ') });
-    const a = (cellule.membreTokenIds ?? [])
-      .map((t) => membres.get(t))
-      .filter((v): v is string => !!v);
-    if (a.length) out.push({ label: 'Animateurs', valeur: a.join(', ') });
-    return out;
-  };
-
-  const lignesTriees = grille.lignes.slice().sort((a, b) => a.ordre - b.ordre);
+  if (jours.length === 0) {
+    return (
+      <View style={styles.center}>
+        <Text style={styles.empty}>Dates du séjour indisponibles.</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -181,57 +274,200 @@ function GrilleDetailContent({ route }: Props) {
         <Text style={styles.consigne}>{grille.consigneGlobale}</Text>
       ) : null}
 
-      <View style={styles.dayNav}>
-        <Pressable
-          onPress={() => setJourIndex(indexCourant - 1)}
-          disabled={indexCourant === 0}
-          style={({ pressed }) => [
-            styles.navBtn,
-            (indexCourant === 0 || pressed) && styles.navBtnDisabled,
-          ]}
-        >
-          <Text style={styles.navBtnText}>‹</Text>
-        </Pressable>
-        <Text style={styles.dayLabel}>{dayjs(jour).format('dddd D MMMM')}</Text>
-        <Pressable
-          onPress={() => setJourIndex(indexCourant + 1)}
-          disabled={indexCourant >= jours.length - 1}
-          style={({ pressed }) => [
-            styles.navBtn,
-            (indexCourant >= jours.length - 1 || pressed) && styles.navBtnDisabled,
-          ]}
-        >
-          <Text style={styles.navBtnText}>›</Text>
-        </Pressable>
+      <View style={styles.barreOutils}>
+        <View style={styles.ligneFiltres}>
+          <Pressable
+            onPress={() => navigation.goBack()}
+            style={({ pressed }) => [styles.btnRetour, pressed && styles.btnRetourPressed]}
+            accessibilityRole="button"
+            accessibilityLabel="Retour à la liste des plannings"
+          >
+            <Text style={styles.btnRetourTexte}>‹ Retour</Text>
+          </Pressable>
+          <View style={styles.segmentVue}>
+            {([1, 3, 5] as NombreJoursVuePlanning[]).map((n) => (
+              <Pressable
+                key={n}
+                onPress={() => setNombreJoursVue(n)}
+                style={({ pressed }) => [
+                  styles.segmentBtn,
+                  nombreJoursVue === n && styles.segmentBtnActif,
+                  pressed && styles.segmentBtnPressed,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.segmentBtnTexte,
+                    nombreJoursVue === n && styles.segmentBtnTexteActif,
+                  ]}
+                >
+                  {n} j.
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+
+        <View style={styles.navPeriode}>
+          <Pressable
+            onPress={() => decalage(-1)}
+            disabled={!peutReculer}
+            style={({ pressed }) => [
+              styles.navBtn,
+              (!peutReculer || pressed) && styles.navBtnDisabled,
+            ]}
+            accessibilityLabel="Jour précédent"
+          >
+            <Text style={styles.navBtnTexte}>‹</Text>
+          </Pressable>
+          <Text style={styles.plageLabel} numberOfLines={2}>
+            {libellePlage}
+          </Text>
+          <Pressable
+            onPress={() => decalage(1)}
+            disabled={!peutAvancer}
+            style={({ pressed }) => [
+              styles.navBtn,
+              (!peutAvancer || pressed) && styles.navBtnDisabled,
+            ]}
+            accessibilityLabel="Jour suivant"
+          >
+            <Text style={styles.navBtnTexte}>›</Text>
+          </Pressable>
+        </View>
+
+        {afficherBoutonAujourdhui ? (
+          <Pressable
+            onPress={allerAujourdhui}
+            style={({ pressed }) => [styles.btnAujourdhui, pressed && styles.btnAujourdhuiPressed]}
+          >
+            <Text style={styles.btnAujourdhuiTexte}>Aujourd’hui</Text>
+          </Pressable>
+        ) : null}
       </View>
 
-      <ScrollView
-        contentContainerStyle={styles.list}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={refresh} colors={[colors.primary]} tintColor={colors.primary} />
-        }
-      >
-        {lignesTriees.map((ligne) => {
-          const cellule = celluleDuJour(ligne, jour);
-          const contenu = cellule ? lignesCellule(cellule) : [];
-          const label = libelleLigne(ligne);
-          return (
-            <View key={ligne.id} style={styles.card}>
-              {label ? <Text style={styles.ligneLabel}>{label}</Text> : null}
-              {contenu.length > 0 ? (
-                contenu.map((c, index) => (
-                  <Text key={index} style={styles.contenu}>
-                    {c.label ? <Text style={styles.contenuLabel}>{c.label} : </Text> : null}
-                    {c.valeur}
-                  </Text>
-                ))
-              ) : (
-                <Text style={styles.vide}>—</Text>
-              )}
+      <GestureDetector gesture={swipeGesture}>
+        <ScrollView
+          style={styles.grilleScroll}
+          contentContainerStyle={styles.grilleContenu}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={refresh}
+              colors={[colors.primary]}
+              tintColor={colors.primary}
+            />
+          }
+        >
+          <View style={styles.grille}>
+            <View style={styles.enteteLigne}>
+              {afficherColonneLibelle ? (
+                <View style={[styles.celluleLibelle, styles.enteteCoin]} />
+              ) : null}
+              {joursFenetre.map(({ ymd, jourSemaine, dateReste }, index) => {
+                const estAujourdhui = ymd === aujourdhui;
+                const derniereColonne = index === joursFenetre.length - 1;
+                return (
+                  <View
+                    key={ymd}
+                    style={[
+                      styles.celluleJourEntete,
+                      styles.celluleJourFlexible,
+                      derniereColonne && styles.celluleSansBordureDroite,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.enteteJourSemaine,
+                        estAujourdhui && styles.enteteJourAujourdhui,
+                      ]}
+                    >
+                      {jourSemaine}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.enteteJourDate,
+                        estAujourdhui && styles.enteteJourAujourdhui,
+                      ]}
+                    >
+                      {dateReste}
+                    </Text>
+                  </View>
+                );
+              })}
             </View>
-          );
-        })}
-      </ScrollView>
+
+            {lignesTriees.map((ligne, index) => {
+              const rg = regroupements[index];
+              return (
+                <React.Fragment key={ligne.id}>
+                  {rg?.showLeadingCell && rg.libelleRegroupement ? (
+                    <View style={styles.sectionEntete}>
+                      <Text style={styles.sectionEnteteTexte}>{rg.libelleRegroupement}</Text>
+                    </View>
+                  ) : null}
+                  <View style={styles.ligneDonnees}>
+                    {afficherColonneLibelle ? (
+                      <View style={[styles.celluleLibelle, styles.celluleLibelleDonnees]}>
+                        <Text style={styles.libelleLigneTexte} numberOfLines={4}>
+                          {libelleLigne(ligne).trim() || '—'}
+                        </Text>
+                      </View>
+                    ) : null}
+                    {joursFenetre.map(({ ymd }, jourIndex) => {
+                      const texte = texteCellule(ligne, ymd);
+                      const vide = celluleEstVide(texte);
+                      const editable = peutModifier;
+                      const derniereColonne = jourIndex === joursFenetre.length - 1;
+                      return (
+                        <Pressable
+                          key={`${ligne.id}-${ymd}`}
+                          onPress={() => ouvrirCellule(ligne, ymd)}
+                          disabled={!editable}
+                          style={({ pressed }) => [
+                            styles.celluleDonnees,
+                            styles.celluleJourFlexible,
+                            derniereColonne && styles.celluleSansBordureDroite,
+                            vide && styles.celluleVide,
+                            editable && pressed && styles.cellulePressed,
+                          ]}
+                        >
+                          <Text
+                            style={[styles.celluleTexte, vide && styles.celluleTexteVide]}
+                            numberOfLines={4}
+                          >
+                            {texte}
+                          </Text>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                </React.Fragment>
+              );
+            })}
+          </View>
+        </ScrollView>
+      </GestureDetector>
+
+      <PlanningCelluleModal
+        visible={cellModalVisible}
+        submitting={cellSubmitting}
+        error={cellError}
+        detail={grille}
+        sejour={sejour}
+        ligne={cellLigne}
+        jour={cellJour}
+        libelleLigne={cellLigne ? libelleLigne(cellLigne) : ''}
+        horaires={horaires}
+        moments={moments}
+        groupes={groupes}
+        lieux={lieuxPlanning}
+        membres={membres}
+        peutGererStructure={peutGererStructure}
+        tokenUtilisateur={tokenUtilisateur}
+        onFermer={fermerCellule}
+        onEnregistrer={handleEnregistrerCellule}
+      />
     </View>
   );
 }
@@ -257,22 +493,74 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
   },
   consigne: {
-    fontSize: 14,
+    fontSize: fontSizes.sm,
     color: colors.muted,
-    paddingHorizontal: 16,
-    paddingTop: 10,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.sm,
   },
-  dayNav: {
+  barreOutils: {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    gap: spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  ligneFiltres: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+    gap: spacing.sm,
+  },
+  btnRetour: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.sm,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  btnRetourPressed: {
+    backgroundColor: colors.background,
+  },
+  btnRetourTexte: {
+    fontSize: fontSizes.sm,
+    fontWeight: '600',
+    color: colors.primary,
+  },
+  segmentVue: {
+    flexDirection: 'row',
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.sm,
+    overflow: 'hidden',
+  },
+  segmentBtn: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    backgroundColor: colors.surface,
+  },
+  segmentBtnActif: {
+    backgroundColor: colors.primary,
+  },
+  segmentBtnPressed: {
+    opacity: 0.85,
+  },
+  segmentBtnTexte: {
+    fontSize: fontSizes.sm,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  segmentBtnTexteActif: {
+    color: colors.surface,
+  },
+  navPeriode: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
   },
   navBtn: {
-    width: 44,
+    width: 40,
     height: 36,
-    borderRadius: 10,
+    borderRadius: radius.sm,
     backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
@@ -280,57 +568,154 @@ const styles = StyleSheet.create({
   navBtnDisabled: {
     opacity: 0.4,
   },
-  navBtnText: {
+  navBtnTexte: {
     color: colors.surface,
     fontSize: 22,
     fontWeight: '700',
     lineHeight: 24,
   },
-  dayLabel: {
+  plageLabel: {
     flex: 1,
     textAlign: 'center',
-    fontSize: 16,
+    fontSize: fontSizes.sm,
     fontWeight: '700',
     color: colors.primary,
     textTransform: 'capitalize',
   },
-  list: {
-    padding: 12,
+  btnAujourdhui: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.full,
+    backgroundColor: colors.primarySoft,
   },
-  card: {
-    backgroundColor: colors.surface,
+  btnAujourdhuiPressed: {
+    opacity: 0.85,
+  },
+  btnAujourdhuiTexte: {
+    fontSize: fontSizes.sm,
+    fontWeight: '600',
+    color: colors.primary,
+  },
+  grilleScroll: {
+    flex: 1,
+  },
+  grilleContenu: {
+    padding: spacing.md,
+    paddingBottom: spacing.xxl,
+  },
+  grille: {
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 10,
+    borderRadius: radius.sm,
+    overflow: 'hidden',
+    backgroundColor: colors.surface,
   },
-  ligneLabel: {
-    fontSize: 15,
+  enteteLigne: {
+    flexDirection: 'row',
+    backgroundColor: colors.background,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  enteteCoin: {
+    backgroundColor: colors.background,
+  },
+  celluleLibelle: {
+    width: LARGEUR_COLONNE_LIBELLE,
+    borderRightWidth: 1,
+    borderRightColor: colors.border,
+    backgroundColor: colors.background,
+  },
+  celluleJourEntete: {
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.xs,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRightWidth: 1,
+    borderRightColor: colors.border,
+  },
+  celluleJourFlexible: {
+    flex: 1,
+    minWidth: 0,
+  },
+  celluleSansBordureDroite: {
+    borderRightWidth: 0,
+  },
+  enteteJourSemaine: {
+    fontSize: fontSizes.xs,
     fontWeight: '700',
     color: colors.text,
-    marginBottom: 4,
+    textAlign: 'center',
+    textTransform: 'capitalize',
   },
-  contenu: {
-    fontSize: 14,
-    color: colors.text,
+  enteteJourDate: {
     marginTop: 2,
-  },
-  contenuLabel: {
+    fontSize: fontSizes.xs,
+    fontWeight: '600',
     color: colors.muted,
+    textAlign: 'center',
   },
-  vide: {
-    fontSize: 14,
+  enteteJourAujourdhui: {
+    color: colors.primary,
+  },
+  sectionEntete: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    backgroundColor: colors.primarySoft,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  sectionEnteteTexte: {
+    fontSize: fontSizes.xs,
+    fontWeight: '700',
+    color: colors.primaryDark,
+  },
+  ligneDonnees: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    minHeight: 56,
+  },
+  celluleLibelleDonnees: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.sm,
+    justifyContent: 'center',
+  },
+  libelleLigneTexte: {
+    fontSize: fontSizes.xs,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  celluleDonnees: {
+    paddingHorizontal: spacing.xs,
+    paddingVertical: spacing.sm,
+    justifyContent: 'center',
+    borderRightWidth: 1,
+    borderRightColor: colors.border,
+    minHeight: 56,
+  },
+  celluleVide: {
+    backgroundColor: '#fafbfc',
+  },
+  cellulePressed: {
+    backgroundColor: colors.primarySoft,
+  },
+  celluleTexte: {
+    fontSize: fontSizes.xs,
+    color: colors.text,
+    textAlign: 'center',
+  },
+  celluleTexteVide: {
     color: colors.muted,
   },
   empty: {
     textAlign: 'center',
     color: colors.muted,
-    marginTop: 24,
+    marginTop: spacing.xxl,
   },
   errorText: {
     color: colors.danger,
     textAlign: 'center',
-    paddingHorizontal: 24,
+    paddingHorizontal: spacing.xxl,
   },
 });
