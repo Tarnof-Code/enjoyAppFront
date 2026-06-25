@@ -28,7 +28,7 @@ App.tsx
 | Animators | `screens/Lists/Animators` | Équipe | Redux `sejourCourant` (+ refresh séjour) ; groupes/chambres/profil directeur en parallèle — recherche, chips rôle séjour (chip **Direction**), MultiSelect groupes ; cartes nom+rôle, modal `FichePersonneModal` (contact, groupes, chambre) |
 | Children | `screens/Lists/Children` | Enfants | `GET /enfants` + groupes/chambres/dossiers en parallèle ; dates séjour (Redux) pour anniversaire — recherche, MultiSelect groupes, chips genre ; cartes nom (+ icône gâteau si anniversaire) + badge groupes ; modal `FichePersonneModal` (âge, niveau, groupes, chambre, contacts parents) |
 | Groups | `screens/Lists/Groups` | Groupes | `GET /groupes` — accordéons par groupe (en-tête : nom, type, tranche ou description thématique, nb enfants) ; chips filtre **type** (Tous / Par âge / Par niveau / Thématique) ; déplié → liste enfants ; groupes thématiques : à droite du nom, groupes par âge/niveau de l'enfant |
-| Bedrooms | `screens/Lists/Bedrooms` | Chambres | `GET /chambres` |
+| Bedrooms | `screens/Lists/Bedrooms` | Chambres | `GET /chambres` + `GET /groupes` (filtre) — accordéons (`ListeAccordion`) : en-tête identifiant/nom, type, genre, jauge, groupe ; déplié → occupants (enfants ou équipe) ; **filtres** : menus Type / Genre / Groupe (unique, masqué si type Équipe) + chip **Places dispo** |
 
 ## Onglets Activités (`TopTabActivities`)
 
@@ -54,13 +54,14 @@ App.tsx
 
 - **`Header`** : icône FontAwesome5 + titre (script) + avatar animateur (mapping prénom → photo locale, legacy).
 - **`FichePersonneModal`** : modal fiche personne + `LigneInfoFiche` (Équipe, Enfants).
+- **`ListeAccordion`** : coque accordéon liste (chevron, carte, en-tête/corps) + styles `listeAccordionStyles` ; contenu métier dans l'écran (`Groups`, `Bedrooms`).
 - **`DropdownAnim.tsx`** : orphelin (plus référencé).
 
 ## UX transverse
 
 - **Pull-to-refresh** sur tous les écrans de données (hook `useChargementRafraichissable` ou logique dédiée).
-- **Recherche + filtre liste** (modèle `Animators` / `Children`) : barre compacte (`TextInput` + normalisation casse/accents) + **MultiSelect** groupes (`react-native-element-dropdown`, cases à cocher) + chips (rôle séjour sur Équipe ; genre sur Enfants). **Carte** : nom + badge droite (rôle ou groupes) ; **modal** `FichePersonneModal` au tap. Filtres par chips aussi sur **`Groups`** (type de groupe) et `Sanitaire` (Tout/Traitements/Régime/Médical).
-- **Accordéons Groupes** (`Groups`) : plusieurs groupes ouverts possibles ; logique locale (`Set` d'ids) ; pas de modal enfant pour l'instant.
+- **Recherche + filtre liste** (modèle `Animators` / `Children`) : barre compacte (`TextInput` + normalisation casse/accents) + **MultiSelect** groupes (`react-native-element-dropdown`, cases à cocher) + chips (rôle séjour sur Équipe ; genre sur Enfants). **Carte** : nom + badge droite (rôle ou groupes) ; **modal** `FichePersonneModal` au tap. Filtres par chips sur **`Groups`** (type de groupe), **`Bedrooms`** (chip Places dispo) et `Sanitaire` (Tout/Traitements/Régime/Médical). **`Bedrooms`** : menus déroulants Type / Genre / Groupe sur une ligne (`Dropdown` single-select).
+- **Accordéons listes** (`Groups`, `Bedrooms` via **`ListeAccordion`**) : plusieurs items ouverts possibles (`Set` d'ids) ; pas de modal occupant/enfant pour l'instant.
 - **Anniversaire pendant séjour** (`Children`) : icône gâteau avant le nom ; modale « Anniversaire : {jour date} » (`helpers/anniversaireSejour.ts`).
 - Thème RNEUI + tokens `config/theme.ts`.
 - États : `ActivityIndicator` au 1er chargement ; indicateur natif au refresh.

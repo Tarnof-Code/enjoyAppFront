@@ -36,7 +36,7 @@ Patterns et choix techniques de l'app mobile. Garder ce fichier comme référenc
 
 - Un service par domaine dans `services/`, appels via client partagé, erreurs via `helpers/axiosError.ts`.
 - **`useChargementRafraichissable`** (`hooks/useChargementRafraichissable.ts`) : pattern standard pour écrans API — `loading` (1er chargement), `refreshing` (pull-to-refresh), `error`, `refresh`. L'écran fournit un `executer` async.
-- **Cas particuliers** : `Animators` lit le store Redux (`sejourCourant`) et rafraîchit via `getSejourById` ; charge en parallèle groupes, chambres et profil directeur (tél./e-mail) ; modal détail au tap via **`FichePersonneModal`**. `Children` : `useChargementRafraichissable` + chargement parallèle enfants/groupes/chambres/dossiers ; dates séjour pour anniversaire. `Home` gère son propre refresh (CR veille + photo + liste séjours).
+- **Cas particuliers** : `Animators` lit le store Redux (`sejourCourant`) et rafraîchit via `getSejourById` ; charge en parallèle groupes, chambres et profil directeur (tél./e-mail) ; modal détail au tap via **`FichePersonneModal`**. `Children` : `useChargementRafraichissable` + chargement parallèle enfants/groupes/chambres/dossiers ; dates séjour pour anniversaire. `Bedrooms` : chambres + groupes en parallèle ; filtres locaux (type, genre, groupe, places dispo). `Home` gère son propre refresh (CR veille + photo + liste séjours).
 - Utilisateur référencé par **`tokenId`**, jamais id SQL.
 
 ## State (Redux Toolkit)
@@ -54,6 +54,7 @@ Patterns et choix techniques de l'app mobile. Garder ce fichier comme référenc
 ## Composants UI réutilisables
 
 - **`FichePersonneModal`** (`Components/FichePersonneModal.tsx`) : modal fiche personne (overlay, titre prénom/nom, sous-titre, scroll, bouton Fermer) + **`LigneInfoFiche`** (libellé/valeur, lien optionnel tél./e-mail). Consommé par `Animators` (`DetailMembre`) et `Children` (`DetailEnfant`).
+- **`ListeAccordion`** (`Components/ListeAccordion.tsx`) : coque accordéon réutilisable (chevron MaterialIcons, carte bordée, slot en-tête/corps) ; styles partagés exportés (`listeAccordionStyles`). Consommé par `Groups` et `Bedrooms` — contenu métier reste dans chaque écran.
 
 ## Sécurité
 

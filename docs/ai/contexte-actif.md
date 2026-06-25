@@ -10,6 +10,10 @@ Reste mineur : photos animateurs codées en dur dans `Header.tsx`, composant orp
 
 ## Journal
 
+### 2026-06-25 (suite 2)
+- **Liste Chambres** (`screens/Lists/Bedrooms.tsx`) : accordéons via **`ListeAccordion`** (identifiant/nom, badge type style Équipe, genre, jauge remplissage, groupe âge/niveau) ; déplié → enfants ou membres équipe selon `typeChambre` ; **filtres sur une ligne** : menus déroulants Type / Genre / Groupe (choix unique, groupes âge-niveau ; masqué si type Équipe) + **chip** Places dispo ; chargement parallèle chambres + groupes ; tri par identifiant.
+- **Composant partagé** : `Components/ListeAccordion.tsx` — coque accordéon (chevron, en-tête, corps) ; utilisé par **Groupes** et **Chambres** (`Groups.tsx` refactorisé).
+
 ### 2026-06-25 (suite)
 - **Liste Groupes** (`screens/Lists/Groups.tsx`) : accordéons (nom + type + tranche/description, chevron, compteur enfants) ; déplié → liste enfants ; **chips filtre type** (Tous / Par âge / Par niveau / Thématique, types présents uniquement) ; dans les groupes **thématiques**, nom des groupes par âge/niveau de chaque enfant à droite (croisement sur `tousLesGroupes`).
 

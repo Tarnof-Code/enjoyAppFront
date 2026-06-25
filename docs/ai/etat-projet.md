@@ -17,8 +17,8 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | Séjours | `GET /sejours/utilisateur/{tokenId}`, `GET /sejours/{id}` | `SejourPicker`, `Home`, `Animators` (refresh) |
 | Réunions | `GET /sejours/{sejourId}/reunions` | `Home` (CR veille) |
 | Enfants | `GET /sejours/{id}/enfants` | `Children` |
-| Groupes | `GET /sejours/{id}/groupes` | `Groups`, `Animators`, `Children` (filtre + modal), résolution libellés (Activités, Sorties, GrilleDetail) |
-| Chambres | `GET /sejours/{id}/chambres` | `Bedrooms`, `Animators`, `Children` (modal chambre occupant) |
+| Chambres | `GET /sejours/{id}/chambres` | `Bedrooms` (filtre groupes), `Animators`, `Children` (modal chambre occupant) |
+| Groupes | `GET /sejours/{id}/groupes` | `Groups`, `Bedrooms` (filtre), `Animators`, `Children` (filtre + modal), résolution libellés (Activités, Sorties, GrilleDetail) |
 | Menus | `GET /sejours/{id}/menus?dateDebut&dateFin` | `Menus` |
 | Plannings | `GET /sejours/{id}/planning-grilles`, `GET …/{grilleId}` | `Organisation`, `GrilleDetail` |
 | Réf. planning | `GET …/moments`, `…/lieux`, `…/horaires` | `GrilleDetail` (résolution libellés) |

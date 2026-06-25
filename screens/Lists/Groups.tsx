@@ -8,8 +8,8 @@ import {
   Text,
   View,
 } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
 
+import { ListeAccordion, listeAccordionStyles } from '../../Components/ListeAccordion';
 import { useChargementRafraichissable } from '../../hooks/useChargementRafraichissable';
 import { groupeService } from '../../services/groupe.service';
 import type { GroupeDto, TypeGroupe } from '../../types/api';
@@ -71,61 +71,49 @@ type GroupeAccordionProps = {
 
 function GroupeAccordion({ groupe, tousLesGroupes, ouvert, onToggle }: GroupeAccordionProps) {
   return (
-    <View style={[styles.card, ouvert && styles.cardOuverte]}>
-      <Pressable
-        onPress={onToggle}
-        style={({ pressed }) => [styles.entete, pressed && styles.entetePressed]}
-        accessibilityRole="button"
-        accessibilityState={{ expanded: ouvert }}
-      >
-        <MaterialIcons
-          name={ouvert ? 'expand-more' : 'chevron-right'}
-          size={24}
-          color={colors.primary}
-          style={styles.chevron}
-        />
-        <View style={styles.enteteTexte}>
-          <View style={styles.ligneTitre}>
-            <Text style={styles.nom} numberOfLines={2}>
+    <ListeAccordion
+      ouvert={ouvert}
+      onToggle={onToggle}
+      entete={
+        <>
+          <View style={listeAccordionStyles.ligneTitre}>
+            <Text style={listeAccordionStyles.titre} numberOfLines={2}>
               {groupe.nom}
             </Text>
             <Text style={styles.count}>
               {groupe.enfants.length} enfant{groupe.enfants.length > 1 ? 's' : ''}
             </Text>
           </View>
-          <Text style={styles.sousTitre} numberOfLines={2}>
+          <Text style={listeAccordionStyles.sousTitre} numberOfLines={2}>
             {sousTitreGroupe(groupe)}
           </Text>
-        </View>
-      </Pressable>
-
-      {ouvert ? (
-        <View style={styles.corps}>
-          {groupe.enfants.length === 0 ? (
-            <Text style={styles.vide}>Aucun enfant dans ce groupe.</Text>
-          ) : (
-            groupe.enfants.map((enfant) => {
-              const groupesTranche =
-                groupe.typeGroupe === 'THEMATIQUE'
-                  ? groupesAgeOuNiveauDeEnfant(enfant.id, tousLesGroupes)
-                  : [];
-              return (
-                <View key={enfant.id} style={styles.ligneEnfant}>
-                  <Text style={styles.enfantNom}>
-                    {enfant.prenom} {enfant.nom}
+        </>
+      }
+      corps={
+        groupe.enfants.length === 0 ? (
+          <Text style={listeAccordionStyles.vide}>Aucun enfant dans ce groupe.</Text>
+        ) : (
+          groupe.enfants.map((enfant) => {
+            const groupesTranche =
+              groupe.typeGroupe === 'THEMATIQUE'
+                ? groupesAgeOuNiveauDeEnfant(enfant.id, tousLesGroupes)
+                : [];
+            return (
+              <View key={enfant.id} style={listeAccordionStyles.ligneListe}>
+                <Text style={listeAccordionStyles.ligneListeNom}>
+                  {enfant.prenom} {enfant.nom}
+                </Text>
+                {groupesTranche.length > 0 ? (
+                  <Text style={styles.enfantGroupe} numberOfLines={2}>
+                    {groupesTranche.join(', ')}
                   </Text>
-                  {groupesTranche.length > 0 ? (
-                    <Text style={styles.enfantGroupe} numberOfLines={2}>
-                      {groupesTranche.join(', ')}
-                    </Text>
-                  ) : null}
-                </View>
-              );
-            })
-          )}
-        </View>
-      ) : null}
-    </View>
+                ) : null}
+              </View>
+            );
+          })
+        )
+      }
+    />
   );
 }
 
@@ -277,73 +265,10 @@ const styles = StyleSheet.create({
   list: {
     padding: 12,
   },
-  card: {
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 12,
-    marginBottom: 10,
-    overflow: 'hidden',
-  },
-  cardOuverte: {
-    borderColor: colors.primarySoft,
-  },
-  entete: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 14,
-    paddingRight: 16,
-    paddingLeft: 8,
-  },
-  entetePressed: {
-    backgroundColor: colors.primarySoft,
-  },
-  chevron: {
-    marginRight: 4,
-  },
-  enteteTexte: {
-    flex: 1,
-  },
-  ligneTitre: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    gap: 12,
-  },
-  nom: {
-    flex: 1,
-    fontSize: fontSizes.lg,
-    fontWeight: '700',
-    color: colors.primary,
-  },
-  sousTitre: {
-    marginTop: 4,
-    fontSize: fontSizes.sm,
-    color: colors.muted,
-  },
   count: {
     fontSize: fontSizes.xs,
     fontWeight: '600',
     color: colors.muted,
-  },
-  corps: {
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: colors.background,
-  },
-  ligneEnfant: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 12,
-    paddingVertical: 6,
-  },
-  enfantNom: {
-    flex: 1,
-    fontSize: fontSizes.sm,
-    color: colors.text,
   },
   enfantGroupe: {
     flexShrink: 1,
@@ -351,11 +276,6 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.xs,
     color: colors.muted,
     textAlign: 'right',
-  },
-  vide: {
-    fontSize: fontSizes.sm,
-    color: colors.muted,
-    fontStyle: 'italic',
   },
   empty: {
     textAlign: 'center',
