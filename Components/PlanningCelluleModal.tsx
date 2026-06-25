@@ -25,6 +25,12 @@ import {
   sourceContenuCellulesEffectif,
   type MembreEquipePlanning,
 } from '../helpers/planningGrilleUtils';
+import {
+  aplatirMomentsHierarchiquement,
+  idsEnConflit,
+  idsSousArbreMoment,
+  styleIndentMoment,
+} from '../helpers/construireArbreMoments';
 import { libelleEquipeDuSejour, trierEquipeDuSejour } from '../helpers/triListesSejour';
 import type {
   GroupeDto,
@@ -68,21 +74,28 @@ type PlanningCelluleModalProps = {
 function CaseCocher({
   label,
   checked,
+  herite,
   disabled,
   muted,
+  indent,
   onToggle,
 }: {
   label: string;
   checked: boolean;
+  herite?: boolean;
   disabled?: boolean;
   muted?: boolean;
+  indent?: number;
   onToggle: () => void;
 }) {
+  const afficheCoche = checked || herite;
   return (
     <Pressable
       style={({ pressed }) => [
         styles.caseLigne,
-        checked && styles.caseLigneSelectionnee,
+        indent != null && indent > 0 && styleIndentMoment(indent),
+        afficheCoche && styles.caseLigneSelectionnee,
+        herite && !checked && styles.caseLigneSelectionHeritee,
         disabled && styles.caseLigneDesactivee,
         pressed && !disabled && styles.caseLignePressed,
       ]}
@@ -90,11 +103,21 @@ function CaseCocher({
       disabled={disabled}
     >
       <MaterialIcons
-        name={checked ? 'check-box' : 'check-box-outline-blank'}
+        name={afficheCoche ? 'check-box' : 'check-box-outline-blank'}
         size={22}
-        color={disabled ? colors.disabled : checked ? colors.primary : colors.muted}
+        color={
+          disabled ? colors.disabled : afficheCoche ? colors.primary : colors.muted
+        }
       />
-      <Text style={[styles.caseLabel, muted && styles.caseLabelMuted]}>{label}</Text>
+      <Text
+        style={[
+          styles.caseLabel,
+          muted && styles.caseLabelMuted,
+          herite && !checked && styles.caseLabelHerite,
+        ]}
+      >
+        {label}
+      </Text>
     </Pressable>
   );
 }
@@ -163,13 +186,31 @@ export default function PlanningCelluleModal({
   }, [membres, restrictionsAnimateur, tokenSelf, membreTokens, sejour]);
 
   const groupesParType = useMemo(() => groupesParTypePourPlanning(groupes), [groupes]);
-  const momentsTries = useMemo(
-    () => moments.slice().sort((a, b) => a.ordre - b.ordre || a.id - b.id),
-    [moments],
-  );
+  const momentsTries = useMemo(() => aplatirMomentsHierarchiquement(moments), [moments]);
+
+  const momentsVisuellementCoches = useMemo(() => {
+    const set = new Set<number>();
+    for (const id of momentIds) {
+      for (const subId of idsSousArbreMoment(moments, id)) {
+        set.add(subId);
+      }
+    }
+    return set;
+  }, [momentIds, moments]);
 
   const toggleId = (ids: number[], id: number, setter: (v: number[]) => void) => {
     setter(ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]);
+  };
+
+  const toggleMoment = (id: number) => {
+    setMomentIds((prev) => {
+      if (prev.includes(id)) {
+        return prev.filter((x) => x !== id);
+      }
+      const conflits = idsEnConflit(id, moments);
+      const sansConflit = prev.filter((other) => other === id || !conflits.has(other));
+      return [...sansConflit, id];
+    });
   };
 
   const toggleMembre = (tokenId: string) => {
@@ -325,9 +366,11 @@ export default function PlanningCelluleModal({
                     <CaseCocher
                       key={m.id}
                       label={m.nom}
+                      indent={m.profondeur}
                       checked={momentIds.includes(m.id)}
+                      herite={momentsVisuellementCoches.has(m.id) && !momentIds.includes(m.id)}
                       disabled={submitting}
-                      onToggle={() => toggleId(momentIds, m.id, setMomentIds)}
+                      onToggle={() => toggleMoment(m.id)}
                     />
                   ))
                 )}
@@ -489,9 +532,14 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.xs,
     borderRadius: radius.sm,
+    borderWidth: 1,
+    borderColor: 'transparent',
   },
   caseLigneSelectionnee: {
     backgroundColor: colors.primarySoft,
+  },
+  caseLigneSelectionHeritee: {
+    backgroundColor: '#eef0f8',
   },
   caseLigneDesactivee: {
     opacity: 0.5,
@@ -506,6 +554,9 @@ const styles = StyleSheet.create({
   },
   caseLabelMuted: {
     color: colors.muted,
+  },
+  caseLabelHerite: {
+    fontWeight: '500',
   },
   blocGroupes: {
     marginBottom: spacing.md,

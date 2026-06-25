@@ -78,6 +78,18 @@ Patterns et choix techniques de l'app mobile. Garder ce fichier comme référenc
 - **Navigation** : chips 1j/3j/5j compacts + flèches + swipe + **paysage tableau** ; chaque pas = une page entière (ex. +3 jours en vue 3 j.) ; bouton **Aujourd'hui** si le jour courant est hors fenêtre.
 - **Logique métier** : **`helpers/menuRepas.ts`** (indexation jour×type, résumé cellule, libellés) ; jours via **`enumererJoursSejour`** ; données **`menu.service.getMenusBySejour`** (plage `dateDebut`/`dateFin` séjour). Lecture seule mobile (pas d'édition repas).
 
+## Activités calendrier
+
+- **Écran** (`Activites.tsx`, sous-onglet Activités) : matrice **lignes = animateurs**, **colonnes = jours** ; même shell navigation que **`Menus`** / **`GrilleDetail`** (`useFenetreJoursPlanning`, paysage tableau, colonne fixe 108 px).
+- **Données** : `GET /activites` + `GET /activites-prestataires` + référentiels (`groupes`, `lieux`, `moments`, types via **`typeActivite.service`**) ; refresh séjour au pull-to-refresh.
+- **Fusion cellules** : **`helpers/activitePrestataireCalendrier.ts`** — sorties sur lignes référents, cartes conflit (même moment exact, résolution inline directeur), détection hiérarchique à l'enregistrement (`idsEnConflit` dans **`construireArbreMoments.ts`**).
+- **Modales** : **`ActiviteFormulaireModal`** (création/édition/consultation) ; **`ActiviteEnfantsParticipantsModal`** ; **`ActiviteConflitSortieModal`** (choix sortie vs activité par animateur, PUT prestataire `nonParticipations` puis POST/PUT activité).
+- **Droits** : **`peutGererActivitesComplet`** (= directeur/adjoint via **`peutGererMembresEquipeSejour`**) ; animateur restreint à **`ligneCalendrierActiviteEditable`** / **`peutModifierActivite`** (membre de l'activité).
+- **Filtres** : MultiSelect animateurs (masqué animateur) + groupes âge/niveau (**`groupesFiltreCalendrierActivites`**, référent connecté en tête) ; filtrage lignes + cartes cellule aligné web.
+- **Libellés animateurs** : **`libelleMembreDansCelluleEquipe`** (`planningGrilleUtils`) — prénom seul, suffixe nom si homonymes dans le périmètre visible.
+- **Jour / date** : fenêtre centrée sur **`jourFocusDefautActivites`** ; nouvelle activité = date de la **cellule** cliquée (`+` ou « + Activité »).
+- **Onglet Sorties** (`Sorties.tsx`) : liste par jour, hors fusion calendrier (inchangé v1).
+
 ## Sécurité
 
 - Jamais lire/exposer `.env*`, clés, keystores, `google-services.json`, dumps SQL. Cf. `.cursorignore`.

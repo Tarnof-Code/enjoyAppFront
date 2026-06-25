@@ -322,6 +322,30 @@ export interface ActiviteDto {
   enfants?: EnfantParticipantInfo[];
 }
 
+export interface CreateActiviteRequest {
+  date: string;
+  nom: string;
+  description?: string | null;
+  membreTokenIds: string[];
+  groupeIds: number[];
+  lieuId?: number | null;
+  momentId?: number | null;
+  typeActiviteId: number;
+  enfantIds?: number[];
+}
+
+export interface UpdateActiviteRequest {
+  date: string;
+  nom: string;
+  description?: string | null;
+  membreTokenIds: string[];
+  groupeIds: number[];
+  lieuId?: number | null;
+  momentId?: number | null;
+  typeActiviteId: number;
+  enfantIds?: number[];
+}
+
 export interface NonParticipationPrestataireDto {
   tokenId: string;
   momentId: number;
@@ -339,6 +363,18 @@ export interface ActivitePrestataireDto {
   telephone: string | null;
   groupeIds: number[];
   nonParticipations: NonParticipationPrestataireDto[];
+}
+
+export interface SaveActivitePrestataireRequest {
+  nom: string;
+  date: string;
+  momentIds: number[];
+  heureDepart?: string | null;
+  heureRetour?: string | null;
+  informations?: string | null;
+  telephone?: string | null;
+  groupeIds?: number[];
+  nonParticipations?: NonParticipationPrestataireDto[];
 }
 
 export interface DossierEnfantDto {

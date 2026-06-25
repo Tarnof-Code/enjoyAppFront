@@ -6,9 +6,19 @@
 
 **Migration Sheets → API largement terminée** (phases A/B/C du plan `.cursor/plans/migration-api-mobile.plan.md`). L'app mobile reflète la structure du web : 6 onglets bas, données via l'API Enjoy, plus de Google Sheets.
 
+**Activités (onglet calendrier)** : refonte livrée en session récente — grille animateur × jours (modèle Menus/plannings), fusion sorties prestataires, CRUD modale, filtres, conflits activité/sortie (directeur). Onglet **Sorties** (liste seule) inchangé.
+
 Reste mineur : photos animateurs codées en dur dans `Header.tsx`, composant orphelin `DropdownAnim.tsx`, assets `LogosGroupes/` non référencés, spike refresh token en prod (HTTPS).
 
 ## Journal
+
+### 2026-06-25 (suite 10)
+- **Activités — calendrier** (`Activites.tsx`) : grille **animateur × jours** (fenêtre 1/3/5, swipe, **Aujourd'hui**, paysage tableau) ; chargement parallèle activités internes + **sorties prestataires** + groupes/lieux/moments/types ; fusion cellules (**activité** / **sortie** vert / **conflit** orange) via **`activitePrestataireCalendrier.ts`**.
+- **CRUD** : **`ActiviteFormulaireModal`** (Dropdown/MultiSelect, consultation → Modifier) ; **`ActiviteEnfantsParticipantsModal`** ; services **`activite.service`** (GET/POST/PUT/DELETE), **`typeActivite.service`**, **`activitePrestataire.service`** (GET + PUT pour résolution conflits `nonParticipations`).
+- **Droits** : directeur/adjoint = toutes lignes ; animateur = sa ligne ; conflit sortie à l'enregistrement → modale **`ActiviteConflitSortieModal`** (directeur) ou message blocage (animateur). Pas de retrait sortie depuis la grille mobile.
+- **Filtres calendrier** : MultiSelect **animateurs** (directeur, connecté en tête) et **groupes** (âge/niveau uniquement, groupes référent connecté en tête — **`groupesFiltreCalendrierActivites`**).
+- **Libellés** : colonne animateur et « Avec : » via **`libelleMembreDansCelluleEquipe`** (prénom + lettres nom si homonymes) ; jour initial **`jourFocusDefautActivites`** (aujourd'hui si dans le séjour, sinon 1er jour) ; date création = cellule cliquée.
+- **Helpers** : **`activiteUtils.ts`**, **`construireArbreMoments.ts`** (hiérarchie moments, `idsEnConflit`).
 
 ### 2026-06-25 (suite 9)
 - **Plannings — droits animateur par ligne** : si **`sourceLibelleLignes = MEMBRE_EQUIPE`**, l’animateur ne peut éditer que les cellules de **sa** ligne (`libelleUtilisateurTokenId` = `tokenId` connecté) ; contenu cellule **`MEMBRE_EQUIPE`** → PATCH **ma-presence** sur toute ligne (sa case uniquement) ; directeur/adjoint inchangés (PUT toutes lignes).

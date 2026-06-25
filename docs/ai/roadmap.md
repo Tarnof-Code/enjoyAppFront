@@ -17,6 +17,7 @@ Suivi synthétique. Plan détaillé : [`.cursor/plans/migration-api-mobile.plan.
 - [x] Écran Chambres (écriture) : CRUD chambre, affectation/retrait occupants (modales `ChambreFormulaireModal` / `AffecterOccupantsModal`, service chambre complet, helper `chambreOccupantsUtils`).
 - [x] Tri des listes enfants/équipe selon réglage séjour API (`triListesEnfants` / `triListesEquipe`) ; hook `useRafraichirSejourCourant` ; helpers `triListesSejour` / `trierUtilisateurs`.
 - [x] Plannings organisation : liste tri alpha + recherche ; détail matrice multi-jours (1/3/5) ; édition cellules (`PlanningCelluleModal`, `planningGrilleUtils`, PUT/PATCH API) ; droits directeur/adjoint vs animateur (**par ligne** si libellé membre équipe).
+- [x] **Activités calendrier** : grille animateur×jours, fusion sorties prestataires, CRUD modales, filtres, conflits activité/sortie, libellés homonymes (`libelleMembreDansCelluleEquipe`).
 - [x] Thème centralisé aligné web.
 - [x] Règles Cursor app web / API (`30-app-web.mdc`, `40-api.mdc`).
 
