@@ -57,6 +57,7 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | `useChargementRafraichissable.ts` | Chargement initial + pull-to-refresh |
 | `useRafraichirSejourCourant.ts` | Recharge `sejourCourant` (critères tri listes) au refresh |
 | `useFenetreJoursPlanning.ts` | Fenêtre glissante 1/3/5 jours ; navigation par bonds (= taille vue) ; partagé **`GrilleDetail`** et **`Menus`** |
+| `useModePaysageGrille.ts` | Bascule état paysage visuel du tableau (sans rotation appareil) |
 
 ## Helpers (`helpers/`)
 

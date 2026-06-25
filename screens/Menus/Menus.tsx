@@ -14,6 +14,8 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/fr';
 
 import Header from '../../Components/Header';
+import BoutonModePaysageGrille from '../../Components/BoutonModePaysageGrille';
+import ConteneurGrillePaysage from '../../Components/ConteneurGrillePaysage';
 import { enumererJoursSejour } from '../../helpers/enumererJoursSejour';
 import {
   COULEUR_FOND_CARTE_MENU,
@@ -32,6 +34,7 @@ import {
 } from '../../helpers/planningGrilleUtils';
 import { useChargementRafraichissable } from '../../hooks/useChargementRafraichissable';
 import { useFenetreJoursPlanning } from '../../hooks/useFenetreJoursPlanning';
+import { useModePaysageGrille } from '../../hooks/useModePaysageGrille';
 import { menuService } from '../../services/menu.service';
 import type { MenuRepasDto, TypeRepas } from '../../types/api';
 import { useAppSelector } from '../../store/hooks';
@@ -42,7 +45,13 @@ dayjs.locale('fr');
 const LARGEUR_COLONNE_REPAS = 108;
 const SWIPE_SEUIL = 48;
 
-function MenusContent() {
+function MenusContent({
+  modePaysage,
+  basculerModePaysage,
+}: {
+  modePaysage: boolean;
+  basculerModePaysage: () => void;
+}) {
   const sejour = useAppSelector((state) => state.sejour.sejourCourant);
   const sejourId = sejour?.id;
   const [menus, setMenus] = useState<MenuRepasDto[]>([]);
@@ -142,24 +151,27 @@ function MenusContent() {
   return (
     <View style={styles.container}>
       <View style={styles.barreOutils}>
-        <View style={styles.segmentVue}>
-          {([1, 3, 5] as NombreJoursVuePlanning[]).map((n) => (
-            <Pressable
-              key={n}
-              onPress={() => setNombreJoursVue(n)}
-              style={({ pressed }) => [
-                styles.segmentBtn,
-                nombreJoursVue === n && styles.segmentBtnActif,
-                pressed && styles.segmentBtnPressed,
-              ]}
-            >
-              <Text
-                style={[styles.segmentBtnTexte, nombreJoursVue === n && styles.segmentBtnTexteActif]}
+        <View style={styles.ligneFiltres}>
+          <View style={styles.segmentVue}>
+            {([1, 3, 5] as NombreJoursVuePlanning[]).map((n) => (
+              <Pressable
+                key={n}
+                onPress={() => setNombreJoursVue(n)}
+                style={({ pressed }) => [
+                  styles.segmentBtn,
+                  nombreJoursVue === n && styles.segmentBtnActif,
+                  pressed && styles.segmentBtnPressed,
+                ]}
               >
-                {n} j.
-              </Text>
-            </Pressable>
-          ))}
+                <Text
+                  style={[styles.segmentBtnTexte, nombreJoursVue === n && styles.segmentBtnTexteActif]}
+                >
+                  {n} j.
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+          <BoutonModePaysageGrille actif={modePaysage} onPress={basculerModePaysage} />
         </View>
 
         <View style={styles.navPeriode}>
@@ -200,10 +212,11 @@ function MenusContent() {
         ) : null}
       </View>
 
-      <GestureDetector gesture={swipeGesture}>
-        <ScrollView
-          style={styles.grilleScroll}
-          contentContainerStyle={styles.grilleContenu}
+      <ConteneurGrillePaysage modePaysage={modePaysage}>
+        <GestureDetector gesture={swipeGesture}>
+          <ScrollView
+            style={[styles.grilleScroll, modePaysage && styles.grilleScrollPaysage]}
+            contentContainerStyle={styles.grilleContenu}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
@@ -296,16 +309,19 @@ function MenusContent() {
             ))}
           </View>
         </ScrollView>
-      </GestureDetector>
+        </GestureDetector>
+      </ConteneurGrillePaysage>
     </View>
   );
 }
 
 export default function Menus() {
+  const { modePaysage, basculerModePaysage } = useModePaysageGrille();
+
   return (
     <SafeAreaProvider>
       <Header iconName="utensils" title="Menus" />
-      <MenusContent />
+      <MenusContent modePaysage={modePaysage} basculerModePaysage={basculerModePaysage} />
     </SafeAreaProvider>
   );
 }
@@ -327,6 +343,11 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
+  },
+  ligneFiltres: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
   },
   segmentVue: {
     flexDirection: 'row',
@@ -402,6 +423,10 @@ const styles = StyleSheet.create({
   },
   grilleScroll: {
     flex: 1,
+  },
+  grilleScrollPaysage: {
+    width: '100%',
+    height: '100%',
   },
   grilleContenu: {
     padding: spacing.md,

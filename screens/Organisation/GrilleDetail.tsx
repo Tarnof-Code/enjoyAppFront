@@ -15,11 +15,14 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/fr';
 
 import Header from '../../Components/Header';
+import BoutonModePaysageGrille from '../../Components/BoutonModePaysageGrille';
+import ConteneurGrillePaysage from '../../Components/ConteneurGrillePaysage';
 import PlanningCelluleModal, {
   type ResultatEnregistrementCellule,
 } from '../../Components/PlanningCelluleModal';
 import { useChargementRafraichissable } from '../../hooks/useChargementRafraichissable';
 import { useFenetreJoursPlanning } from '../../hooks/useFenetreJoursPlanning';
+import { useModePaysageGrille } from '../../hooks/useModePaysageGrille';
 import { useRafraichirSejourCourant } from '../../hooks/useRafraichirSejourCourant';
 import { enumererJoursSejour } from '../../helpers/enumererJoursSejour';
 import { peutGererMembresEquipeSejour } from '../../helpers/peutGererMembresEquipeSejour';
@@ -60,10 +63,15 @@ dayjs.locale('fr');
 
 type Props = NativeStackScreenProps<OrganisationStackParamList, 'GrilleDetail'>;
 
+type GrilleDetailContentProps = Props & {
+  modePaysage: boolean;
+  basculerModePaysage: () => void;
+};
+
 const LARGEUR_COLONNE_LIBELLE = 108;
 const SWIPE_SEUIL = 48;
 
-function GrilleDetailContent({ route, navigation }: Props) {
+function GrilleDetailContent({ route, navigation, modePaysage, basculerModePaysage }: GrilleDetailContentProps) {
   const { grilleId } = route.params;
   const sejour = useAppSelector((state) => state.sejour.sejourCourant);
   const tokenUtilisateur = useAppSelector((state) => state.auth.tokenId);
@@ -306,6 +314,7 @@ function GrilleDetailContent({ route, navigation }: Props) {
               </Pressable>
             ))}
           </View>
+          <BoutonModePaysageGrille actif={modePaysage} onPress={basculerModePaysage} />
         </View>
 
         <View style={styles.navPeriode}>
@@ -346,10 +355,11 @@ function GrilleDetailContent({ route, navigation }: Props) {
         ) : null}
       </View>
 
-      <GestureDetector gesture={swipeGesture}>
-        <ScrollView
-          style={styles.grilleScroll}
-          contentContainerStyle={styles.grilleContenu}
+      <ConteneurGrillePaysage modePaysage={modePaysage}>
+        <GestureDetector gesture={swipeGesture}>
+          <ScrollView
+            style={[styles.grilleScroll, modePaysage && styles.grilleScrollPaysage]}
+            contentContainerStyle={styles.grilleContenu}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
@@ -447,7 +457,8 @@ function GrilleDetailContent({ route, navigation }: Props) {
             })}
           </View>
         </ScrollView>
-      </GestureDetector>
+        </GestureDetector>
+      </ConteneurGrillePaysage>
 
       <PlanningCelluleModal
         visible={cellModalVisible}
@@ -473,10 +484,16 @@ function GrilleDetailContent({ route, navigation }: Props) {
 }
 
 export default function GrilleDetail(props: Props) {
+  const { modePaysage, basculerModePaysage } = useModePaysageGrille();
+
   return (
     <SafeAreaProvider>
       <Header iconName="calendar-alt" title={props.route.params.titre} />
-      <GrilleDetailContent {...props} />
+      <GrilleDetailContent
+        {...props}
+        modePaysage={modePaysage}
+        basculerModePaysage={basculerModePaysage}
+      />
     </SafeAreaProvider>
   );
 }
@@ -528,6 +545,7 @@ const styles = StyleSheet.create({
   },
   segmentVue: {
     flexDirection: 'row',
+    alignSelf: 'flex-start',
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.sm,
@@ -599,6 +617,10 @@ const styles = StyleSheet.create({
   },
   grilleScroll: {
     flex: 1,
+  },
+  grilleScrollPaysage: {
+    width: '100%',
+    height: '100%',
   },
   grilleContenu: {
     padding: spacing.md,

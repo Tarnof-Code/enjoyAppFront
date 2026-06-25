@@ -10,6 +10,10 @@ Reste mineur : photos animateurs codées en dur dans `Header.tsx`, composant orp
 
 ## Journal
 
+### 2026-06-25 (suite 8)
+- **Mode paysage des grilles** (`Menus`, **`GrilleDetail`**) : bouton rotation dans la toolbar (à côté des chips 1/3/5 j.) ; **`ConteneurGrillePaysage`** applique une rotation 90° **uniquement au tableau** (header + barre d'outils + app restent en portrait) ; hook **`useModePaysageGrille`** (état local, pas de verrou orientation appareil).
+- **Composants** : **`BoutonModePaysageGrille`** (icône `screen-rotation`, état actif) ; segment 1/3/5 j. en largeur compacte (`alignSelf: 'flex-start'`, sans `flex: 1`).
+
 ### 2026-06-25 (suite 7)
 - **Menus (UX mobile)** — aligné modèle plannings orga / web : **`Menus.tsx`** remplace l'ancienne **`SectionList`** par une **grille calendrier** (lignes = types repas, colonnes = jours) ; fenêtre **1 / 3 / 5 jours** via **`useFenetreJoursPlanning`** ; swipe + flèches (bonds = taille de la vue) + bouton **Aujourd'hui** ; ouverture directe sur l'onglet (pas de liste intermédiaire) — jour par défaut = **aujourd'hui** si dans le séjour, sinon **premier jour** (`jourFocusDefautMenus`).
 - **Helpers menus** : **`menuRepas.ts`** étendu — `indexerMenusParJourEtType`, `resumeMenuCellule`, `metaAllergenesRegimesMenu`, libellés/couleurs repas (`LABELS_TYPE_REPAS`, `COULEUR_FOND_CARTE_MENU`).

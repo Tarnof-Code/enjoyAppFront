@@ -59,11 +59,12 @@ Patterns et choix techniques de l'app mobile. Garder ce fichier comme référenc
 - **`ListeAccordion`** (`Components/ListeAccordion.tsx`) : coque accordéon réutilisable (chevron MaterialIcons, carte bordée, slot en-tête/corps) ; styles partagés exportés (`listeAccordionStyles`). Consommé par `Groups` et `Bedrooms` — contenu métier reste dans chaque écran.
 - **`ChambreFormulaireModal`** / **`AffecterOccupantsModal`** : bottom sheets (zone sombre cliquable au-dessus, feuille en bas) ; scroll via **`ScrollView` de `react-native-gesture-handler`** ; formulaire chambre sans `Dropdown` dans le scroll (pills + liste groupe dépliable) pour éviter conflits de gestes ; feuille affectation ~92 % hauteur écran, liste en `flex: 1`.
 - **`PlanningCelluleModal`** : bottom sheet édition cellule planning (~92 % écran) ; cases à cocher horaires/moments/groupes/lieux/membres ou texte libre selon `sourceContenuCellules` ; scroll gesture-handler ; retour `ResultatEnregistrementCellule` (`cellules` → PUT, `ma-presence` → PATCH).
+- **`BoutonModePaysageGrille`** + **`ConteneurGrillePaysage`** : bascule paysage **visuelle** (rotation 90° du scroll grille) sur **`Menus`** et **`GrilleDetail`** ; hook **`useModePaysageGrille`** ; l'appareil reste en portrait (`app.json`).
 
 ## Plannings organisation
 
 - **Liste** (`Organisation.tsx`) : tri alpha titre (`localeCompare` `fr`) ; filtre `TextInput` + normalisation NFD ; bouton ✕ cross-platform pour vider la recherche.
-- **Détail matrice** (`GrilleDetail.tsx`) : lignes triées + bandeaux regroupement ; fenêtre 1/3/5 jours sur tous les jours du séjour (`enumererJoursSejour`) ; hook **`useFenetreJoursPlanning`** (navigation par bonds = taille vue ; `decalage`/`definirDebutFenetre` en `useCallback`) ; navigation ‹ › swipe + **Aujourd'hui** ; toolbar **‹ Retour** + chips 1j/3j/5j (hors `Header`).
+- **Détail matrice** (`GrilleDetail.tsx`) : lignes triées + bandeaux regroupement ; fenêtre 1/3/5 jours sur tous les jours du séjour (`enumererJoursSejour`) ; hook **`useFenetreJoursPlanning`** (navigation par bonds = taille vue ; `decalage`/`definirDebutFenetre` en `useCallback`) ; navigation ‹ › swipe + **Aujourd'hui** ; toolbar **‹ Retour** + chips 1j/3j/5j compacts + **paysage tableau** (hors `Header`).
 - **Logique métier** : **`helpers/planningGrilleUtils.ts`** (libellés lignes/cellules, validation payload, permissions, fenêtre jours, résumé cellule, membres équipe) ; **`helpers/peutGererMembresEquipeSejour.ts`** (directeur ou adjoint = édition structure) ; **`helpers/enumererJoursSejour.ts`** (plage séjour).
 - **Écriture API** : directeur/adjoint → `PUT …/lignes/{ligneId}/cellules` ; animateur sur grille équipe → `PATCH …/cellules/{jour}/ma-presence` si `planningAnimateurPeutModifierCellules`.
 - **Cas particulier** : `GrilleDetail` charge grille + référentiels (moments, lieux, horaires, groupes) + refresh séjour ; libellés membres selon `triListesEquipe`.
@@ -73,7 +74,7 @@ Patterns et choix techniques de l'app mobile. Garder ce fichier comme référenc
 - **Écran unique** (`Menus.tsx`) : pas de stack interne ; accès direct depuis l'onglet bottom tab **Menus**.
 - **Grille calendrier** : colonnes = jours du séjour (fenêtre 1/3/5 via **`useFenetreJoursPlanning`**) ; lignes = types repas (`ORDRE_REPAS`) ; cellules = résumé composition + méta allergènes/régimes ; fond coloré par type (`COULEUR_FOND_CARTE_MENU`, aligné web).
 - **Jour initial** : **`jourFocusDefautMenus`** — aujourd'hui si inclus dans la plage séjour, sinon premier jour ; recentrage au changement de séjour ou de mode 1/3/5 j.
-- **Navigation** : chips 1j/3j/5j + flèches + swipe ; chaque pas = une page entière (ex. +3 jours en vue 3 j.) ; bouton **Aujourd'hui** si le jour courant est hors fenêtre.
+- **Navigation** : chips 1j/3j/5j compacts + flèches + swipe + **paysage tableau** ; chaque pas = une page entière (ex. +3 jours en vue 3 j.) ; bouton **Aujourd'hui** si le jour courant est hors fenêtre.
 - **Logique métier** : **`helpers/menuRepas.ts`** (indexation jour×type, résumé cellule, libellés) ; jours via **`enumererJoursSejour`** ; données **`menu.service.getMenusBySejour`** (plage `dateDebut`/`dateFin` séjour). Lecture seule mobile (pas d'édition repas).
 
 ## Sécurité
