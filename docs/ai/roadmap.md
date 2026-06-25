@@ -12,6 +12,7 @@ Suivi synthétique. Plan détaillé : [`.cursor/plans/migration-api-mobile.plan.
 - [x] **Phase C** — Nettoyage Sheets (`config/api.ts`, `types/sheets.ts`, `overlaySlice`, clé Google) ; fabrique `creerTopTab` ; titres header dynamiques ; pull-to-refresh global.
 - [x] Écran Équipe : recherche, filtres rôle séjour (chip Direction), MultiSelect groupes, modal détail membre (`FichePersonneModal`).
 - [x] Écran Enfants : recherche, filtres groupes/genre, modal détail, anniversaire pendant séjour ; modal partagée avec Équipe.
+- [x] Écran Groupes : accordéons, filtre par type, croisement groupes âge/niveau dans les listes thématiques.
 - [x] Thème centralisé aligné web.
 - [x] Règles Cursor app web / API (`30-app-web.mdc`, `40-api.mdc`).
 
