@@ -16,9 +16,12 @@ Reste mineur : photos animateurs codées en dur dans `Header.tsx`, composant orp
 
 ## Journal
 
+### 2026-06-26 (Cahier d'infirmerie — filtre jour)
+- **`CahierInfirmerie.tsx`** : dropdown filtre jour limité aux **dates avec au moins une entrée** (`joursAvecEntrees`, tri décroissant) ; masqué si aucune entrée ; réinitialisation automatique du filtre si le jour sélectionné n'a plus d'entrée (ex. suppression).
+
 ### 2026-06-26 (Sanitaire — top-tabs + cahier d'infirmerie CRUD)
 - **Navigation** : onglet **Sanitaire** → **`TopTabSanitaire`** (`creerTopTab`) — sous-onglets **Cahier d'infirmerie** (`CahierInfirmerie`) et **Dossier sanitaire** (`DossierSanitaire`, ex-`Sanitaire.tsx`).
-- **Cahier d'infirmerie** : service **`cahierInfirmerie.service`** (GET/POST/PUT/DELETE `/sejours/{id}/cahier-infirmerie`) ; liste avec recherche + filtre jour du séjour ; création/édition via **`CahierInfirmerieFormModal`** (soins, appels, température, soigneur) ; suppression avec confirmation ; droits **`droitsCahierInfirmerie`** (directeur/adjoint/admin, auteur, soigneur).
+- **Cahier d'infirmerie** : service **`cahierInfirmerie.service`** (GET/POST/PUT/DELETE `/sejours/{id}/cahier-infirmerie`) ; liste avec recherche + filtre jour (dates avec entrées uniquement) ; création/édition via **`CahierInfirmerieFormModal`** (soins, appels, température, soigneur) ; suppression avec confirmation ; droits **`droitsCahierInfirmerie`** (directeur/adjoint/admin, auteur, soigneur).
 - **Dates** : **`parseDateDepuisValeurApi`** / **`dayjsDepuisValeurApi`** dans **`dateApi.ts`** — epoch **secondes** ou ms (aligné web `parseDate`) ; formulaire date/heure **séparés** via **`@react-native-community/datetimepicker`** (iOS compact ; Android **`DateTimePickerAndroid.open`**).
 - **Constantes** : **`constants/cahierInfirmerieLabels.ts`** (libellés/ordre soins et appels). Pas d'historique des modifications sur mobile.
 

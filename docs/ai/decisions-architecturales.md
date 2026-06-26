@@ -96,7 +96,7 @@ Patterns et choix techniques de l'app mobile. Garder ce fichier comme référenc
 ## Cahier d'infirmerie & dossier sanitaire
 
 - **Navigation** : onglet bottom **Sanitaire** → **`TopTabSanitaire`** — **CahierInfirmerie** (icône book-medical) + **DossierSanitaire** (icône clipboard).
-- **Cahier** (`CahierInfirmerie.tsx`) : `GET/POST/PUT/DELETE …/cahier-infirmerie` ; liste cartes (date/heure, enfant, description, soins, appels, soigneur) ; recherche texte + filtre jour ; FAB « + » ; édition/suppression selon **`droitsCahierInfirmerie`** ; refresh séjour au pull-to-refresh ; affichage dates via **`dayjsDepuisValeurApi`**.
+- **Cahier** (`CahierInfirmerie.tsx`) : `GET/POST/PUT/DELETE …/cahier-infirmerie` ; liste cartes (date/heure, enfant, description, soins, appels, soigneur) ; recherche texte + filtre jour (**dates avec entrées** via `joursAvecEntrees`, pas toute la plage séjour ; reset si jour vide) ; FAB « + » ; édition/suppression selon **`droitsCahierInfirmerie`** ; refresh séjour au pull-to-refresh ; affichage dates via **`dayjsDepuisValeurApi`**.
 - **Dossier sanitaire** (`DossierSanitaire.tsx`) : lecture seule `GET …/dossiers-enfants` ; filtres chips Tout / Traitements / Régime / Médical ; tri/libellé enfants selon `triListesEnfants`.
 - **Libellés soins/appels** : **`constants/cahierInfirmerieLabels.ts`**. Pas d'historique ni impression mobile.
 

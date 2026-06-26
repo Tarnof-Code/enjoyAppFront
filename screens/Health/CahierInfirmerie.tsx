@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -71,19 +71,18 @@ function libelleAppels(e: CahierInfirmerieEntreeDto): string {
   return parts.length ? parts.join(', ') : '';
 }
 
-function joursDuSejour(sejour: SejourDTO): { value: string; label: string }[] {
-  const d0 = dayjs(sejour.dateDebut);
-  const d1 = dayjs(sejour.dateFin);
-  if (!d0.isValid() || !d1.isValid() || d0.isAfter(d1, 'day')) return [];
-  const out: { value: string; label: string }[] = [];
-  let cur = d0.startOf('day');
-  const fin = d1.startOf('day');
-  while (!cur.isAfter(fin, 'day')) {
-    const label = cur.format('dddd D MMMM YYYY');
-    out.push({ value: cur.format('YYYY-MM-DD'), label: label.charAt(0).toUpperCase() + label.slice(1) });
-    cur = cur.add(1, 'day');
+function joursAvecEntrees(entrees: CahierInfirmerieEntreeDto[]): { value: string; label: string }[] {
+  const dates = new Set<string>();
+  for (const e of entrees) {
+    const j = dayjsDepuisValeurApi(e.dateHeure);
+    if (j.isValid()) dates.add(j.format('YYYY-MM-DD'));
   }
-  return out;
+  return [...dates]
+    .sort((a, b) => b.localeCompare(a))
+    .map((value) => {
+      const label = dayjs(value).format('dddd D MMMM YYYY');
+      return { value, label: label.charAt(0).toUpperCase() + label.slice(1) };
+    });
 }
 
 function membresEligiblesSoigneur(sejour: SejourDTO): MembreSoigneurOption[] {
@@ -143,9 +142,16 @@ export default function CahierInfirmerie() {
   );
 
   const optionsJours = useMemo(() => {
-    if (!sejour) return [];
-    return [{ value: '', label: 'Tous les jours' }, ...joursDuSejour(sejour)];
-  }, [sejour]);
+    const jours = joursAvecEntrees(entrees);
+    if (jours.length === 0) return [];
+    return [{ value: '', label: 'Tous les jours' }, ...jours];
+  }, [entrees]);
+
+  useEffect(() => {
+    if (jourFiltre && !optionsJours.some((o) => o.value === jourFiltre)) {
+      setJourFiltre('');
+    }
+  }, [jourFiltre, optionsJours]);
 
   const enfantsOptions = useMemo<EnfantOptionCahier[]>(
     () => enfants.map((e) => ({ id: e.id, prenom: e.prenom, nom: e.nom })),
