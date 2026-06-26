@@ -10,11 +10,14 @@
 
 **Sorties (onglet liste)** : accordéons avec gestion enfants participants (`PUT …/enfants`), filtres date/groupes (valeurs présentes uniquement).
 
-**Sanitaire** : top-tabs **Cahier d'infirmerie** (CRUD, liste accordéons) + **Dossiers sanitaires** (lecture, filtres déroulants).
+**Sanitaire** : top-tabs **Cahier d'infirmerie** (CRUD, liste accordéons) + **Dossiers sanitaires** (lecture, filtres groupes + contenu + moment).
 
 Reste mineur : photos animateurs codées en dur dans `Header.tsx`, composant orphelin `DropdownAnim.tsx`, assets `LogosGroupes/` non référencés, spike refresh token en prod (HTTPS).
 
 ## Journal
+
+### 2026-06-26 (Dossiers sanitaires — filtre groupes)
+- **`DossierSanitaire.tsx`** : **`MultiSelect`** groupes (cases à cocher, modèle **Enfants**) ; options dérivées des **`GroupeResumeDto`** déjà présents sur chaque ligne (`l.groupes`), sans appel API supplémentaire ; combinable avec filtres contenu et moment ; **ligne 1** : Groupes + Filtrer côte à côte ; **ligne 2** : sous-filtre Moment (pleine largeur) si filtre = Traitements.
 
 ### 2026-06-26 (Cahier d'infirmerie — accordéons)
 - **`CahierInfirmerie.tsx`** : liste cartes remplacée par accordéons **`ListeAccordion`** ; replié : enfant + date/heure (`DD/MM/YYYY · HH:mm`) ; déplié : description, localisation, soins, appels, soigneur, **auteur** (`createurNom`/`createurPrenom` via **`libelleEquipeDuSejour`**) ; icônes édition/suppression dans le corps selon **`droitsCahierInfirmerie`** ; plusieurs entrées ouvertes (`Set` d'ids).

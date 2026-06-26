@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -7,7 +7,8 @@ import {
   Text,
   View,
 } from 'react-native';
-import { Dropdown } from 'react-native-element-dropdown';
+import { Dropdown, MultiSelect } from 'react-native-element-dropdown';
+import { MaterialIcons } from '@expo/vector-icons';
 
 import { useChargementRafraichissable } from '../../hooks/useChargementRafraichissable';
 import { useRafraichirSejourCourant } from '../../hooks/useRafraichirSejourCourant';
@@ -93,6 +94,30 @@ function correspondAuFiltre(d: DossierEnfantDto, filtre: Filtre, filtreTraitemen
   if (filtre === 'A_PRENDRE_EN_SORTIE') return aPrendreEnSortie(d);
   if (filtre === 'AUTRES_INFOS') return aAutresInfos(d);
   return aContenu(d);
+}
+
+function optionsGroupesDepuisLignes(
+  lignes: EnfantDossierSanitaireLigneDto[],
+): { value: string; label: string }[] {
+  const map = new Map<number, string>();
+  for (const l of lignes) {
+    for (const g of l.groupes) {
+      const libelle = g.libelle?.trim();
+      if (libelle) map.set(g.id, libelle);
+    }
+  }
+  return [...map.entries()]
+    .sort((a, b) => a[1].localeCompare(b[1], 'fr', { sensitivity: 'base' }))
+    .map(([id, label]) => ({ value: String(id), label }));
+}
+
+function correspondAuFiltreGroupes(
+  ligne: EnfantDossierSanitaireLigneDto,
+  groupesSelectionnes: string[],
+): boolean {
+  if (groupesSelectionnes.length === 0) return true;
+  const ids = ligne.groupes.map((g) => String(g.id));
+  return groupesSelectionnes.some((id) => ids.includes(id));
 }
 
 function Ligne({
@@ -182,6 +207,7 @@ export default function DossierSanitaire() {
   const [lignes, setLignes] = useState<EnfantDossierSanitaireLigneDto[]>([]);
   const [filtre, setFiltre] = useState<Filtre>('TOUT');
   const [filtreTraitement, setFiltreTraitement] = useState<FiltreTraitement>('TOUS');
+  const [groupesSelectionnes, setGroupesSelectionnes] = useState<string[]>([]);
   const rafraichirSejour = useRafraichirSejourCourant();
 
   const executer = useCallback(async () => {
@@ -198,8 +224,15 @@ export default function DossierSanitaire() {
     'Impossible de charger les fiches sanitaires.',
   );
 
+  const optionsGroupes = useMemo(() => optionsGroupesDepuisLignes(lignes), [lignes]);
+
   const visibles = trierEnfantsDuSejour(
-    lignes.filter((l) => l.dossier && correspondAuFiltre(l.dossier, filtre, filtreTraitement)),
+    lignes.filter(
+      (l) =>
+        l.dossier &&
+        correspondAuFiltre(l.dossier, filtre, filtreTraitement) &&
+        correspondAuFiltreGroupes(l, groupesSelectionnes),
+    ),
     sejour,
   );
 
@@ -230,26 +263,59 @@ export default function DossierSanitaire() {
   return (
     <View style={styles.flex}>
       <View style={styles.barreFiltre}>
-        <Dropdown
-          style={styles.dropdown}
-          containerStyle={styles.dropdownContainer}
-          placeholderStyle={styles.dropdownTexte}
-          selectedTextStyle={styles.dropdownTexte}
-          itemTextStyle={styles.dropdownItemText}
-          activeColor={colors.primarySoft}
-          data={OPTIONS_FILTRE}
-          labelField="label"
-          valueField="value"
-          placeholder="Filtrer"
-          value={filtre}
-          onChange={(item) => {
-            setFiltre(item.value);
-            if (item.value !== 'TRAITEMENTS') setFiltreTraitement('TOUS');
-          }}
-        />
-        {filtre === 'TRAITEMENTS' ? (
+        <View style={styles.ligneFiltres}>
+          {optionsGroupes.length > 0 ? (
+            <MultiSelect
+              style={styles.dropdown}
+              containerStyle={styles.dropdownContainer}
+              placeholderStyle={styles.dropdownTexte}
+              selectedTextStyle={styles.dropdownTexte}
+              itemTextStyle={styles.dropdownItemText}
+              activeColor={colors.primarySoft}
+              data={optionsGroupes}
+              labelField="label"
+              valueField="value"
+              value={groupesSelectionnes}
+              onChange={setGroupesSelectionnes}
+              placeholder={
+                groupesSelectionnes.length > 0
+                  ? `${groupesSelectionnes.length} groupe${groupesSelectionnes.length > 1 ? 's' : ''}`
+                  : 'Groupes'
+              }
+              visibleSelectedItem={false}
+              renderItem={(item, selected) => (
+                <View style={styles.dropdownItem}>
+                  <MaterialIcons
+                    name={selected ? 'check-box' : 'check-box-outline-blank'}
+                    size={20}
+                    color={selected ? colors.primary : colors.muted}
+                  />
+                  <Text style={styles.dropdownItemText}>{item.label}</Text>
+                </View>
+              )}
+            />
+          ) : null}
           <Dropdown
             style={styles.dropdown}
+            containerStyle={styles.dropdownContainer}
+            placeholderStyle={styles.dropdownTexte}
+            selectedTextStyle={styles.dropdownTexte}
+            itemTextStyle={styles.dropdownItemText}
+            activeColor={colors.primarySoft}
+            data={OPTIONS_FILTRE}
+            labelField="label"
+            valueField="value"
+            placeholder="Filtrer"
+            value={filtre}
+            onChange={(item) => {
+              setFiltre(item.value);
+              if (item.value !== 'TRAITEMENTS') setFiltreTraitement('TOUS');
+            }}
+          />
+        </View>
+        {filtre === 'TRAITEMENTS' ? (
+          <Dropdown
+            style={styles.dropdownPlein}
             containerStyle={styles.dropdownContainer}
             placeholderStyle={styles.dropdownTexte}
             selectedTextStyle={styles.dropdownTexte}
@@ -299,15 +365,25 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
   },
   barreFiltre: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
     gap: spacing.sm,
     paddingHorizontal: spacing.md,
     paddingTop: spacing.sm,
   },
+  ligneFiltres: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+  },
   dropdown: {
     flex: 1,
-    minWidth: 140,
+    minHeight: 42,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.sm,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  dropdownPlein: {
     minHeight: 42,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
@@ -327,6 +403,13 @@ const styles = StyleSheet.create({
   dropdownItemText: {
     fontSize: fontSizes.sm,
     color: colors.text,
+  },
+  dropdownItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
   },
   list: {
     padding: 12,
