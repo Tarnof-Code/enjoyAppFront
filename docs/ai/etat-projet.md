@@ -28,7 +28,7 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | Types activité | `GET /sejours/{id}/types-activite` | `Activites` (formulaire) |
 | Réf. activités | `GET …/moments`, `…/lieux` (usage ACTIVITE) | `Activites` |
 | Sanitaire | `GET /sejours/{id}/dossiers-enfants` | `DossierSanitaire`, `Children` (contacts parents dans modal ; chargement silencieux si indisponible) |
-| Cahier infirmerie | `GET/POST /sejours/{id}/cahier-infirmerie`, `PUT/DELETE …/{entreeId}` | `CahierInfirmerie` (liste + CRUD modale) |
+| Cahier infirmerie | `GET/POST /sejours/{id}/cahier-infirmerie`, `PUT/DELETE …/{entreeId}` | `CahierInfirmerie` (accordéons + CRUD modale) |
 
 > **`SejourDTO`** : en plus de `directeur` / `equipe`, porte `triListesEnfants?` et `triListesEquipe?` (`CritereTriListeApi` : `NOM` | `PRENOM`) — réglage partagé web, lecture seule mobile ; tri et libellés via `helpers/triListesSejour.ts`.
 >

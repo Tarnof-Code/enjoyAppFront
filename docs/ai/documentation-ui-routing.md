@@ -52,7 +52,7 @@ Onglet bottom tab : route **`Orga`**, libellé **Orga**. Titre header liste : «
 
 | Sous-onglet | Écran | Titre header | Source |
 |-------------|-------|--------------|--------|
-| CahierInfirmerie | `screens/Health/CahierInfirmerie` | Cahier d'infirmerie | `GET/POST/PUT/DELETE …/cahier-infirmerie` + enfants séjour ; liste + recherche + filtre jour (dates avec entrées uniquement, tri décroissant) ; CRUD **`CahierInfirmerieFormModal`** ; droits **`droitsCahierInfirmerie`** |
+| CahierInfirmerie | `screens/Health/CahierInfirmerie` | Cahier d'infirmerie | `GET/POST/PUT/DELETE …/cahier-infirmerie` + enfants séjour ; accordéons **`ListeAccordion`** (replié : enfant + date/heure ; déplié : détail + auteur + actions) ; recherche + filtre jour (dates avec entrées uniquement, tri décroissant) ; CRUD **`CahierInfirmerieFormModal`** ; droits **`droitsCahierInfirmerie`** |
 | DossierSanitaire | `screens/Health/DossierSanitaire` | Dossiers sanitaires | `GET …/dossiers-enfants` ; tri/libellé selon `triListesEnfants` ; **`Dropdown`** filtre (Tout / Traitements / Alimentation / Médical / À prendre en sortie / Autres infos) ; sous-filtre Traitements (moment) ; lecture seule |
 
 ## Écrans autonomes
@@ -64,7 +64,7 @@ Onglet bottom tab : route **`Orga`**, libellé **Orga**. Titre header liste : «
 
 - **`Header`** : icône FontAwesome5 + titre (script) + avatar animateur (mapping prénom → photo locale, legacy).
 - **`FichePersonneModal`** : modal fiche personne + `LigneInfoFiche` (Équipe, Enfants).
-- **`ListeAccordion`** : coque accordéon liste (chevron, carte, en-tête/corps) + styles `listeAccordionStyles` ; contenu métier dans l'écran (`Groups`, `Bedrooms`).
+- **`ListeAccordion`** : coque accordéon liste (chevron, carte, en-tête/corps) + styles `listeAccordionStyles` ; contenu métier dans l'écran (`Groups`, `Bedrooms`, `Sorties`, **`CahierInfirmerie`**).
 - **`ChambreFormulaireModal`** : création/édition chambre (bottom sheet, scroll gesture-handler).
 - **`AffecterOccupantsModal`** : sélection multi occupants (enfants ou équipe) pour une chambre.
 - **`PlanningCelluleModal`** : édition cellule planning (bottom sheet) ; directeur/adjoint = contenu complet ; animateur = ma présence (contenu `MEMBRE_EQUIPE`) ou édition complète **sur sa ligne** (libellé `MEMBRE_EQUIPE`).
@@ -81,7 +81,7 @@ Onglet bottom tab : route **`Orga`**, libellé **Orga**. Titre header liste : «
 - **Tri et libellés personnes** (`helpers/triListesSejour.ts`) : ordre et affichage « Nom Prénom » ou « Prénom Nom » selon réglage séjour (lecture seule, aligné web).
 - **Recherche + filtre liste** (modèle `Animators` / `Children`) : barre compacte (`TextInput` + normalisation casse/accents) + **MultiSelect** groupes (`react-native-element-dropdown`, cases à cocher) + chips (rôle séjour sur Équipe ; genre sur Enfants). **Carte** : nom + badge droite (rôle ou groupes) ; **modal** `FichePersonneModal` au tap. Filtres par chips sur **`Groups`** (type de groupe), **`Bedrooms`** (chip Places dispo). **`DossierSanitaire`** : **`Dropdown`** filtre principal + sous-filtre moment si Traitements (aligné libellés web : Alimentation, Autres infos). **`CahierInfirmerie`** (jour avec entrées + recherche texte ; aligné modèle Sorties/Bedrooms). **`Bedrooms`** : menus déroulants Type / Genre / Groupe sur une ligne (`Dropdown` single-select). **Orga** (liste plannings, écran `Organisation.tsx`) : recherche titre seule + bouton ✕ pour vider (cross-platform).
 - **Planning matrice** (`GrilleDetail`, **`Menus`**, **`Activites`**) : colonne libellés fixe (108 px) ; colonnes jours en `flex: 1` ; en-tête jour = nom + date ; fenêtre 1/3/5 j. via **`useFenetreJoursPlanning`** (flèches/swipe par bonds = taille vue) ; chips 1j/3j/5j compacts + **`BoutonModePaysageGrille`** (rotation 90° du scroll grille via **`ConteneurGrillePaysage`**, header/toolbar en portrait) ; **`GrilleDetail`** / **`Activites`** : en-tête dates fixe (**`EnteteJoursGrille`**, corps seul scrollable), grille bord à bord ; **`GrilleDetail`** : **‹ Retour** sous le header ; **`Menus`** / **`Activites`** : écran racine onglet.
-- **Accordéons listes** (`Groups`, `Bedrooms` via **`ListeAccordion`**) : plusieurs items ouverts possibles (`Set` d'ids). **`Bedrooms`** : actions CRUD et affectation occupants dans modales dédiées (confirmations `Alert` pour suppression/retrait).
+- **Accordéons listes** (`Groups`, `Bedrooms`, `Sorties`, **`CahierInfirmerie`** via **`ListeAccordion`**) : plusieurs items ouverts possibles (`Set` d'ids). **`Bedrooms`** : actions CRUD et affectation occupants dans modales dédiées (confirmations `Alert` pour suppression/retrait). **`CahierInfirmerie`** : édition/suppression dans le corps déplié (icônes, droits **`droitsCahierInfirmerie`**).
 - **Bottom sheets formulaire** : éviter `react-native-element-dropdown` dans un `ScrollView` (conflits gestes) ; préférer pills / liste dépliable + `ScrollView` de `react-native-gesture-handler`.
 - **Anniversaire pendant séjour** (`Children`) : icône gâteau avant le nom ; modale « Anniversaire : {jour date} » (`helpers/anniversaireSejour.ts`).
 - Thème RNEUI + tokens `config/theme.ts`.

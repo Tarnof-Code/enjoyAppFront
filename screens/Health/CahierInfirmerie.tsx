@@ -32,6 +32,7 @@ import {
 } from '../../helpers/droitsCahierInfirmerie';
 import { LIBELLE_APPEL, LIBELLE_SOIN } from '../../constants/cahierInfirmerieLabels';
 import { colors, fontSizes, radius, spacing } from '../../config/theme';
+import { ListeAccordion, listeAccordionStyles } from '../../Components/ListeAccordion';
 import CahierInfirmerieFormModal, {
   type EnfantOptionCahier,
   type MembreSoigneurOption,
@@ -124,6 +125,7 @@ export default function CahierInfirmerie() {
   const [entreeEdition, setEntreeEdition] = useState<CahierInfirmerieEntreeDto | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [erreurModal, setErreurModal] = useState<string | null>(null);
+  const [ouverts, setOuverts] = useState<Set<number>>(() => new Set());
 
   const executer = useCallback(async () => {
     if (sejourId == null) return;
@@ -189,6 +191,15 @@ export default function CahierInfirmerie() {
       return cible.includes(terme);
     });
   }, [entrees, recherche, jourFiltre, sejour]);
+
+  const basculerEntree = (entreeId: number) => {
+    setOuverts((prev) => {
+      const next = new Set(prev);
+      if (next.has(entreeId)) next.delete(entreeId);
+      else next.add(entreeId);
+      return next;
+    });
+  };
 
   const ouvrirCreation = () => {
     setEntreeEdition(null);
@@ -350,54 +361,78 @@ export default function CahierInfirmerie() {
             { prenom: item.soigneurPrenom ?? '', nom: item.soigneurNom ?? '' },
             sejour,
           );
+          const auteur = libelleEquipeDuSejour(
+            { prenom: item.createurPrenom ?? '', nom: item.createurNom ?? '' },
+            sejour,
+          );
+          const dateHeure = dayjsDepuisValeurApi(item.dateHeure);
+          const nomEnfant = libelleEnfantDuSejour(
+            { prenom: item.enfantPrenom, nom: item.enfantNom },
+            sejour,
+          );
+
           return (
-            <View style={styles.card}>
-              <View style={styles.cardHeader}>
-                <Text style={styles.dateHeure}>
-                  {dayjsDepuisValeurApi(item.dateHeure).format('DD/MM/YYYY · HH:mm')}
-                </Text>
-                <View style={styles.icones}>
-                  {modifiable ? (
-                    <Pressable onPress={() => ouvrirEdition(item)} hitSlop={8} style={styles.iconeBtn}>
-                      <MaterialIcons name="edit" size={20} color={colors.actionEdit} />
-                    </Pressable>
-                  ) : null}
-                  {supprimable ? (
-                    <Pressable onPress={() => supprimer(item)} hitSlop={8} style={styles.iconeBtn}>
-                      <MaterialIcons name="delete-outline" size={20} color={colors.actionDelete} />
-                    </Pressable>
-                  ) : null}
-                </View>
-              </View>
+            <ListeAccordion
+              ouvert={ouverts.has(item.id)}
+              onToggle={() => basculerEntree(item.id)}
+              entete={
+                <>
+                  <Text style={listeAccordionStyles.titre} numberOfLines={2}>
+                    {nomEnfant}
+                  </Text>
+                  <Text style={[listeAccordionStyles.sousTitre, styles.dateEntree]} numberOfLines={1}>
+                    {dateHeure.format('DD/MM/YYYY · HH:mm')}
+                  </Text>
+                </>
+              }
+              corps={
+                <>
+                  <Text style={styles.description}>{item.description}</Text>
 
-              <Text style={styles.nom}>
-                {libelleEnfantDuSejour({ prenom: item.enfantPrenom, nom: item.enfantNom }, sejour)}
-              </Text>
-              <Text style={styles.description}>{item.description}</Text>
+                  {item.localisationCorps?.trim() ? (
+                    <Text style={styles.ligne}>
+                      <Text style={styles.ligneLabel}>Localisation : </Text>
+                      {item.localisationCorps.trim()}
+                    </Text>
+                  ) : null}
+                  <Text style={styles.ligne}>
+                    <Text style={styles.ligneLabel}>Soins : </Text>
+                    {libelleSoins(item)}
+                  </Text>
+                  {appelsLabel ? (
+                    <Text style={styles.ligne}>
+                      <Text style={styles.ligneLabel}>Appels : </Text>
+                      {appelsLabel}
+                    </Text>
+                  ) : null}
+                  {soigneur ? (
+                    <Text style={styles.ligne}>
+                      <Text style={styles.ligneLabel}>Soigné(e) par : </Text>
+                      {soigneur}
+                    </Text>
+                  ) : null}
+                  <Text style={styles.ligne}>
+                    <Text style={styles.ligneLabel}>Auteur : </Text>
+                    {auteur || '—'}
+                  </Text>
 
-              {item.localisationCorps?.trim() ? (
-                <Text style={styles.ligne}>
-                  <Text style={styles.ligneLabel}>Localisation : </Text>
-                  {item.localisationCorps.trim()}
-                </Text>
-              ) : null}
-              <Text style={styles.ligne}>
-                <Text style={styles.ligneLabel}>Soins : </Text>
-                {libelleSoins(item)}
-              </Text>
-              {appelsLabel ? (
-                <Text style={styles.ligne}>
-                  <Text style={styles.ligneLabel}>Appels : </Text>
-                  {appelsLabel}
-                </Text>
-              ) : null}
-              {soigneur ? (
-                <Text style={styles.ligne}>
-                  <Text style={styles.ligneLabel}>Soigné(e) par : </Text>
-                  {soigneur}
-                </Text>
-              ) : null}
-            </View>
+                  {modifiable || supprimable ? (
+                    <View style={styles.icones}>
+                      {modifiable ? (
+                        <Pressable onPress={() => ouvrirEdition(item)} hitSlop={8} style={styles.iconeBtn}>
+                          <MaterialIcons name="edit" size={20} color={colors.actionEdit} />
+                        </Pressable>
+                      ) : null}
+                      {supprimable ? (
+                        <Pressable onPress={() => supprimer(item)} hitSlop={8} style={styles.iconeBtn}>
+                          <MaterialIcons name="delete-outline" size={20} color={colors.actionDelete} />
+                        </Pressable>
+                      ) : null}
+                    </View>
+                  ) : null}
+                </>
+              }
+            />
           );
         }}
         ListEmptyComponent={
@@ -493,42 +528,25 @@ const styles = StyleSheet.create({
   list: {
     padding: spacing.md,
   },
-  card: {
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.sm,
-    padding: 14,
-    marginBottom: 10,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  dateHeure: {
-    fontSize: fontSizes.sm,
-    fontWeight: '700',
+  dateEntree: {
     color: colors.primary,
+    fontWeight: '600',
   },
   icones: {
     flexDirection: 'row',
+    justifyContent: 'flex-end',
     gap: spacing.md,
+    marginTop: spacing.sm,
+    paddingTop: spacing.sm,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
   },
   iconeBtn: {
     padding: 2,
   },
-  nom: {
-    fontSize: fontSizes.md,
-    fontWeight: '700',
-    color: colors.text,
-    marginTop: 2,
-  },
   description: {
     fontSize: fontSizes.sm,
     color: colors.text,
-    marginTop: 4,
   },
   ligne: {
     fontSize: fontSizes.sm,
