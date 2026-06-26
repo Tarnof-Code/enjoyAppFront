@@ -6,6 +6,7 @@ Patterns et choix techniques de l'app mobile. Garder ce fichier comme référenc
 
 - **Expo SDK 54 / RN 0.81 / React 19 / TypeScript** ; `tsc --noEmit` via `npm run typecheck`.
 - Paquets : **npm** + `legacy-peer-deps=true` (`.npmrc`). Ne pas introduire `pnpm`/`yarn`.
+- **Modules natifs Expo** : installer avec **`npx expo install <pkg>`** pour coller au SDK ; **`@react-native-community/datetimepicker`** **8.4.4** (SDK 54 — pas 9.x).
 - **React 19 Compiler** : éviter `useMemo` / `useCallback` manuels sauf nécessité mesurée.
 - **Principes de code** (`.cursor/rules/20-simplicite-code.mdc`) : KISS/DRY/YAGNI + SRP, séparation des préoccupations (`screens/` UI, `services/` API, `helpers/` logique pure), composition, fail fast.
 

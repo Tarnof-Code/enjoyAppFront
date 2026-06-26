@@ -18,6 +18,9 @@ Reste mineur : composant orphelin `DropdownAnim.tsx`, assets `LogosGroupes/` non
 
 ## Journal
 
+### 2026-06-27 (alignement `@react-native-community/datetimepicker`)
+- **`package.json`** : version **8.4.4** (SDK 54) via `npx expo install` — suppression du warning Expo (`9.1.0` incompatible). Consommateurs : **`Profil`** (date de naissance), **`CahierInfirmerieFormModal`** (date/heure).
+
 ### 2026-06-27 (Écran Mon profil — photo, édition, mot de passe)
 - **Navigation** : route Stack **`Profil`** (`Navigators/types.ts`) ; accès depuis avatar **`Header`** et photo **`Home`** via **`navigationRef`**.
 - **Écran** **`screens/Profil/Profil.tsx`** : sections infos / contact / compte ; édition champ par champ (aligné web : **`buildUpdateUserRequest`**, **`canEditEmail`**) ; badge rôle **`libelleRoleBadgeProfil`** ; changement mot de passe **`ChangePasswordModal`**.

@@ -4,7 +4,7 @@
 
 Application **mobile** Enjoy (Expo / React Native) destinée aux **animateurs** sur le terrain : consultation des séjours, listes d’enfants, plannings, activités, infos sanitaires et infos utiles.
 
-**Stack :** Expo SDK **54**, React Native **0.81**, React **19**, TypeScript, Redux Toolkit, React Navigation 7, RNEUI (`@rneui/themed`), `axios`, `dayjs`.
+**Stack :** Expo SDK **54**, React Native **0.81**, React **19**, TypeScript, Redux Toolkit, React Navigation 7, RNEUI (`@rneui/themed`), `axios`, `dayjs`, `@react-native-community/datetimepicker` **8.4.4** (dates **`Profil`**, cahier d'infirmerie).
 
 **Gestion des paquets :** **npm** avec `legacy-peer-deps=true` (`.npmrc`) — ne pas utiliser `pnpm`/`yarn`.
 
