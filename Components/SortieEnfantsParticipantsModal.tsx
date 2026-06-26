@@ -351,6 +351,10 @@ const styles = StyleSheet.create({
     color: colors.muted,
     lineHeight: 20,
   },
+  introStrong: {
+    fontWeight: '700',
+    color: colors.text,
+  },
   label: {
     fontSize: fontSizes.sm,
     fontWeight: '600',

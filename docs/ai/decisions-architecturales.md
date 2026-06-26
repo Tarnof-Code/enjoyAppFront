@@ -30,7 +30,7 @@ Patterns et choix techniques de l'app mobile. Garder ce fichier comme référenc
 - **Client unique** : `services/httpClient.ts` (axios, `withCredentials: true`).
 - **Access token** : `expo-secure-store` via `accountStorage.ts` / `tokenStorage.ts`.
 - **Refresh** : corps fallback + `X-Client-Type: mobile` ; refresh proactif ~60 s ; single-flight ; 401 → rejeu ou reset `Login`.
-- **`X-Skip-Token-Refresh`** sur login/refresh.
+- **`X-Skip-Token-Refresh`** sur login/refresh, envoyé comme chaîne `'true'` pour rester compatible avec le typage Axios ; `hasSkipTokenRefreshHeader` accepte aussi l'ancien booléen.
 
 ## Services & chargement des écrans
 

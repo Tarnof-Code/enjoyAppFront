@@ -35,7 +35,7 @@ async function refreshAccessTokenSingleFlight(): Promise<string> {
       const storedRefreshToken = await accountStorage.getRefreshToken();
       await accountStorage.clearAccessToken();
 
-      const headers: Record<string, unknown> = { [SKIP_HEADER]: true };
+      const headers: Record<string, string> = { [SKIP_HEADER]: 'true' };
       let body: unknown;
       // Sur natif, le cookie HttpOnly n'est pas exploitable : on envoie le
       // refresh token stocké dans le corps (le backend le lit en fallback).
@@ -46,7 +46,7 @@ async function refreshAccessTokenSingleFlight(): Promise<string> {
         }
       }
 
-      const response = await Axios.post<RefreshTokenResponse>(
+      const response = await Axios.post<RefreshTokenResponse, AxiosResponse<RefreshTokenResponse>>(
         '/auth/refresh-token',
         body,
         {
@@ -134,7 +134,7 @@ Axios.interceptors.response.use(
 export default Axios;
 
 export async function loginRequest(email: string, motDePasse: string) {
-  const headers: Record<string, unknown> = { [SKIP_HEADER]: true };
+  const headers: Record<string, string> = { [SKIP_HEADER]: 'true' };
   // Sur natif, on signale au backend de renvoyer aussi le refresh token dans
   // le corps (le cookie HttpOnly n'étant pas exploitable hors navigateur).
   if (!isWeb) {

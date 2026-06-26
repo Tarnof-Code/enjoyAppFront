@@ -14,6 +14,10 @@ Reste mineur : photos animateurs codées en dur dans `Header.tsx`, composant orp
 
 ## Journal
 
+### 2026-06-26 (Correction typecheck — modal Sorties + httpClient)
+- **TypeScript** : `npm run typecheck` repasse au vert après correction du style `introStrong` dans **`SortieEnfantsParticipantsModal`** et du typage Axios dans **`services/httpClient.ts`**.
+- **Auth HTTP** : les headers techniques (`X-Skip-Token-Refresh`, `X-Client-Type`) sont typés comme chaînes côté login/refresh ; la réponse refresh est typée explicitement en `AxiosResponse<RefreshTokenResponse>`.
+
 ### 2026-06-26 (Grilles Orga / Activités — en-tête dates fixe)
 - **Composant** : **`EnteteJoursGrille`** — ligne jours/dates partagée ; coin haut-gauche optionnel (`colonneGauche`) ; colonnes hors séjour atténuées si `joursSejour` (activités).
 - **UX** (`GrilleDetail.tsx`, **`Activites.tsx`**) : en-tête dates **hors** `ScrollView` (fixe sous la barre d’outils) ; corps lignes seul scrollable ; grille **bord à bord** (sans marge haut/côtés, sans `borderRadius`) ; `paddingBottom` conservé dans le scroll pour la dernière ligne.
