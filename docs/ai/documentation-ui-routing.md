@@ -15,7 +15,9 @@ App.tsx
       ├─ Orga            → OrganisationNavigator (Stack) — libellé onglet « Orga »
       ├─ Menus         (screens/Menus/Menus) — Header propre
       ├─ Activités     → TopTabActivities (creerTopTab)
-      └─ Sanitaire     (screens/Health/Sanitaire) — Header propre
+      └─ Sanitaire     → TopTabSanitaire (creerTopTab)
+         ├─ CahierInfirmerie  (screens/Health/CahierInfirmerie)
+         └─ DossierSanitaire  (screens/Health/DossierSanitaire)
 ```
 
 - **Bootstrap** : restaure profil + dernier séjour → `Login` / `SejourPicker` / `BottomTab`.
@@ -46,10 +48,16 @@ Onglet bottom tab : route **`Orga`**, libellé **Orga**. Titre header liste : «
 | GrillesList | `screens/Organisation/Organisation` | Liste plannings tri alpha ; recherche titre (normalisation casse/accents, bouton ✕) ; tap → détail |
 | GrilleDetail | `screens/Organisation/GrilleDetail` | Matrice multi-jours (1/3/5) : colonnes jours, lignes libellés, sections regroupement ; toolbar **‹ Retour** + chips 1j/3j/5j ; swipe + flèches + **Aujourd'hui** ; en-tête dates fixe (**`EnteteJoursGrille`**) ; tap cellule → `PlanningCelluleModal` si droits **sur cette ligne** ; refresh séjour au pull-to-refresh |
 
+## Onglets Sanitaire (`TopTabSanitaire`)
+
+| Sous-onglet | Écran | Titre header | Source |
+|-------------|-------|--------------|--------|
+| CahierInfirmerie | `screens/Health/CahierInfirmerie` | Cahier d'infirmerie | `GET/POST/PUT/DELETE …/cahier-infirmerie` + enfants séjour ; liste + recherche + filtre jour ; CRUD **`CahierInfirmerieFormModal`** ; droits **`droitsCahierInfirmerie`** |
+| DossierSanitaire | `screens/Health/DossierSanitaire` | Dossier sanitaire | `GET …/dossiers-enfants` ; tri/libellé selon `triListesEnfants` ; filtres Tout / Traitements / Régime / Médical ; lecture seule |
+
 ## Écrans autonomes
 
 - **`Menus`** : grille calendrier repas × jours (`screens/Menus/Menus.tsx`) — fenêtre 1/3/5 j., swipe + flèches (bonds = taille vue), **Aujourd'hui**, bouton **paysage tableau** ; ouverture centrée sur aujourd'hui (si dans le séjour) ou 1er jour ; pull-to-refresh ; lecture seule.
-- **`Sanitaire`** : fiches sanitaires agrégées, tri/libellé enfants selon `triListesEnfants`, refresh séjour au pull-to-refresh ; filtres Tout / Traitements / Régime / Médical.
 - **`Home`** : titre Enjoy, sélecteur séjour (modal), bienvenue, date, encart CR veille.
 
 ## Composants partagés
@@ -64,13 +72,14 @@ Onglet bottom tab : route **`Orga`**, libellé **Orga**. Titre header liste : «
 - **`BoutonModePaysageGrille`** / **`ConteneurGrillePaysage`** : paysage visuel du tableau sur **`Menus`**, **`GrilleDetail`** et **`Activites`** (rotation 90°, appareil en portrait).
 - **`ActiviteFormulaireModal`** / **`ActiviteEnfantsParticipantsModal`** / **`ActiviteConflitSortieModal`** : CRUD activité, enfants participants activité interne, résolution conflit sortie (directeur).
 - **`SortieEnfantsParticipantsModal`** : enfants participants sortie (`PUT …/enfants`, tout membre séjour) ; défaut groupes prévus, édition sur tous les enfants inscrits.
+- **`CahierInfirmerieFormModal`** : création/édition entrée cahier d'infirmerie ; date et heure séparées (`@react-native-community/datetimepicker`).
 - **`DropdownAnim.tsx`** : orphelin (plus référencé).
 
 ## UX transverse
 
 - **Pull-to-refresh** sur tous les écrans de données (hook `useChargementRafraichissable` ou logique dédiée). Écrans avec personnes : inclure **`useRafraichirSejourCourant`** dans le `executer` pour synchroniser le tri listes (`triListesEnfants` / `triListesEquipe`).
 - **Tri et libellés personnes** (`helpers/triListesSejour.ts`) : ordre et affichage « Nom Prénom » ou « Prénom Nom » selon réglage séjour (lecture seule, aligné web).
-- **Recherche + filtre liste** (modèle `Animators` / `Children`) : barre compacte (`TextInput` + normalisation casse/accents) + **MultiSelect** groupes (`react-native-element-dropdown`, cases à cocher) + chips (rôle séjour sur Équipe ; genre sur Enfants). **Carte** : nom + badge droite (rôle ou groupes) ; **modal** `FichePersonneModal` au tap. Filtres par chips sur **`Groups`** (type de groupe), **`Bedrooms`** (chip Places dispo) et `Sanitaire` (Tout/Traitements/Régime/Médical). **`Bedrooms`** : menus déroulants Type / Genre / Groupe sur une ligne (`Dropdown` single-select). **Orga** (liste plannings, écran `Organisation.tsx`) : recherche titre seule + bouton ✕ pour vider (cross-platform).
+- **Recherche + filtre liste** (modèle `Animators` / `Children`) : barre compacte (`TextInput` + normalisation casse/accents) + **MultiSelect** groupes (`react-native-element-dropdown`, cases à cocher) + chips (rôle séjour sur Équipe ; genre sur Enfants). **Carte** : nom + badge droite (rôle ou groupes) ; **modal** `FichePersonneModal` au tap. Filtres par chips sur **`Groups`** (type de groupe), **`Bedrooms`** (chip Places dispo), **`DossierSanitaire`** (Tout/Traitements/Régime/Médical), **`CahierInfirmerie`** (jour du séjour + recherche texte). **`Bedrooms`** : menus déroulants Type / Genre / Groupe sur une ligne (`Dropdown` single-select). **Orga** (liste plannings, écran `Organisation.tsx`) : recherche titre seule + bouton ✕ pour vider (cross-platform).
 - **Planning matrice** (`GrilleDetail`, **`Menus`**, **`Activites`**) : colonne libellés fixe (108 px) ; colonnes jours en `flex: 1` ; en-tête jour = nom + date ; fenêtre 1/3/5 j. via **`useFenetreJoursPlanning`** (flèches/swipe par bonds = taille vue) ; chips 1j/3j/5j compacts + **`BoutonModePaysageGrille`** (rotation 90° du scroll grille via **`ConteneurGrillePaysage`**, header/toolbar en portrait) ; **`GrilleDetail`** / **`Activites`** : en-tête dates fixe (**`EnteteJoursGrille`**, corps seul scrollable), grille bord à bord ; **`GrilleDetail`** : **‹ Retour** sous le header ; **`Menus`** / **`Activites`** : écran racine onglet.
 - **Accordéons listes** (`Groups`, `Bedrooms` via **`ListeAccordion`**) : plusieurs items ouverts possibles (`Set` d'ids). **`Bedrooms`** : actions CRUD et affectation occupants dans modales dédiées (confirmations `Alert` pour suppression/retrait).
 - **Bottom sheets formulaire** : éviter `react-native-element-dropdown` dans un `ScrollView` (conflits gestes) ; préférer pills / liste dépliable + `ScrollView` de `react-native-gesture-handler`.

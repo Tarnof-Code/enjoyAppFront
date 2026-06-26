@@ -411,6 +411,58 @@ export interface EnfantDossierSanitaireLigneDto {
   dossier: DossierEnfantDto | null;
 }
 
+export type TypeSoinInfirmerie =
+  | 'DESINFECTANT'
+  | 'GLACE'
+  | 'PANSEMENT'
+  | 'SERUM_PHYSIOLOGIQUE'
+  | 'GEL_COUPS'
+  | 'PRISE_TEMPERATURE'
+  | 'AUTRE';
+
+export type TypeAppelInfirmerie = 'PARENTS' | 'POMPIERS' | 'SAMU' | 'AUTRE';
+
+export interface CahierInfirmerieEntreeDto {
+  id: number;
+  sejourId: number;
+  enfantId: number;
+  enfantNom: string;
+  enfantPrenom: string;
+  createurTokenId: string | null;
+  createurNom: string | null;
+  createurPrenom: string | null;
+  /** Instant (ISO 8601 ou epoch s/ms selon sérialisation JSON). */
+  dateHeure: string | number;
+  description: string;
+  localisationCorps: string | null;
+  soins: TypeSoinInfirmerie[];
+  soinsAutrePrecision: string | null;
+  /** Mesure en °C si `PRISE_TEMPERATURE` ∈ soins, sinon null. */
+  temperatureCelsius: number | null;
+  appels: TypeAppelInfirmerie[];
+  appelAutrePrecision: string | null;
+  soigneurTokenId: string | null;
+  soigneurNom: string | null;
+  soigneurPrenom: string | null;
+}
+
+/** Body création / mise à jour (`SaveCahierInfirmerieEntreeRequest`). */
+export interface SaveCahierInfirmerieEntreeRequest {
+  /** Instant ISO 8601 */
+  dateHeure: string;
+  enfantId: number;
+  description: string;
+  localisationCorps?: string | null;
+  soins: TypeSoinInfirmerie[];
+  soinsAutrePrecision?: string | null;
+  /** Obligatoire si `PRISE_TEMPERATURE` ∈ soins (30–45, au plus 1 décimale). */
+  temperatureCelsius?: number | null;
+  appels?: TypeAppelInfirmerie[];
+  appelAutrePrecision?: string | null;
+  /** tokenId : directeur du séjour ou utilisateur présent dans `sejour_equipe`. */
+  soigneurTokenId: string;
+}
+
 export type TypeRepas = 'PETIT_DEJEUNER' | 'DEJEUNER' | 'GOUTER' | 'DINER';
 
 export interface MenuRepasDto {

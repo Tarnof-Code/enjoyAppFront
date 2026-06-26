@@ -27,7 +27,8 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | Sorties | `GET /sejours/{id}/activites-prestataires`, `GET …/{id}`, `PUT …/{id}/enfants` (`UpdateActivitePrestataireEnfantsRequest`), `PUT …/{id}` (`SaveActivitePrestataireRequest`, `nonParticipations` — résolution conflits calendrier) | `Activites` (fusion calendrier) ; `Sorties` (accordéons + gestion participants) |
 | Types activité | `GET /sejours/{id}/types-activite` | `Activites` (formulaire) |
 | Réf. activités | `GET …/moments`, `…/lieux` (usage ACTIVITE) | `Activites` |
-| Sanitaire | `GET /sejours/{id}/dossiers-enfants` | `Sanitaire`, `Children` (contacts parents dans modal ; chargement silencieux si indisponible) |
+| Sanitaire | `GET /sejours/{id}/dossiers-enfants` | `DossierSanitaire`, `Children` (contacts parents dans modal ; chargement silencieux si indisponible) |
+| Cahier infirmerie | `GET/POST /sejours/{id}/cahier-infirmerie`, `PUT/DELETE …/{entreeId}` | `CahierInfirmerie` (liste + CRUD modale) |
 
 > **`SejourDTO`** : en plus de `directeur` / `equipe`, porte `triListesEnfants?` et `triListesEquipe?` (`CritereTriListeApi` : `NOM` | `PRENOM`) — réglage partagé web, lecture seule mobile ; tri et libellés via `helpers/triListesSejour.ts`.
 >
@@ -51,6 +52,7 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | `moment.service.ts`, `lieu.service.ts`, `horaire.service.ts` | Référentiels planning |
 | `activite.service.ts`, `activitePrestataire.service.ts`, `typeActivite.service.ts` | Activités internes (CRUD), sorties prestataires (liste, GET détail, PUT enfants, PUT `nonParticipations`), types d'activité |
 | `dossierEnfant.service.ts` | Fiches sanitaires agrégées (`getDossiersSanitairesBySejour`) |
+| `cahierInfirmerie.service.ts` | Cahier d'infirmerie (lister, créer, modifier, supprimer entrées) |
 
 ## Hooks (`hooks/`)
 
@@ -66,7 +68,7 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | Fichier | Rôle |
 |---------|------|
 | `axiosError.ts` | Messages d'erreur utilisateur |
-| `dateApi.ts` | Normalisation dates API (ISO, timestamp, tableau Jackson) |
+| `dateApi.ts` | `parseDateDepuisValeurApi`, `dayjsDepuisValeurApi` (epoch s/ms, ISO, chaîne numérique) ; `jourISOdepuisValeurApi` (jour `YYYY-MM-DD`, tableaux Jackson) |
 | `menuRepas.ts` | Types repas, ordre, indexation jour×type, résumé cellule grille, jour focus défaut, couleurs affichage |
 | `dernierSejour.ts` | Dernier séjour visité (SecureStore) |
 | `sejourPeriode.ts` | Formatage périodes séjour |
@@ -83,6 +85,7 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | `activiteUtils.ts` | Calendrier activités : droits, indexation par animateur/jour, cartes cellule, filtres groupes âge/niveau, défauts formulaire, enfants participants activité ; sorties : **`enfantsEffectifsSortie`**, **`idsEnfantsSelectionInitialeSortie`**, **`idsEnfantsDejaAffectesAutreEvenement`** |
 | `activitePrestataireCalendrier.ts` | Fusion activités/sorties en cellule, conflits hiérarchiques, `nonParticipations`, filtres lignes calendrier |
 | `construireArbreMoments.ts` | Arbre moments hiérarchiques, `idsEnConflit`, sélection visuelle dropdown |
+| `droitsCahierInfirmerie.ts` | Droits modification/suppression entrée cahier (directeur/adjoint/admin, auteur, soigneur) |
 
 ## Composants (`Components/` — complément)
 
@@ -93,6 +96,7 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | `ActiviteEnfantsParticipantsModal.tsx` | Sélection enfants participants d'une activité interne |
 | `SortieEnfantsParticipantsModal.tsx` | Sélection enfants participants d'une sortie (`PUT …/enfants`) |
 | `ActiviteConflitSortieModal.tsx` | Résolution conflit activité / sortie à l'enregistrement (directeur) |
+| `CahierInfirmerieFormModal.tsx` | Création/édition entrée cahier d'infirmerie (date/heure séparées, soins, appels, soigneur) |
 
 ## Glossaire
 

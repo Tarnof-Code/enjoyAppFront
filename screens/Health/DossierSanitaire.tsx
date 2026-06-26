@@ -8,9 +8,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import Header from '../../Components/Header';
 import { useChargementRafraichissable } from '../../hooks/useChargementRafraichissable';
 import { useRafraichirSejourCourant } from '../../hooks/useRafraichirSejourCourant';
 import { dossierEnfantService } from '../../services/dossierEnfant.service';
@@ -64,9 +62,7 @@ function Ligne({ item, sejour }: { item: EnfantDossierSanitaireLigneDto; sejour:
   return (
     <View style={styles.card}>
       <View style={styles.cardHeader}>
-        <Text style={styles.nom}>
-          {libelleEnfantDuSejour(item, sejour)}
-        </Text>
+        <Text style={styles.nom}>{libelleEnfantDuSejour(item, sejour)}</Text>
         {groupes.length > 0 ? <Text style={styles.groupes}>{groupes.join(', ')}</Text> : null}
       </View>
 
@@ -98,9 +94,7 @@ function Ligne({ item, sejour }: { item: EnfantDossierSanitaireLigneDto; sejour:
       {aTraitements(d) ? (
         <View style={styles.section}>
           <Text style={styles.sectionTitre}>Traitements</Text>
-          {d.traitementMatin ? (
-            <Text style={styles.ligne}>Matin : {d.traitementMatin}</Text>
-          ) : null}
+          {d.traitementMatin ? <Text style={styles.ligne}>Matin : {d.traitementMatin}</Text> : null}
           {d.traitementMidi ? <Text style={styles.ligne}>Midi : {d.traitementMidi}</Text> : null}
           {d.traitementSoir ? <Text style={styles.ligne}>Soir : {d.traitementSoir}</Text> : null}
           {d.traitementSiBesoin ? (
@@ -126,7 +120,7 @@ function Ligne({ item, sejour }: { item: EnfantDossierSanitaireLigneDto; sejour:
   );
 }
 
-function Liste() {
+export default function DossierSanitaire() {
   const sejour = useAppSelector((state) => state.sejour.sejourCourant);
   const sejourId = sejour?.id;
   const [lignes, setLignes] = useState<EnfantDossierSanitaireLigneDto[]>([]);
@@ -206,15 +200,6 @@ function Liste() {
         }
       />
     </View>
-  );
-}
-
-export default function Sanitaire() {
-  return (
-    <SafeAreaProvider>
-      <Header iconName="notes-medical" title="Sanitaire" />
-      <Liste />
-    </SafeAreaProvider>
   );
 }
 

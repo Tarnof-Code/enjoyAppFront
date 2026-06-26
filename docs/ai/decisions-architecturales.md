@@ -20,9 +20,9 @@ Patterns et choix techniques de l'app mobile. Garder ce fichier comme référenc
 - **Stack natif** (`BottomTabNavigator.tsx`) : `Login` → `SejourPicker` → `BottomTab`, `headerShown: false`.
 - **`navigationRef`** (`Navigators/navigationRef.ts`) : ref de navigation root, importée hors navigateur (`Home` déconnexion, `BottomTabNavigator` session expirée) pour éviter les cycles d'import avec les écrans.
 - **Bottom tabs (6)** : `Home`, `Listes`, **`Orga`**, `Menus`, `Activités`, `Sanitaire` (icônes FontAwesome5). L'onglet plannings s'affiche « Orga » ; route `Orga` dans `BottomTabParamList`.
-- **Top tabs** (`creerTopTab`) : `TopTabLists` (Animators, Children, Groups, Bedrooms), `TopTabActivities` (Activites, Sorties). Titre du `Header` suit l'onglet actif.
+- **Top tabs** (`creerTopTab`) : `TopTabLists` (Animators, Children, Groups, Bedrooms), `TopTabActivities` (Activites, Sorties), **`TopTabSanitaire`** (CahierInfirmerie, DossierSanitaire). Titre du `Header` suit l'onglet actif.
 - **Stack Organisation** (`OrganisationNavigator`) : `GrillesList` → `GrilleDetail` (params `grilleId`, `titre`).
-- **Écrans pleine page** (header propre) : `Menus`, `Sanitaire`, `Home`.
+- **Écrans pleine page** (header propre) : `Menus`, `Home`. **Sanitaire** : header via `creerTopTab` (titre Cahier d'infirmerie / Dossier sanitaire).
 - Types centralisés : `Navigators/types.ts`.
 
 ## Authentification & client HTTP
@@ -50,7 +50,7 @@ Patterns et choix techniques de l'app mobile. Garder ce fichier comme référenc
 
 - **Source unique** : API Enjoy (`/api/v1`). Google Sheets retiré (`config/api.ts`, `types/sheets.ts` supprimés).
 - Types DTO dans `types/api.d.ts`, alignés sur `enjoyWebApp/src/types/api.d.ts`.
-- Dates API : helper `helpers/dateApi.ts` (`jourISOdepuisValeurApi`) pour chaînes ISO, timestamps et tableaux Jackson `[année, mois, jour]`.
+- Dates API : **`helpers/dateApi.ts`** — `parseDateDepuisValeurApi` / `dayjsDepuisValeurApi` (ISO, chaîne numérique, epoch **secondes** si &lt; 10¹⁰ sinon ms, aligné web) ; `jourISOdepuisValeurApi` pour jour `YYYY-MM-DD` et tableaux Jackson.
 - Config runtime : `config/env.ts` / `app.config.js` (`EXPO_PUBLIC_API_URL`).
 
 ## Composants UI réutilisables
@@ -90,7 +90,15 @@ Patterns et choix techniques de l'app mobile. Garder ce fichier comme référenc
 - **Libellés animateurs** : **`libelleMembreDansCelluleEquipe`** (`planningGrilleUtils`) — prénom seul, suffixe nom si homonymes dans le périmètre visible.
 - **Jour / date** : fenêtre centrée sur **`jourFocusDefautActivites`** ; nouvelle activité = date de la **cellule** cliquée (`+` ou « + Activité »).
 - **Onglet Sorties** (`Sorties.tsx`) : liste accordéons (**`ListeAccordion`**) hors grille calendrier ; en-tête replié = nom + date + moment ; corps = horaires, groupes, infos, tél., **Gérer les participants** ; filtres date (Dropdown) et groupes (MultiSelect) **limités aux valeurs présentes** dans les sorties chargées.
-- **Enfants participants sortie** : **`SortieEnfantsParticipantsModal`** ; `PUT …/activites-prestataires/{id}/enfants` (**`modifierEnfantsActivitePrestataire`**) pour tout membre du séjour ; défaut = enfants des **`groupeIds`** tant qu'aucune liste individuelle n'est enregistrée ; pré-validation conflits via **`idsEnfantsDejaAffectesAutreEvenement`** ; pas d'affichage enfants sur la carte.
+- **`SortieEnfantsParticipantsModal`** : bottom sheet sélection enfants participants sortie (`PUT …/enfants`, tout membre séjour) ; défaut groupes prévus, édition sur tous les enfants inscrits.
+- **`CahierInfirmerieFormModal`** : bottom sheet création/édition entrée cahier d'infirmerie ; champs date et heure **séparés** ; **`@react-native-community/datetimepicker`** (iOS `display="compact"` ; Android **`DateTimePickerAndroid.open`**, évite crash dans Modal) ; Dropdown enfant (recherche) et soigneur ; cases à cocher soins/appels.
+
+## Cahier d'infirmerie & dossier sanitaire
+
+- **Navigation** : onglet bottom **Sanitaire** → **`TopTabSanitaire`** — **CahierInfirmerie** (icône book-medical) + **DossierSanitaire** (icône clipboard).
+- **Cahier** (`CahierInfirmerie.tsx`) : `GET/POST/PUT/DELETE …/cahier-infirmerie` ; liste cartes (date/heure, enfant, description, soins, appels, soigneur) ; recherche texte + filtre jour ; FAB « + » ; édition/suppression selon **`droitsCahierInfirmerie`** ; refresh séjour au pull-to-refresh ; affichage dates via **`dayjsDepuisValeurApi`**.
+- **Dossier sanitaire** (`DossierSanitaire.tsx`) : lecture seule `GET …/dossiers-enfants` ; filtres chips Tout / Traitements / Régime / Médical ; tri/libellé enfants selon `triListesEnfants`.
+- **Libellés soins/appels** : **`constants/cahierInfirmerieLabels.ts`**. Pas d'historique ni impression mobile.
 
 ## Sécurité
 
