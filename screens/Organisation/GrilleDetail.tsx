@@ -504,9 +504,12 @@ const styles = StyleSheet.create({
   ligneFiltres: {
     flexDirection: 'row',
     alignItems: 'center',
+    minHeight: 36,
     gap: spacing.sm,
   },
   btnRetour: {
+    minHeight: 36,
+    justifyContent: 'center',
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
     borderRadius: radius.sm,
@@ -524,13 +527,14 @@ const styles = StyleSheet.create({
   },
   segmentVue: {
     flexDirection: 'row',
-    alignSelf: 'flex-start',
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.sm,
     overflow: 'hidden',
   },
   segmentBtn: {
+    minHeight: 36,
+    justifyContent: 'center',
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
     backgroundColor: colors.surface,

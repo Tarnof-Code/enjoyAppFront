@@ -13,6 +13,7 @@ Patterns et choix techniques de l'app mobile. Garder ce fichier comme référenc
 
 - **Tokens centralisés** : `config/theme.ts` (`colors`, `gradients`, `fonts`, `spacing`, `radius`, `fontSizes`).
 - **Source de vérité = app web** : palette mirroir de `enjoyWebApp/src/_variables.scss`.
+- **Accent navigation** : onglet bottom actif, top-tabs et **`Header`** (icône + titre script) en **`colors.primary`** (`#383CA7`) ; inactifs **`colors.disabled`**.
 
 ## Navigation (React Navigation 7)
 
@@ -20,7 +21,7 @@ Patterns et choix techniques de l'app mobile. Garder ce fichier comme référenc
 - **Stack natif** (`BottomTabNavigator.tsx`) : `Login` → `SejourPicker` → `BottomTab`, `headerShown: false`.
 - **`navigationRef`** (`Navigators/navigationRef.ts`) : ref de navigation root, importée hors navigateur (`Home` déconnexion, `BottomTabNavigator` session expirée) pour éviter les cycles d'import avec les écrans.
 - **Bottom tabs (6)** : `Home`, `Listes`, **`Orga`**, `Menus`, `Activités`, `Sanitaire` (icônes FontAwesome5). L'onglet plannings s'affiche « Orga » ; route `Orga` dans `BottomTabParamList`.
-- **Top tabs** (`creerTopTab`) : `TopTabLists` (Animators, Children, Groups, Bedrooms), `TopTabActivities` (Activites, Sorties), **`TopTabSanitaire`** (CahierInfirmerie, DossierSanitaire). Titre du `Header` suit l'onglet actif.
+- **Top tabs** (`creerTopTab`) : `TopTabLists` (Animators, Children, Groups, Bedrooms), `TopTabActivities` (Activites → header **Planning**, Sorties), **`TopTabSanitaire`** (CahierInfirmerie, DossierSanitaire). Titre du `Header` suit l'onglet actif. Option **`afficherLibelle`** (défaut true) ; **Activités** : icônes seules sur Planning/Sorties.
 - **Stack Organisation** (`OrganisationNavigator`) : `GrillesList` → `GrilleDetail` (params `grilleId`, `titre`).
 - **Écrans pleine page** (header propre) : `Menus`, `Home`. **Sanitaire** : header via `creerTopTab` (titre Cahier d'infirmerie / Dossiers sanitaires).
 - Types centralisés : `Navigators/types.ts`.
@@ -59,8 +60,8 @@ Patterns et choix techniques de l'app mobile. Garder ce fichier comme référenc
 - **`ListeAccordion`** (`Components/ListeAccordion.tsx`) : coque accordéon réutilisable (chevron MaterialIcons, carte bordée, slot en-tête/corps) ; styles partagés exportés (`listeAccordionStyles`). Consommé par `Groups`, `Bedrooms`, `Sorties` et **`CahierInfirmerie`** — contenu métier reste dans chaque écran.
 - **`ChambreFormulaireModal`** / **`AffecterOccupantsModal`** : bottom sheets (zone sombre cliquable au-dessus, feuille en bas) ; scroll via **`ScrollView` de `react-native-gesture-handler`** ; formulaire chambre sans `Dropdown` dans le scroll (pills + liste groupe dépliable) pour éviter conflits de gestes ; feuille affectation ~92 % hauteur écran, liste en `flex: 1`.
 - **`PlanningCelluleModal`** : bottom sheet édition cellule planning (~92 % écran) ; cases à cocher horaires/moments/groupes/lieux/membres ou texte libre selon `sourceContenuCellules` ; scroll gesture-handler ; retour `ResultatEnregistrementCellule` (`cellules` → PUT, `ma-presence` → PATCH).
-- **`EnteteJoursGrille`** : ligne en-tête jours (nom + date) pour grilles calendrier ; fixe au-dessus du corps scrollable ; consommé par **`GrilleDetail`** et **`Activites`** (pas **`Menus`**, en-tête encore dans le scroll).
-- **`BoutonModePaysageGrille`** + **`ConteneurGrillePaysage`** : bascule paysage **visuelle** (rotation 90° du scroll grille) sur **`Menus`**, **`GrilleDetail`** et **`Activites`** ; hook **`useModePaysageGrille`** ; l'appareil reste en portrait (`app.json`).
+- **`EnteteJoursGrille`** : ligne en-tête jours (nom + date) pour grilles calendrier ; fixe au-dessus du corps scrollable ; consommé par **`GrilleDetail`** et **`Activites`** (pas **`Menus`**, en-tête encore dans le scroll) ; prop **`compact?`** (en-tête plus bas, **`Activites`**).
+- **`BoutonModePaysageGrille`** + **`ConteneurGrillePaysage`** : bascule paysage **visuelle** (rotation 90° du scroll grille) sur **`Menus`**, **`GrilleDetail`** et **`Activites`** ; hook **`useModePaysageGrille`** ; l'appareil reste en portrait (`app.json`) ; bouton rotation **`marginLeft: 'auto'`** dans la toolbar (chips 1/3/5 j. à gauche).
 
 ## Plannings organisation
 
@@ -81,7 +82,8 @@ Patterns et choix techniques de l'app mobile. Garder ce fichier comme référenc
 
 ## Activités calendrier
 
-- **Écran** (`Activites.tsx`, sous-onglet Activités) : matrice **lignes = animateurs**, **colonnes = jours** ; même shell navigation que **`Menus`** / **`GrilleDetail`** (`useFenetreJoursPlanning`, paysage tableau, colonne fixe 108 px) ; en-tête dates **`EnteteJoursGrille`** (fixe, colonnes hors séjour atténuées) ; grille bord à bord.
+- **Écran** (`Activites.tsx`, sous-onglet route `Activites`, header **Planning**) : matrice **lignes = animateurs**, **colonnes = jours** ; même shell navigation que **`Menus`** / **`GrilleDetail`** (`useFenetreJoursPlanning`, paysage tableau, colonne animateurs fixe **76 px**) ; en-tête dates **`EnteteJoursGrille`** **`compact`**, coin haut-gauche (`colonneGauche`), colonnes hors séjour atténuées ; grille bord à bord.
+- **Couleurs cartes cellule** : activités → **`couleurFondCalendrierPourTypeActivite(typeActivite.id)`** (`activiteUtils.ts`, HSL hashé sur 36 teintes, aligné web) ; sorties → **`COULEUR_FOND_CARTE_SORTIE`** ; conflits → **`colors.warningSoft`**.
 - **Données** : `GET /activites` + `GET /activites-prestataires` + référentiels (`groupes`, `lieux`, `moments`, types via **`typeActivite.service`**) ; refresh séjour au pull-to-refresh.
 - **Fusion cellules** : **`helpers/activitePrestataireCalendrier.ts`** — sorties sur lignes référents, cartes conflit (même moment exact, résolution inline directeur), détection hiérarchique à l'enregistrement (`idsEnConflit` dans **`construireArbreMoments.ts`**).
 - **Modales** : **`ActiviteFormulaireModal`** (création/édition/consultation) ; **`ActiviteEnfantsParticipantsModal`** ; **`ActiviteConflitSortieModal`** (choix sortie vs activité par animateur, PUT prestataire `nonParticipations` puis POST/PUT activité).

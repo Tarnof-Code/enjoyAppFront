@@ -16,6 +16,14 @@ Reste mineur : photos animateurs codées en dur dans `Header.tsx`, composant orp
 
 ## Journal
 
+### 2026-06-26 (Chromie navigation + UX grilles planning)
+- **Navigation** : onglet bottom actif, top-tabs (`creerTopTab`) et icône/titre **`Header`** passent de `colors.ink` à **`colors.primary`** ; inactifs **`colors.disabled`**.
+- **`TopTabActivities`** : sous-onglet route `Activites` — titre header **Planning** ; icône **`calendar-blank`** (MaterialCommunityIcons) ; **`afficherLibelle: false`** sur Planning et Sorties (icônes seules).
+- **`creerTopTab`** : option **`afficherLibelle?`** ; icônes via **`tabBarIcon`** (plus `tabBarLabel` icône) ; `tabBarLabelStyle` 11 px, `textTransform: 'none'`.
+- **Toolbar grilles** (`Menus`, **`GrilleDetail`**, **`Activites`**) : **`BoutonModePaysageGrille`** aligné à droite (`marginLeft: 'auto'`) ; ligne chips 1/3/5 j. — `minHeight: 36`, `alignItems: 'center'`, chips/`‹ Retour` centrés verticalement.
+- **`EnteteJoursGrille`** : prop **`compact`** (padding `xs`, `lineHeight: 14`) activée sur **`Activites`** uniquement.
+- **`Activites.tsx`** : colonne animateurs **`LARGEUR_COLONNE_ANIMATEUR = 76`** (ex-108) ; coin haut-gauche conservé (`colonneGauche`).
+
 ### 2026-06-26 (Dossiers sanitaires — filtre groupes)
 - **`DossierSanitaire.tsx`** : **`MultiSelect`** groupes (cases à cocher, modèle **Enfants**) ; options dérivées des **`GroupeResumeDto`** déjà présents sur chaque ligne (`l.groupes`), sans appel API supplémentaire ; combinable avec filtres contenu et moment ; **ligne 1** : Groupes + Filtrer côte à côte ; **ligne 2** : sous-filtre Moment (pleine largeur) si filtre = Traitements.
 
@@ -64,7 +72,7 @@ Reste mineur : photos animateurs codées en dur dans `Header.tsx`, composant orp
 
 ### 2026-06-25 (suite 8)
 - **Mode paysage des grilles** (`Menus`, **`GrilleDetail`**) : bouton rotation dans la toolbar (à côté des chips 1/3/5 j.) ; **`ConteneurGrillePaysage`** applique une rotation 90° **uniquement au tableau** (header + barre d'outils + app restent en portrait) ; hook **`useModePaysageGrille`** (état local, pas de verrou orientation appareil).
-- **Composants** : **`BoutonModePaysageGrille`** (icône `screen-rotation`, état actif) ; segment 1/3/5 j. en largeur compacte (`alignSelf: 'flex-start'`, sans `flex: 1`).
+- **Composants** : **`BoutonModePaysageGrille`** (icône `screen-rotation`, état actif, aligné à droite) ; segment 1/3/5 j. compact (`minHeight: 36`, alignement vertical toolbar).
 
 ### 2026-06-25 (suite 7)
 - **Menus (UX mobile)** — aligné modèle plannings orga / web : **`Menus.tsx`** remplace l'ancienne **`SectionList`** par une **grille calendrier** (lignes = types repas, colonnes = jours) ; fenêtre **1 / 3 / 5 jours** via **`useFenetreJoursPlanning`** ; swipe + flèches (bonds = taille de la vue) + bouton **Aujourd'hui** ; ouverture directe sur l'onglet (pas de liste intermédiaire) — jour par défaut = **aujourd'hui** si dans le séjour, sinon **premier jour** (`jourFocusDefautMenus`).
@@ -120,7 +128,7 @@ Reste mineur : photos animateurs codées en dur dans `Header.tsx`, composant orp
 - **Cycle d'import navigation** : `navigationRef` extrait dans `Navigators/navigationRef.ts` (évite le cycle `BottomTabNavigator` ↔ `Home` ; utilisé pour déconnexion et session expirée).
 - **Migration API complète** : suppression onglets Infos utiles et Plannings ; Listes (Équipe, Enfants, Groupes, Chambres), Menus, Organisation (liste grilles + détail jour par jour), Activités/Sorties, Sanitaire (écran unique) alimentés par l'API.
 - **Nettoyage Sheets** : suppression `config/api.ts`, `types/sheets.ts`, `overlaySlice`, clé `googleApiKey` dans `app.config.js`.
-- **Navigation** : fabrique `Navigators/creerTopTab.tsx` ; titres de header dynamiques par sous-onglet (Listes : Équipe/Enfants/Groupes/Chambres ; Activités : Activités/Sorties).
+- **Navigation** : fabrique `Navigators/creerTopTab.tsx` ; titres de header dynamiques par sous-onglet (Listes : Équipe/Enfants/Groupes/Chambres ; Activités : **Planning**/Sorties).
 - **Pull-to-refresh** : hook `hooks/useChargementRafraichissable.ts` + `RefreshControl` sur tous les écrans API et l'accueil (`Home` recharge CR veille + liste séjours).
 - **Règles Cursor** : `.cursor/rules/30-app-web.mdc` et `40-api.mdc` pour consulter enjoyWebApp / enjoyApi.
 

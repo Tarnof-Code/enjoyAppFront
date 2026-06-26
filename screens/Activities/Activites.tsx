@@ -95,7 +95,7 @@ import { colors, fontSizes, radius, spacing } from '../../config/theme';
 
 dayjs.locale('fr');
 
-const LARGEUR_COLONNE_ANIMATEUR = 108;
+const LARGEUR_COLONNE_ANIMATEUR = 76;
 const SWIPE_SEUIL = 48;
 
 function ActivitesContent({
@@ -955,6 +955,7 @@ function ActivitesContent({
             ) : (
               <View style={styles.grille}>
                 <EnteteJoursGrille
+                  compact
                   joursFenetre={joursFenetre}
                   aujourdhui={aujourdhui}
                   joursSejour={jours}
@@ -1322,6 +1323,7 @@ const styles = StyleSheet.create({
   ligneFiltres: {
     flexDirection: 'row',
     alignItems: 'center',
+    minHeight: 36,
     gap: spacing.sm,
   },
   ligneFiltresCalendrier: {
@@ -1373,13 +1375,14 @@ const styles = StyleSheet.create({
   },
   segmentVue: {
     flexDirection: 'row',
-    alignSelf: 'flex-start',
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.sm,
     overflow: 'hidden',
   },
   segmentBtn: {
+    minHeight: 36,
+    justifyContent: 'center',
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
     backgroundColor: colors.surface,

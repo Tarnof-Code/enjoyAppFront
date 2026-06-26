@@ -7,6 +7,8 @@ import { colors, fontSizes, spacing } from '../config/theme';
 interface Props {
   joursFenetre: JourFenetrePlanning[];
   aujourdhui: string;
+  /** En-tête plus bas (planning activités). */
+  compact?: boolean;
   /** Coin haut-gauche (libellé ligne ou animateur). Omis si la colonne est masquée. */
   colonneGauche?: React.ReactNode;
   /** Jours du séjour : les colonnes hors séjour sont atténuées (calendrier activités). */
@@ -17,6 +19,7 @@ interface Props {
 export default function EnteteJoursGrille({
   joursFenetre,
   aujourdhui,
+  compact = false,
   colonneGauche,
   joursSejour,
 }: Props) {
@@ -32,18 +35,27 @@ export default function EnteteJoursGrille({
             key={ymd}
             style={[
               styles.celluleJourEntete,
+              compact && styles.celluleJourEnteteCompact,
               styles.celluleJourFlexible,
               derniereColonne && styles.celluleSansBordureDroite,
               horsSejour && styles.celluleHorsSejour,
             ]}
           >
             <Text
-              style={[styles.enteteJourSemaine, estAujourdhui && styles.enteteJourAujourdhui]}
+              style={[
+                styles.enteteJourSemaine,
+                compact && styles.enteteJourSemaineCompact,
+                estAujourdhui && styles.enteteJourAujourdhui,
+              ]}
             >
               {jourSemaine}
             </Text>
             <Text
-              style={[styles.enteteJourDate, estAujourdhui && styles.enteteJourAujourdhui]}
+              style={[
+                styles.enteteJourDate,
+                compact && styles.enteteJourDateCompact,
+                estAujourdhui && styles.enteteJourAujourdhui,
+              ]}
             >
               {dateReste}
             </Text>
@@ -69,6 +81,9 @@ const styles = StyleSheet.create({
     borderRightWidth: 1,
     borderRightColor: colors.border,
   },
+  celluleJourEnteteCompact: {
+    paddingVertical: spacing.xs,
+  },
   celluleJourFlexible: {
     flex: 1,
     minWidth: 0,
@@ -86,12 +101,19 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     textTransform: 'capitalize',
   },
+  enteteJourSemaineCompact: {
+    lineHeight: 14,
+  },
   enteteJourDate: {
     marginTop: 2,
     fontSize: fontSizes.xs,
     fontWeight: '600',
     color: colors.muted,
     textAlign: 'center',
+  },
+  enteteJourDateCompact: {
+    marginTop: 0,
+    lineHeight: 14,
   },
   enteteJourAujourdhui: {
     color: colors.primary,

@@ -34,7 +34,7 @@ function BottomTab() {
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
-        tabBarActiveTintColor: colors.ink,
+        tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.disabled,
         tabBarIcon: ({ color }) => {
           let iconName: keyof typeof FontAwesome5.glyphMap = 'home';

@@ -71,7 +71,7 @@ function Header({ iconName, title }: HeaderProps) {
     <View style={styles.container}>
       <View style={styles.alignElements}>
         <View style={styles.iconContainer}>
-          <FontAwesome5 style={styles.icon} name={iconName} size={27} color={colors.ink} />
+          <FontAwesome5 style={styles.icon} name={iconName} size={27} color={colors.primary} />
         </View>
         <View style={styles.textContainer}>
           <Text style={styles.title}>{title}</Text>
@@ -106,6 +106,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.script,
     fontSize: 30,
     marginBottom: 9,
+    color: colors.primary,
   },
   image: {
     width: 65,

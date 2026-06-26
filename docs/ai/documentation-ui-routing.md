@@ -36,8 +36,10 @@ App.tsx
 
 | Sous-onglet | Écran | Titre header | Source |
 |-------------|-------|--------------|--------|
-| Activites | `screens/Activities/Activites` | Activités | Grille calendrier animateur×jours (1/3/5 j., paysage, filtres animateurs/groupes, en-tête dates fixe) ; `GET /activites` + `GET /activites-prestataires` + moments/lieux/types/groupes ; CRUD modales ; fusion sorties ; conflits directeur ; libellés **`libelleMembreDansCelluleEquipe`** ; jour initial = aujourd'hui (si séjour) ou 1er jour |
+| Activites | `screens/Activities/Activites` | **Planning** | Grille calendrier animateur×jours (colonne animateurs **76 px**, en-tête dates **`EnteteJoursGrille` `compact`**, 1/3/5 j., paysage, filtres animateurs/groupes) ; `GET /activites` + `GET /activites-prestataires` + moments/lieux/types/groupes ; CRUD modales ; fusion sorties ; conflits directeur ; libellés **`libelleMembreDansCelluleEquipe`** ; jour initial = aujourd'hui (si séjour) ou 1er jour |
 | Sorties | `screens/Activities/Sorties` | Sorties | `GET /activites-prestataires` + groupes/activites/moments (modale) ; accordéons **`ListeAccordion`** (nom, date, moment → détail) ; filtres date/groupes (existants uniquement) ; **`PUT …/enfants`** via **`SortieEnfantsParticipantsModal`** |
+
+Barre top-tabs **Activités** : icônes seules (Planning = `calendar-blank`, Sorties = `bus`) ; libellés texte masqués (`afficherLibelle: false`).
 
 ## Orga (`OrganisationNavigator`)
 
@@ -62,14 +64,14 @@ Onglet bottom tab : route **`Orga`**, libellé **Orga**. Titre header liste : «
 
 ## Composants partagés
 
-- **`Header`** : icône FontAwesome5 + titre (script) + avatar animateur (mapping prénom → photo locale, legacy).
+- **`Header`** : icône FontAwesome5 + titre (script) en **`colors.primary`** + avatar animateur (mapping prénom → photo locale, legacy).
 - **`FichePersonneModal`** : modal fiche personne + `LigneInfoFiche` (Équipe, Enfants).
 - **`ListeAccordion`** : coque accordéon liste (chevron, carte, en-tête/corps) + styles `listeAccordionStyles` ; contenu métier dans l'écran (`Groups`, `Bedrooms`, `Sorties`, **`CahierInfirmerie`**).
 - **`ChambreFormulaireModal`** : création/édition chambre (bottom sheet, scroll gesture-handler).
 - **`AffecterOccupantsModal`** : sélection multi occupants (enfants ou équipe) pour une chambre.
 - **`PlanningCelluleModal`** : édition cellule planning (bottom sheet) ; directeur/adjoint = contenu complet ; animateur = ma présence (contenu `MEMBRE_EQUIPE`) ou édition complète **sur sa ligne** (libellé `MEMBRE_EQUIPE`).
-- **`EnteteJoursGrille`** : en-tête jours/dates fixe des grilles **`GrilleDetail`** et **`Activites`** (corps scrollable en dessous).
-- **`BoutonModePaysageGrille`** / **`ConteneurGrillePaysage`** : paysage visuel du tableau sur **`Menus`**, **`GrilleDetail`** et **`Activites`** (rotation 90°, appareil en portrait).
+- **`EnteteJoursGrille`** : en-tête jours/dates fixe des grilles **`GrilleDetail`** et **`Activites`** (corps scrollable en dessous) ; variante **`compact`** sur **`Activites`**.
+- **`BoutonModePaysageGrille`** / **`ConteneurGrillePaysage`** : paysage visuel du tableau sur **`Menus`**, **`GrilleDetail`** et **`Activites`** (rotation 90°, appareil en portrait) ; bouton rotation aligné **à droite** de la toolbar.
 - **`ActiviteFormulaireModal`** / **`ActiviteEnfantsParticipantsModal`** / **`ActiviteConflitSortieModal`** : CRUD activité, enfants participants activité interne, résolution conflit sortie (directeur).
 - **`SortieEnfantsParticipantsModal`** : enfants participants sortie (`PUT …/enfants`, tout membre séjour) ; défaut groupes prévus, édition sur tous les enfants inscrits.
 - **`CahierInfirmerieFormModal`** : création/édition entrée cahier d'infirmerie ; date et heure séparées (`@react-native-community/datetimepicker`).
@@ -80,11 +82,11 @@ Onglet bottom tab : route **`Orga`**, libellé **Orga**. Titre header liste : «
 - **Pull-to-refresh** sur tous les écrans de données (hook `useChargementRafraichissable` ou logique dédiée). Écrans avec personnes : inclure **`useRafraichirSejourCourant`** dans le `executer` pour synchroniser le tri listes (`triListesEnfants` / `triListesEquipe`).
 - **Tri et libellés personnes** (`helpers/triListesSejour.ts`) : ordre et affichage « Nom Prénom » ou « Prénom Nom » selon réglage séjour (lecture seule, aligné web).
 - **Recherche + filtre liste** (modèle `Animators` / `Children`) : barre compacte (`TextInput` + normalisation casse/accents) + **MultiSelect** groupes (`react-native-element-dropdown`, cases à cocher) + chips (rôle séjour sur Équipe ; genre sur Enfants). **Carte** : nom + badge droite (rôle ou groupes) ; **modal** `FichePersonneModal` au tap. Filtres par chips sur **`Groups`** (type de groupe), **`Bedrooms`** (chip Places dispo). **`DossierSanitaire`** : **MultiSelect** groupes + **`Dropdown`** filtre contenu (ligne 1) ; sous-filtre moment si Traitements (ligne 2, pleine largeur ; libellés web : Alimentation, Autres infos). **`CahierInfirmerie`** (jour avec entrées + recherche texte ; aligné modèle Sorties/Bedrooms). **`Bedrooms`** : menus déroulants Type / Genre / Groupe sur une ligne (`Dropdown` single-select). **Orga** (liste plannings, écran `Organisation.tsx`) : recherche titre seule + bouton ✕ pour vider (cross-platform).
-- **Planning matrice** (`GrilleDetail`, **`Menus`**, **`Activites`**) : colonne libellés fixe (108 px) ; colonnes jours en `flex: 1` ; en-tête jour = nom + date ; fenêtre 1/3/5 j. via **`useFenetreJoursPlanning`** (flèches/swipe par bonds = taille vue) ; chips 1j/3j/5j compacts + **`BoutonModePaysageGrille`** (rotation 90° du scroll grille via **`ConteneurGrillePaysage`**, header/toolbar en portrait) ; **`GrilleDetail`** / **`Activites`** : en-tête dates fixe (**`EnteteJoursGrille`**, corps seul scrollable), grille bord à bord ; **`GrilleDetail`** : **‹ Retour** sous le header ; **`Menus`** / **`Activites`** : écran racine onglet.
+- **Planning matrice** (`GrilleDetail`, **`Menus`**, **`Activites`**) : colonne libellés fixe (**108 px** orga/menus ; **76 px** animateurs sur **`Activites`**) ; colonnes jours en `flex: 1` ; en-tête jour = nom + date ; fenêtre 1/3/5 j. via **`useFenetreJoursPlanning`** (flèches/swipe par bonds = taille vue) ; chips 1j/3j/5j compacts + **`BoutonModePaysageGrille`** (à droite, rotation 90° du scroll grille via **`ConteneurGrillePaysage`**, header/toolbar en portrait) ; toolbar `minHeight: 36`, alignement vertical centré ; **`GrilleDetail`** / **`Activites`** : en-tête dates fixe (**`EnteteJoursGrille`**, corps seul scrollable), grille bord à bord ; **`GrilleDetail`** : **‹ Retour** sous le header ; **`Menus`** / **`Activites`** : écran racine onglet.
 - **Accordéons listes** (`Groups`, `Bedrooms`, `Sorties`, **`CahierInfirmerie`** via **`ListeAccordion`**) : plusieurs items ouverts possibles (`Set` d'ids). **`Bedrooms`** : actions CRUD et affectation occupants dans modales dédiées (confirmations `Alert` pour suppression/retrait). **`CahierInfirmerie`** : édition/suppression dans le corps déplié (icônes, droits **`droitsCahierInfirmerie`**).
 - **Bottom sheets formulaire** : éviter `react-native-element-dropdown` dans un `ScrollView` (conflits gestes) ; préférer pills / liste dépliable + `ScrollView` de `react-native-gesture-handler`.
 - **Anniversaire pendant séjour** (`Children`) : icône gâteau avant le nom ; modale « Anniversaire : {jour date} » (`helpers/anniversaireSejour.ts`).
-- Thème RNEUI + tokens `config/theme.ts`.
+- Thème RNEUI + tokens `config/theme.ts` ; accent navigation **`colors.primary`** (bottom tabs, top-tabs, **`Header`**).
 - États : `ActivityIndicator` au 1er chargement ; indicateur natif au refresh.
 
 ## Supprimé (migration)

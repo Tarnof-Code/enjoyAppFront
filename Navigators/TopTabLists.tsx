@@ -10,7 +10,7 @@ import { creerTopTab } from './creerTopTab';
 import type { ListsTabParamList } from './types';
 import { colors } from '../config/theme';
 
-const couleur = (focused: boolean) => (focused ? colors.ink : colors.disabled);
+const couleur = (focused: boolean) => (focused ? colors.primary : colors.disabled);
 
 export default creerTopTab<ListsTabParamList>({
   headerIcon: 'list-ul',

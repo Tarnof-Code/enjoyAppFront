@@ -7,7 +7,7 @@ import { creerTopTab } from './creerTopTab';
 import type { SanitaireTabParamList } from './types';
 import { colors } from '../config/theme';
 
-const couleur = (focused: boolean) => (focused ? colors.ink : colors.disabled);
+const couleur = (focused: boolean) => (focused ? colors.primary : colors.disabled);
 
 export default creerTopTab<SanitaireTabParamList>({
   headerIcon: 'notes-medical',

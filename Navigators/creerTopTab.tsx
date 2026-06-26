@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useState } from 'react';
+import { View } from 'react-native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import type { ParamListBase } from '@react-navigation/native';
@@ -12,6 +13,8 @@ export interface OngletConfig<ParamList extends ParamListBase> {
   title: string;
   component: React.ComponentType<Record<string, never>>;
   icon: (focused: boolean) => React.ReactNode;
+  /** Libellé texte sous l’icône dans la barre d’onglets (défaut : true). */
+  afficherLibelle?: boolean;
 }
 
 interface TopTabOptions<ParamList extends ParamListBase> {
@@ -39,7 +42,14 @@ export function creerTopTab<ParamList extends ParamListBase>({
         <Header iconName={headerIcon} title={titre} />
         <Tab.Navigator
           initialRouteName={onglets[0]?.name}
-          screenOptions={{ tabBarActiveTintColor: colors.ink }}
+          screenOptions={{
+            tabBarActiveTintColor: colors.primary,
+            tabBarInactiveTintColor: colors.disabled,
+            tabBarLabelStyle: {
+              fontSize: 11,
+              textTransform: 'none',
+            },
+          }}
           screenListeners={{
             state: (e) => {
               const state = e.data?.state;
@@ -55,7 +65,10 @@ export function creerTopTab<ParamList extends ParamListBase>({
               key={onglet.name}
               name={onglet.name}
               component={onglet.component}
-              options={{ tabBarLabel: ({ focused }) => onglet.icon(focused) }}
+              options={{
+                ...(onglet.afficherLibelle !== false ? { title: onglet.title } : { tabBarShowLabel: false }),
+                tabBarIcon: ({ focused }) => <View>{onglet.icon(focused)}</View>,
+              }}
             />
           ))}
         </Tab.Navigator>

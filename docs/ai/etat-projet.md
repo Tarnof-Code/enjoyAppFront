@@ -82,7 +82,7 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | `enumererJoursSejour.ts` | Liste des jours ISO entre date début/fin séjour |
 | `peutGererMembresEquipeSejour.ts` | Directeur ou adjoint (droits édition structure planning) |
 | `planningGrilleUtils.ts` | Affichage/validation cellules planning, fenêtre jours, permissions par ligne (`peutModifierCellulePlanning`, `ligneEstCelleDeUtilisateur`), résumés, **`libelleMembreDansCelluleEquipe`** |
-| `activiteUtils.ts` | Calendrier activités : droits, indexation par animateur/jour, cartes cellule, filtres groupes âge/niveau, défauts formulaire, enfants participants activité ; sorties : **`enfantsEffectifsSortie`**, **`idsEnfantsSelectionInitialeSortie`**, **`idsEnfantsDejaAffectesAutreEvenement`** |
+| `activiteUtils.ts` | Calendrier activités : droits, indexation par animateur/jour, cartes cellule, filtres groupes âge/niveau, défauts formulaire, enfants participants activité ; **`couleurFondCalendrierPourTypeActivite`** (fond carte par `typeActivite.id`, HSL 36 teintes, aligné web) ; sorties : **`enfantsEffectifsSortie`**, **`idsEnfantsSelectionInitialeSortie`**, **`idsEnfantsDejaAffectesAutreEvenement`** |
 | `activitePrestataireCalendrier.ts` | Fusion activités/sorties en cellule, conflits hiérarchiques, `nonParticipations`, filtres lignes calendrier |
 | `construireArbreMoments.ts` | Arbre moments hiérarchiques, `idsEnConflit`, sélection visuelle dropdown |
 | `droitsCahierInfirmerie.ts` | Droits modification/suppression entrée cahier (directeur/adjoint/admin, auteur, soigneur) |

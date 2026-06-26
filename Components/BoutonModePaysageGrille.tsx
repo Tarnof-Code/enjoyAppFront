@@ -28,6 +28,8 @@ export default function BoutonModePaysageGrille({ actif, onPress }: Props) {
 
 const styles = StyleSheet.create({
   btn: {
+    marginLeft: 'auto',
+    alignSelf: 'center',
     width: 40,
     height: 36,
     borderRadius: radius.sm,
