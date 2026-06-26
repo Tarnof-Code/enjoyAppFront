@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import { getUserFacingErrorMessage } from '../helpers/axiosError';
+import { rafraichirPhotoProfil } from '../helpers/rafraichirPhotoProfil';
 
 /**
  * Gère le cycle de chargement d'un écran alimenté par l'API avec
@@ -9,6 +10,7 @@ import { getUserFacingErrorMessage } from '../helpers/axiosError';
  * `executer` effectue la récupération et met à jour l'état de l'écran ;
  * le hook prend en charge les indicateurs `loading` (premier chargement),
  * `refreshing` (rafraîchissement) et la gestion d'erreur centralisée.
+ * Au rafraîchissement, la photo de profil du header est aussi rechargée.
  */
 export function useChargementRafraichissable(
   executer: () => Promise<void>,
@@ -29,7 +31,14 @@ export function useChargementRafraichissable(
       else setLoading(true);
       setError(null);
       try {
-        await executer();
+        if (estRafraichissement) {
+          await Promise.all([
+            executer(),
+            rafraichirPhotoProfil().catch(() => {}),
+          ]);
+        } else {
+          await executer();
+        }
       } catch (err) {
         setError(getUserFacingErrorMessage(err, messageErreur));
       } finally {

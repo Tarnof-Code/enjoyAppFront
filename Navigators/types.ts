@@ -4,6 +4,7 @@ export type RootStackParamList = {
   Login: undefined;
   SejourPicker: undefined;
   BottomTab: NavigatorScreenParams<BottomTabParamList>;
+  Profil: undefined;
 };
 
 export type BottomTabParamList = {

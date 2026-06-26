@@ -12,9 +12,18 @@
 
 **Sanitaire** : top-tabs **Cahier d'infirmerie** (CRUD, liste accordéons) + **Dossiers sanitaires** (lecture, filtres groupes + contenu + moment).
 
-Reste mineur : photos animateurs codées en dur dans `Header.tsx`, composant orphelin `DropdownAnim.tsx`, assets `LogosGroupes/` non référencés, spike refresh token en prod (HTTPS).
+**Mon profil** : écran Stack **`Profil`** (édition infos, mot de passe, photo API) ; avatar **`Header`** / **`Home`** via Redux ; refresh photo au pull-to-refresh.
+
+Reste mineur : composant orphelin `DropdownAnim.tsx`, assets `LogosGroupes/` non référencés, spike refresh token en prod (HTTPS).
 
 ## Journal
+
+### 2026-06-27 (Écran Mon profil — photo, édition, mot de passe)
+- **Navigation** : route Stack **`Profil`** (`Navigators/types.ts`) ; accès depuis avatar **`Header`** et photo **`Home`** via **`navigationRef`**.
+- **Écran** **`screens/Profil/Profil.tsx`** : sections infos / contact / compte ; édition champ par champ (aligné web : **`buildUpdateUserRequest`**, **`canEditEmail`**) ; badge rôle **`libelleRoleBadgeProfil`** ; changement mot de passe **`ChangePasswordModal`**.
+- **Photo profil** : API (**`utilisateur.service`** — GET/POST/DELETE photo, **`updateUser`**, **`changePassword`**) ; état global **`auth.photoProfilUri`** + **`photoProfilRevision`** ; chargement **`usePhotoProfilLoader`** (BottomTab) ; rafraîchissement pull-to-refresh via **`rafraichirPhotoProfil`** dans **`useChargementRafraichissable`** et écrans dédiés (**`Home`**, **`Animators`**).
+- **Modales photo** : **`PhotoProfilRecadrageModal`** (cercle, pinch/pan Reanimated, Valider/Annuler, export **`expo-image-manipulator`**) ; **`PhotoProfilZoomModal`** (agrandissement pinch/double-tap).
+- **Header** : fin du mapping photos locales **`PhotosAnims/`** ; avatar API ou initiales depuis le store.
 
 ### 2026-06-26 (Chromie navigation + UX grilles planning)
 - **Navigation** : onglet bottom actif, top-tabs (`creerTopTab`) et icône/titre **`Header`** passent de `colors.ink` à **`colors.primary`** ; inactifs **`colors.disabled`**.

@@ -13,7 +13,7 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | Domaine | Endpoint | Écran / usage |
 |---------|----------|---------------|
 | Auth | `POST /auth/connexion`, `/refresh-token`, `/logout` | Connexion, session |
-| Profil | `GET /utilisateurs/profil?tokenId=`, `GET /utilisateurs/{tokenId}/photo-profil` | Bootstrap, `Home`, `Animators` (coordonnées directeur) |
+| Profil | `GET /utilisateurs/profil?tokenId=`, `PUT /utilisateurs`, `PATCH /utilisateurs/mot-de-passe`, `GET/POST/DELETE /utilisateurs/{tokenId}/photo-profil` | Bootstrap, **`Profil`**, **`Home`**, **`Header`**, **`Animators`** (coordonnées directeur) |
 | Séjours | `GET /sejours/utilisateur/{tokenId}`, `GET /sejours/{id}` | `SejourPicker`, `Home`, refresh séjour (`useRafraichirSejourCourant` sur listes, Sanitaire, Activités, GrilleDetail) |
 | Réunions | `GET /sejours/{sejourId}/reunions` | `Home` (CR veille) |
 | Enfants | `GET /sejours/{id}/enfants` | `Children` |
@@ -43,7 +43,7 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | `accountStorage.ts` / `tokenStorage.ts` | SecureStore |
 | `sejour.service.ts` | Séjours utilisateur et détail |
 | `sejour-reunion.service.ts` | Réunions (CR veille) |
-| `utilisateur.service.ts` | Profil par `tokenId`, photo profil |
+| `utilisateur.service.ts` | Profil, **`updateUser`**, **`changePassword`**, photo profil (GET data URI, upload, remplacer, supprimer) |
 | `enfant.service.ts` | Enfants du séjour |
 | `groupe.service.ts` | Groupes |
 | `chambre.service.ts` | Chambres (liste, détail, CRUD, affectation/retrait occupants enfants et équipe) |
@@ -58,7 +58,8 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 
 | Fichier | Rôle |
 |---------|------|
-| `useChargementRafraichissable.ts` | Chargement initial + pull-to-refresh |
+| `useChargementRafraichissable.ts` | Chargement initial + pull-to-refresh (+ **`rafraichirPhotoProfil`** au refresh) |
+| `usePhotoProfilLoader.ts` | Charge **`photoProfilUri`** dans Redux (montage BottomTab + focus) |
 | `useRafraichirSejourCourant.ts` | Recharge `sejourCourant` (critères tri listes) au refresh |
 | `useFenetreJoursPlanning.ts` | Fenêtre glissante 1/3/5 jours ; navigation par bonds (= taille vue) ; partagé **`GrilleDetail`**, **`Menus`** et **`Activites`** |
 | `useModePaysageGrille.ts` | Bascule état paysage visuel du tableau (sans rotation appareil) |
@@ -73,7 +74,13 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | `dernierSejour.ts` | Dernier séjour visité (SecureStore) |
 | `sejourPeriode.ts` | Formatage périodes séjour |
 | `reunionVeille.ts`, `reunionTipTapTexte.ts` | CR réunion J−1 (`Home`) |
-| `photoProfil.ts` | Blob photo profil |
+| `photoProfil.ts` | Blob photo profil → data URI |
+| `rafraichirPhotoProfil.ts` | **`chargerPhotoProfilDansStore`**, **`rafraichirPhotoProfil`** (store Redux) |
+| `photoProfilRecadrage.ts` | Recadrage pinch/pan → rectangle crop + export JPEG |
+| `buildUpdateUserRequest.ts` | Body PUT `/utilisateurs` (aligné web) |
+| `canEditEmail.ts` | Droits édition email profil |
+| `dateToISO.ts` | Date → ISO API |
+| `libelleRoleProfil.ts` | Badge rôle profil (séjour courant ou système) |
 | `roleSejour.ts` | Libellés rôle séjour : courts (chips) + longs adaptés au genre (badge) |
 | `anniversaireSejour.ts` | Date d'anniversaire pendant la période du séjour (affichage liste Enfants) |
 | `trierUtilisateurs.ts` | Comparateurs locale `fr` nom/prénom |
@@ -97,6 +104,9 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | `SortieEnfantsParticipantsModal.tsx` | Sélection enfants participants d'une sortie (`PUT …/enfants`) |
 | `ActiviteConflitSortieModal.tsx` | Résolution conflit activité / sortie à l'enregistrement (directeur) |
 | `CahierInfirmerieFormModal.tsx` | Création/édition entrée cahier d'infirmerie (date/heure séparées, soins, appels, soigneur) |
+| `ChangePasswordModal.tsx` | Modification mot de passe (depuis **`Profil`**) |
+| `PhotoProfilRecadrageModal.tsx` | Recadrage photo profil (cercle, Valider/Annuler) |
+| `PhotoProfilZoomModal.tsx` | Agrandissement photo profil (pinch / double-tap) |
 
 ## Glossaire
 
@@ -104,5 +114,5 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 - **Bootstrap** : restauration session au démarrage → profil + dernier séjour → route initiale.
 - **Single-flight** : un seul refresh token concurrent.
 - **Compte rendu de la veille** : dernière réunion à J−1, affichée sur `Home`.
-- **Pull-to-refresh** : tirer vers le bas pour recharger (`useChargementRafraichissable` ou logique dédiée `Home`).
+- **Pull-to-refresh** : tirer vers le bas pour recharger (`useChargementRafraichissable` ou logique dédiée `Home`) ; inclut le **rafraîchissement photo profil** (`rafraichirPhotoProfil`).
 - **`CritereTriListeApi`** : `NOM` ou `PRENOM` — ordre d'affichage des listes enfants/équipe, configuré côté web, appliqué côté mobile à l'affichage et au tri.

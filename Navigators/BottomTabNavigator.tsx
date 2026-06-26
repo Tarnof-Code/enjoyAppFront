@@ -25,11 +25,15 @@ import Menus from '../screens/Menus/Menus';
 import OrganisationNavigator from './OrganisationNavigator';
 import { navigationRef } from './navigationRef';
 import type { BottomTabParamList, RootStackParamList } from './types';
+import Profil from '../screens/Profil/Profil';
+import { usePhotoProfilLoader } from '../hooks/usePhotoProfilLoader';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<BottomTabParamList>();
 
 function BottomTab() {
+  usePhotoProfilLoader();
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -146,6 +150,7 @@ export default function BottomTabNavigator() {
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="SejourPicker" component={SejourPicker} />
         <Stack.Screen name="BottomTab" component={BottomTab} />
+        <Stack.Screen name="Profil" component={Profil} />
       </Stack.Navigator>
     </NavigationContainer>
   );

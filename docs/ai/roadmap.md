@@ -22,12 +22,12 @@ Suivi synthétique. Plan détaillé : [`.cursor/plans/migration-api-mobile.plan.
 - [x] **Sanitaire — cahier d'infirmerie** : `TopTabSanitaire`, CRUD entrées (service + modale + droits), parsing dates API epoch s/ms, `@react-native-community/datetimepicker`.
 - [x] Thème centralisé aligné web.
 - [x] Règles Cursor app web / API (`30-app-web.mdc`, `40-api.mdc`).
+- [x] **Mon profil** : écran **`Profil`** (édition infos, mot de passe, photo API) ; avatar **`Header`** / **`Home`** depuis Redux ; recadrage **`PhotoProfilRecadrageModal`**, zoom **`PhotoProfilZoomModal`** ; refresh photo au pull-to-refresh.
 
 ## Reste (mineur)
 
 - [ ] Cahier d'infirmerie : historique des modifications et impression (présents web, hors périmètre mobile).
 - [ ] Chambres : référents animateurs et historique modifications (présents web, hors périmètre mobile v1).
-- [ ] Remplacer avatars animateurs codés en dur dans `Header.tsx` (photos API ou initiales).
 - [ ] Supprimer `Components/DropdownAnim.tsx` et assets `LogosGroupes/` non utilisés.
 - [ ] Spike refresh token prod (HTTPS, Android/iOS).
 - [ ] Mettre à jour Memory Bank web si besoin de parité doc inter-apps.

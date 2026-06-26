@@ -18,7 +18,7 @@ Patterns et choix techniques de l'app mobile. Garder ce fichier comme référenc
 ## Navigation (React Navigation 7)
 
 - Racine `App.tsx` : `Provider` Redux + `GestureHandlerRootView` + `SafeAreaProvider` + `ThemeProvider` (RNEUI).
-- **Stack natif** (`BottomTabNavigator.tsx`) : `Login` → `SejourPicker` → `BottomTab`, `headerShown: false`.
+- **Stack natif** (`BottomTabNavigator.tsx`) : `Login` → `SejourPicker` → `BottomTab` → **`Profil`** (plein écran, retour `goBack`), `headerShown: false`.
 - **`navigationRef`** (`Navigators/navigationRef.ts`) : ref de navigation root, importée hors navigateur (`Home` déconnexion, `BottomTabNavigator` session expirée) pour éviter les cycles d'import avec les écrans.
 - **Bottom tabs (6)** : `Home`, `Listes`, **`Orga`**, `Menus`, `Activités`, `Sanitaire` (icônes FontAwesome5). L'onglet plannings s'affiche « Orga » ; route `Orga` dans `BottomTabParamList`.
 - **Top tabs** (`creerTopTab`) : `TopTabLists` (Animators, Children, Groups, Bedrooms), `TopTabActivities` (Activites → header **Planning**, Sorties), **`TopTabSanitaire`** (CahierInfirmerie, DossierSanitaire). Titre du `Header` suit l'onglet actif. Option **`afficherLibelle`** (défaut true) ; **Activités** : icônes seules sur Planning/Sorties.
@@ -36,7 +36,8 @@ Patterns et choix techniques de l'app mobile. Garder ce fichier comme référenc
 ## Services & chargement des écrans
 
 - Un service par domaine dans `services/`, appels via client partagé, erreurs via `helpers/axiosError.ts`.
-- **`useChargementRafraichissable`** (`hooks/useChargementRafraichissable.ts`) : pattern standard pour écrans API — `loading` (1er chargement), `refreshing` (pull-to-refresh), `error`, `refresh`. L'écran fournit un `executer` async.
+- **`useChargementRafraichissable`** (`hooks/useChargementRafraichissable.ts`) : pattern standard pour écrans API — `loading` (1er chargement), `refreshing` (pull-to-refresh), `error`, `refresh`. L'écran fournit un `executer` async. Au **refresh**, appelle aussi **`rafraichirPhotoProfil()`** (photo header/accueil).
+- **`usePhotoProfilLoader`** (`hooks/usePhotoProfilLoader.ts`) : charge la photo profil dans Redux au montage du **`BottomTab`** et au focus ; délègue à **`chargerPhotoProfilDansStore`** (`helpers/rafraichirPhotoProfil.ts`).
 - **`useRafraichirSejourCourant`** (`hooks/useRafraichirSejourCourant.ts`) : callback async qui recharge `sejourCourant` via `sejourService.getSejourById` et `setSejourCourant`. À inclure dans le `executer` (souvent en parallèle `Promise.all`) des écrans affichant des personnes, pour que le pull-to-refresh reflète les réglages séjour (tri listes) modifiés côté web.
 - **Tri des listes de personnes** (`helpers/triListesSejour.ts`, `helpers/trierUtilisateurs.ts`) : critères lus sur `SejourDTO.triListesEnfants` / `triListesEquipe` (API `NOM` | `PRENOM`, lecture seule mobile). Tri locale `fr` ; libellé affiché avec le champ de tri en premier (`libelleEnfantDuSejour` / `libelleEquipeDuSejour`, option `nomEnMajuscules` sur cartes listes).
 - **Cas particuliers** : `Animators` lit le store Redux (`sejourCourant`) ; charge en parallèle groupes, chambres et profil directeur (tél./e-mail) ; tri équipe + modal détail via **`FichePersonneModal`**. `Children` : chargement parallèle enfants/groupes/chambres/dossiers + refresh séjour ; dates séjour pour anniversaire. `Bedrooms` : chambres + groupes + enfants en parallèle ; filtres locaux ; **CRUD chambres et occupants** (modales dédiées, mise à jour liste locale via `fusionnerChambreRetourneeDansListe`). `Home` gère son propre refresh (CR veille + photo + liste séjours).
@@ -45,6 +46,7 @@ Patterns et choix techniques de l'app mobile. Garder ce fichier comme référenc
 ## State (Redux Toolkit)
 
 - Store : `animName`, `auth`, `sejour` (plus de slice `overlay`).
+- `authSlice` : identité connectée + **`photoProfilUri`**, **`photoProfilRevision`** (`setPhotoProfilUri`, `bumpPhotoProfilRevision`).
 - `sejourSlice` : `sejourCourant`, `sejoursDisponibles`.
 
 ## Données / API
@@ -101,6 +103,13 @@ Patterns et choix techniques de l'app mobile. Garder ce fichier comme référenc
 - **Cahier** (`CahierInfirmerie.tsx`) : `GET/POST/PUT/DELETE …/cahier-infirmerie` ; liste **accordéons** **`ListeAccordion`** (replié : enfant + date/heure ; déplié : description, localisation, soins, appels, soigneur, auteur, icônes édition/suppression) ; recherche texte + filtre jour (**dates avec entrées** via `joursAvecEntrees`, pas toute la plage séjour ; reset si jour vide) ; FAB « + » ; édition/suppression selon **`droitsCahierInfirmerie`** ; refresh séjour au pull-to-refresh ; affichage dates via **`dayjsDepuisValeurApi`**.
 - **Dossier sanitaire** (`DossierSanitaire.tsx`) : lecture seule `GET …/dossiers-enfants` ; **MultiSelect** groupes (options extraites de `EnfantDossierSanitaireLigneDto.groupes`, tri alpha) ; filtre principal **`Dropdown`** (Tout / Traitements / Alimentation / Médical / À prendre en sortie / Autres infos) ; filtre **Traitements** → second **`Dropdown`** moment (Tous / Matin / Midi / Soir / Si besoin) sur ligne dédiée, reset à « Tous les moments » si filtre principal ≠ Traitements ; cartes : section traitements limitée au moment sélectionné ; tri/libellé enfants selon `triListesEnfants`.
 - **Libellés soins/appels** : **`constants/cahierInfirmerieLabels.ts`**. Pas d'historique ni impression mobile.
+
+## Profil utilisateur
+
+- **Écran** (`screens/Profil/Profil.tsx`) : consultation/édition profil connecté (sections repliables par champ) ; PUT **`/utilisateurs`** via **`buildUpdateUserRequest`** ; email modifiable seulement si **`canEditEmail`** ; mot de passe via **`ChangePasswordModal`** (PATCH **`/utilisateurs/mot-de-passe`**).
+- **Photo** : choix galerie (**`expo-image-picker`**, sans recadrage natif) → **`PhotoProfilRecadrageModal`** (masque **circulaire**, pinch/pan **Reanimated**, boutons **Valider/Annuler**, export carré JPEG via **`expo-image-manipulator`** + **`helpers/photoProfilRecadrage.ts`**) ; suppression avec confirmation ; zoom **`PhotoProfilZoomModal`**.
+- **Affichage photo ailleurs** : **`Header`** et **`Home`** lisent **`auth.photoProfilUri`** ; tap → **`Profil`** ; refresh global **`rafraichirPhotoProfil`** au pull-to-refresh.
+- **Helpers alignés web** : **`buildUpdateUserRequest`**, **`canEditEmail`**, **`dateToISO`**, **`libelleRoleBadgeProfil`** (`libelleRoleProfil.ts`).
 
 ## Sécurité
 

@@ -9,6 +9,7 @@ App.tsx
 └─ BottomTabNavigator (Stack natif, headerShown: false)
    ├─ Login            (FirstScreens/Login)
    ├─ SejourPicker     (FirstScreens/SejourPicker)
+   ├─ Profil           (screens/Profil/Profil) — plein écran, retour goBack
    └─ BottomTab        (6 onglets)
       ├─ Home          (FirstScreens/Home) — pas de Header commun
       ├─ Listes        → TopTabLists (creerTopTab)
@@ -60,11 +61,12 @@ Onglet bottom tab : route **`Orga`**, libellé **Orga**. Titre header liste : «
 ## Écrans autonomes
 
 - **`Menus`** : grille calendrier repas × jours (`screens/Menus/Menus.tsx`) — fenêtre 1/3/5 j., swipe + flèches (bonds = taille vue), **Aujourd'hui**, bouton **paysage tableau** ; ouverture centrée sur aujourd'hui (si dans le séjour) ou 1er jour ; pull-to-refresh ; lecture seule.
-- **`Home`** : titre Enjoy, sélecteur séjour (modal), bienvenue, date, encart CR veille.
+- **`Home`** : titre Enjoy, sélecteur séjour (modal), bienvenue, date, encart CR veille ; **photo profil** (Redux) cliquable → **`Profil`** ; pull-to-refresh inclut **`rafraichirPhotoProfil`**.
+- **`Profil`** : écran Mon profil (Stack, hors onglets) — sections infos / contact / compte ; édition champ par champ ; badge rôle ; photo (choix, recadrage cercle, zoom, suppression) ; **`ChangePasswordModal`**.
 
 ## Composants partagés
 
-- **`Header`** : icône FontAwesome5 + titre (script) en **`colors.primary`** + avatar animateur (mapping prénom → photo locale, legacy).
+- **`Header`** : icône FontAwesome5 + titre (script) en **`colors.primary`** + **avatar profil** (API via Redux **`photoProfilUri`**, initiales si absent) ; tap avatar → **`Profil`**.
 - **`FichePersonneModal`** : modal fiche personne + `LigneInfoFiche` (Équipe, Enfants).
 - **`ListeAccordion`** : coque accordéon liste (chevron, carte, en-tête/corps) + styles `listeAccordionStyles` ; contenu métier dans l'écran (`Groups`, `Bedrooms`, `Sorties`, **`CahierInfirmerie`**).
 - **`ChambreFormulaireModal`** : création/édition chambre (bottom sheet, scroll gesture-handler).
@@ -75,11 +77,14 @@ Onglet bottom tab : route **`Orga`**, libellé **Orga**. Titre header liste : «
 - **`ActiviteFormulaireModal`** / **`ActiviteEnfantsParticipantsModal`** / **`ActiviteConflitSortieModal`** : CRUD activité, enfants participants activité interne, résolution conflit sortie (directeur).
 - **`SortieEnfantsParticipantsModal`** : enfants participants sortie (`PUT …/enfants`, tout membre séjour) ; défaut groupes prévus, édition sur tous les enfants inscrits.
 - **`CahierInfirmerieFormModal`** : création/édition entrée cahier d'infirmerie ; date et heure séparées (`@react-native-community/datetimepicker`).
+- **`ChangePasswordModal`** : modification mot de passe (depuis **`Profil`**).
+- **`PhotoProfilRecadrageModal`** : recadrage photo profil (masque circulaire, pinch/pan Reanimated, Valider/Annuler).
+- **`PhotoProfilZoomModal`** : agrandissement photo profil (pinch / double-tap).
 - **`DropdownAnim.tsx`** : orphelin (plus référencé).
 
 ## UX transverse
 
-- **Pull-to-refresh** sur tous les écrans de données (hook `useChargementRafraichissable` ou logique dédiée). Écrans avec personnes : inclure **`useRafraichirSejourCourant`** dans le `executer` pour synchroniser le tri listes (`triListesEnfants` / `triListesEquipe`).
+- **Pull-to-refresh** sur tous les écrans de données (hook `useChargementRafraichissable` ou logique dédiée). Inclut **`rafraichirPhotoProfil`** (avatar **`Header`** / **`Home`**). Écrans avec personnes : inclure **`useRafraichirSejourCourant`** dans le `executer` pour synchroniser le tri listes (`triListesEnfants` / `triListesEquipe`).
 - **Tri et libellés personnes** (`helpers/triListesSejour.ts`) : ordre et affichage « Nom Prénom » ou « Prénom Nom » selon réglage séjour (lecture seule, aligné web).
 - **Recherche + filtre liste** (modèle `Animators` / `Children`) : barre compacte (`TextInput` + normalisation casse/accents) + **MultiSelect** groupes (`react-native-element-dropdown`, cases à cocher) + chips (rôle séjour sur Équipe ; genre sur Enfants). **Carte** : nom + badge droite (rôle ou groupes) ; **modal** `FichePersonneModal` au tap. Filtres par chips sur **`Groups`** (type de groupe), **`Bedrooms`** (chip Places dispo). **`DossierSanitaire`** : **MultiSelect** groupes + **`Dropdown`** filtre contenu (ligne 1) ; sous-filtre moment si Traitements (ligne 2, pleine largeur ; libellés web : Alimentation, Autres infos). **`CahierInfirmerie`** (jour avec entrées + recherche texte ; aligné modèle Sorties/Bedrooms). **`Bedrooms`** : menus déroulants Type / Genre / Groupe sur une ligne (`Dropdown` single-select). **Orga** (liste plannings, écran `Organisation.tsx`) : recherche titre seule + bouton ✕ pour vider (cross-platform).
 - **Planning matrice** (`GrilleDetail`, **`Menus`**, **`Activites`**) : colonne libellés fixe (**108 px** orga/menus ; **76 px** animateurs sur **`Activites`**) ; colonnes jours en `flex: 1` ; en-tête jour = nom + date ; fenêtre 1/3/5 j. via **`useFenetreJoursPlanning`** (flèches/swipe par bonds = taille vue) ; chips 1j/3j/5j compacts + **`BoutonModePaysageGrille`** (à droite, rotation 90° du scroll grille via **`ConteneurGrillePaysage`**, header/toolbar en portrait) ; toolbar `minHeight: 36`, alignement vertical centré ; **`GrilleDetail`** / **`Activites`** : en-tête dates fixe (**`EnteteJoursGrille`**, corps seul scrollable), grille bord à bord ; **`GrilleDetail`** : **‹ Retour** sous le header ; **`Menus`** / **`Activites`** : écran racine onglet.

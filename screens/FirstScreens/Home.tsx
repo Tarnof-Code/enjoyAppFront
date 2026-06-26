@@ -19,6 +19,7 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/fr';
 
 import { getUserFacingErrorMessage } from '../../helpers/axiosError';
+import { rafraichirPhotoProfil } from '../../helpers/rafraichirPhotoProfil';
 import { enregistrerDernierSejourVisite } from '../../helpers/dernierSejour';
 import { dateVeilleCalendaire, trouverReunionVeille } from '../../helpers/reunionVeille';
 import { extraireTexteBrutDepuisTipTapJson } from '../../helpers/reunionTipTapTexte';
@@ -27,7 +28,6 @@ import { navigationRef } from '../../Navigators/navigationRef';
 import { accountService } from '../../services/account.service';
 import { sejourService } from '../../services/sejour.service';
 import { sejourReunionService } from '../../services/sejour-reunion.service';
-import { utilisateurService } from '../../services/utilisateur.service';
 import type { SejourDTO } from '../../types/api';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { setName as setAnimName } from '../../store/animNameSlice';
@@ -45,7 +45,7 @@ function initiales(prenom: string | null, nom: string | null): string {
 
 function Home() {
   const dispatch = useAppDispatch();
-  const { prenom, nom, tokenId } = useAppSelector((state) => state.auth);
+  const { prenom, nom, tokenId, photoProfilUri, photoProfilRevision } = useAppSelector((state) => state.auth);
   const sejour = useAppSelector((state) => state.sejour.sejourCourant);
   const sejoursDisponibles = useAppSelector((state) => state.sejour.sejoursDisponibles);
 
@@ -60,7 +60,6 @@ function Home() {
     navigationRef.reset({ index: 0, routes: [{ name: 'Login' }] });
   };
 
-  const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [crTitre, setCrTitre] = useState<string>('Compte rendu');
   const [crCorps, setCrCorps] = useState<string>('');
   const [crVide, setCrVide] = useState(false);
@@ -79,11 +78,6 @@ function Home() {
     setError(null);
 
     try {
-      if (tokenId) {
-        const uri = await utilisateurService.getPhotoProfilDataUri(tokenId);
-        setPhotoUri(uri);
-      }
-
       const reunions = await sejourReunionService.listerReunions(sejour.id);
       const reunionVeille = trouverReunionVeille(reunions);
       const veilleLabel = dayjs(dateVeilleCalendaire()).format('dddd DD MMMM YYYY');
@@ -108,7 +102,7 @@ function Home() {
     } finally {
       if (!estRafraichissement) setLoading(false);
     }
-  }, [sejour?.id, tokenId]);
+  }, [sejour?.id]);
 
   useEffect(() => {
     void loadAccueil();
@@ -130,7 +124,11 @@ function Home() {
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     try {
-      await Promise.all([loadAccueil(true), chargerSejoursDisponibles()]);
+      await Promise.all([
+        loadAccueil(true),
+        chargerSejoursDisponibles(),
+        rafraichirPhotoProfil().catch(() => {}),
+      ]);
     } finally {
       setRefreshing(false);
     }
@@ -157,6 +155,12 @@ function Home() {
   };
 
   const plusieursSejours = sejoursDisponibles.length > 1;
+
+  const ouvrirProfil = () => {
+    if (navigationRef.isReady()) {
+      navigationRef.navigate('Profil');
+    }
+  };
 
   const [fontsLoaded] = useFonts({
     DancingScript_400Regular,
@@ -251,13 +255,23 @@ function Home() {
       </View>
 
       <View style={styles.welcomeBox}>
-        {photoUri ? (
-          <Image source={{ uri: photoUri }} style={styles.image} />
-        ) : (
-          <View style={styles.initialsCircle}>
-            <Text style={styles.initialsText}>{initiales(prenom, nom)}</Text>
-          </View>
-        )}
+        <Pressable
+          onPress={ouvrirProfil}
+          accessibilityRole="button"
+          accessibilityLabel="Voir mon profil"
+        >
+          {photoProfilUri ? (
+            <Image
+              key={`photo-profil-${photoProfilRevision}`}
+              source={{ uri: photoProfilUri }}
+              style={styles.image}
+            />
+          ) : (
+            <View style={styles.initialsCircle}>
+              <Text style={styles.initialsText}>{initiales(prenom, nom)}</Text>
+            </View>
+          )}
+        </Pressable>
         <Text style={styles.welcomeMsg}>Salut {prenom ?? ''} !</Text>
       </View>
 

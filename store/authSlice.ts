@@ -8,6 +8,8 @@ export interface AuthState {
   genre: string | null;
   isAuthenticated: boolean;
   bootstrapDone: boolean;
+  photoProfilRevision: number;
+  photoProfilUri: string | null;
 }
 
 const initialState: AuthState = {
@@ -18,6 +20,8 @@ const initialState: AuthState = {
   genre: null,
   isAuthenticated: false,
   bootstrapDone: false,
+  photoProfilRevision: 0,
+  photoProfilUri: null,
 };
 
 interface UserFromProfil {
@@ -47,12 +51,26 @@ const authSlice = createSlice({
       state.nom = null;
       state.genre = null;
       state.isAuthenticated = false;
+      state.photoProfilRevision = 0;
+      state.photoProfilUri = null;
     },
     setBootstrapDone: (state) => {
       state.bootstrapDone = true;
     },
+    setPhotoProfilUri: (state, action: PayloadAction<string | null>) => {
+      state.photoProfilUri = action.payload;
+    },
+    bumpPhotoProfilRevision: (state) => {
+      state.photoProfilRevision += 1;
+    },
   },
 });
 
-export const { setUserFromProfil, clearUser, setBootstrapDone } = authSlice.actions;
+export const {
+  setUserFromProfil,
+  clearUser,
+  setBootstrapDone,
+  setPhotoProfilUri,
+  bumpPhotoProfilRevision,
+} = authSlice.actions;
 export default authSlice.reducer;

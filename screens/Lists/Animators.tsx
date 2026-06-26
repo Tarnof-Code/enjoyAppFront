@@ -16,6 +16,7 @@ import { sejourService } from '../../services/sejour.service';
 import { groupeService } from '../../services/groupe.service';
 import { chambreService } from '../../services/chambre.service';
 import { utilisateurService } from '../../services/utilisateur.service';
+import { rafraichirPhotoProfil } from '../../helpers/rafraichirPhotoProfil';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { setSejourCourant } from '../../store/sejourSlice';
 import FichePersonneModal, { LigneInfoFiche } from '../../Components/FichePersonneModal';
@@ -96,7 +97,10 @@ export default function Animators() {
     try {
       const maj = await sejourService.getSejourById(sejourId);
       dispatch(setSejourCourant(maj));
-      await chargerAffectations();
+      await Promise.all([
+        chargerAffectations(),
+        rafraichirPhotoProfil().catch(() => {}),
+      ]);
     } catch {
       // rafraîchissement silencieux : on conserve les données déjà affichées
     } finally {

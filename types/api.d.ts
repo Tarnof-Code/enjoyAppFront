@@ -45,6 +45,28 @@ export interface ProfilUtilisateurDTO {
   photoProfilUrl?: string | null;
 }
 
+/**
+ * Payload PUT /utilisateurs (objet complet, role/dateExpiration null hors admin).
+ */
+export interface UpdateUserRequest {
+  tokenId: string;
+  prenom: string;
+  nom: string;
+  genre: string;
+  email: string;
+  telephone: string;
+  dateNaissance: string;
+  role?: RoleSysteme | string | null;
+  dateExpirationCompte?: string | null;
+}
+
+/** Payload PATCH /utilisateurs/mot-de-passe */
+export interface ChangePasswordRequest {
+  tokenId: string;
+  ancienMotDePasse?: string;
+  nouveauMotDePasse: string;
+}
+
 export interface AuthenticationResponse {
   role?: RoleSysteme;
   tokenId?: string;
