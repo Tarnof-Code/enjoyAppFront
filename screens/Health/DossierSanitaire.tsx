@@ -2,12 +2,12 @@ import React, { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
-  Pressable,
   RefreshControl,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
+import { Dropdown } from 'react-native-element-dropdown';
 
 import { useChargementRafraichissable } from '../../hooks/useChargementRafraichissable';
 import { useRafraichirSejourCourant } from '../../hooks/useRafraichirSejourCourant';
@@ -15,19 +15,45 @@ import { dossierEnfantService } from '../../services/dossierEnfant.service';
 import type { DossierEnfantDto, EnfantDossierSanitaireLigneDto, SejourDTO } from '../../types/api';
 import { useAppSelector } from '../../store/hooks';
 import { libelleEnfantDuSejour, trierEnfantsDuSejour } from '../../helpers/triListesSejour';
-import { colors } from '../../config/theme';
+import { colors, fontSizes, radius, spacing } from '../../config/theme';
 
-type Filtre = 'TOUT' | 'TRAITEMENTS' | 'REGIME' | 'MEDICAL';
+type Filtre = 'TOUT' | 'TRAITEMENTS' | 'REGIME' | 'MEDICAL' | 'A_PRENDRE_EN_SORTIE' | 'AUTRES_INFOS';
+type FiltreTraitement = 'TOUS' | 'MATIN' | 'MIDI' | 'SOIR' | 'SI_BESOIN';
 
-const FILTRES: { cle: Filtre; libelle: string }[] = [
-  { cle: 'TOUT', libelle: 'Tout' },
-  { cle: 'TRAITEMENTS', libelle: 'Traitements' },
-  { cle: 'REGIME', libelle: 'Régime' },
-  { cle: 'MEDICAL', libelle: 'Médical' },
+const OPTIONS_FILTRE: { value: Filtre; label: string }[] = [
+  { value: 'TOUT', label: 'Tout' },
+  { value: 'TRAITEMENTS', label: 'Traitements' },
+  { value: 'REGIME', label: 'Alimentation' },
+  { value: 'MEDICAL', label: 'Médical' },
+  { value: 'A_PRENDRE_EN_SORTIE', label: 'À prendre en sortie' },
+  { value: 'AUTRES_INFOS', label: 'Autres infos' },
+];
+
+const OPTIONS_FILTRE_TRAITEMENT: { value: FiltreTraitement; label: string }[] = [
+  { value: 'TOUS', label: 'Tous les moments' },
+  { value: 'MATIN', label: 'Matin' },
+  { value: 'MIDI', label: 'Midi' },
+  { value: 'SOIR', label: 'Soir' },
+  { value: 'SI_BESOIN', label: 'Si besoin' },
 ];
 
 function aTraitements(d: DossierEnfantDto): boolean {
   return !!(d.traitementMatin || d.traitementMidi || d.traitementSoir || d.traitementSiBesoin);
+}
+
+function correspondAuFiltreTraitement(d: DossierEnfantDto, moment: FiltreTraitement): boolean {
+  if (moment === 'TOUS') return aTraitements(d);
+  if (moment === 'MATIN') return !!d.traitementMatin;
+  if (moment === 'MIDI') return !!d.traitementMidi;
+  if (moment === 'SOIR') return !!d.traitementSoir;
+  return !!d.traitementSiBesoin;
+}
+
+function momentTraitementVisible(
+  moment: FiltreTraitement | undefined,
+  cible: Exclude<FiltreTraitement, 'TOUS'>,
+): boolean {
+  return !moment || moment === 'TOUS' || moment === cible;
 }
 
 function aRegime(d: DossierEnfantDto): boolean {
@@ -42,18 +68,42 @@ function aMedical(d: DossierEnfantDto): boolean {
   return !!(d.informationsMedicales || d.pai);
 }
 
-function aContenu(d: DossierEnfantDto): boolean {
-  return aTraitements(d) || aRegime(d) || aMedical(d) || !!d.autresInformations || !!d.aPrendreEnSortie;
+function aPrendreEnSortie(d: DossierEnfantDto): boolean {
+  return !!d.aPrendreEnSortie;
 }
 
-function correspondAuFiltre(d: DossierEnfantDto, filtre: Filtre): boolean {
-  if (filtre === 'TRAITEMENTS') return aTraitements(d);
+function aAutresInfos(d: DossierEnfantDto): boolean {
+  return !!d.autresInformations;
+}
+
+function aContenu(d: DossierEnfantDto): boolean {
+  return (
+    aTraitements(d) ||
+    aRegime(d) ||
+    aMedical(d) ||
+    aPrendreEnSortie(d) ||
+    aAutresInfos(d)
+  );
+}
+
+function correspondAuFiltre(d: DossierEnfantDto, filtre: Filtre, filtreTraitement: FiltreTraitement): boolean {
+  if (filtre === 'TRAITEMENTS') return correspondAuFiltreTraitement(d, filtreTraitement);
   if (filtre === 'REGIME') return aRegime(d);
   if (filtre === 'MEDICAL') return aMedical(d);
+  if (filtre === 'A_PRENDRE_EN_SORTIE') return aPrendreEnSortie(d);
+  if (filtre === 'AUTRES_INFOS') return aAutresInfos(d);
   return aContenu(d);
 }
 
-function Ligne({ item, sejour }: { item: EnfantDossierSanitaireLigneDto; sejour: SejourDTO | null }) {
+function Ligne({
+  item,
+  sejour,
+  momentTraitement,
+}: {
+  item: EnfantDossierSanitaireLigneDto;
+  sejour: SejourDTO | null;
+  momentTraitement?: FiltreTraitement;
+}) {
   const d = item.dossier!;
   const groupes = item.groupes.map((g) => g.libelle).filter(Boolean);
   const allergenes = d.allergenes.map((a) => a.libelle).filter(Boolean);
@@ -94,10 +144,16 @@ function Ligne({ item, sejour }: { item: EnfantDossierSanitaireLigneDto; sejour:
       {aTraitements(d) ? (
         <View style={styles.section}>
           <Text style={styles.sectionTitre}>Traitements</Text>
-          {d.traitementMatin ? <Text style={styles.ligne}>Matin : {d.traitementMatin}</Text> : null}
-          {d.traitementMidi ? <Text style={styles.ligne}>Midi : {d.traitementMidi}</Text> : null}
-          {d.traitementSoir ? <Text style={styles.ligne}>Soir : {d.traitementSoir}</Text> : null}
-          {d.traitementSiBesoin ? (
+          {d.traitementMatin && momentTraitementVisible(momentTraitement, 'MATIN') ? (
+            <Text style={styles.ligne}>Matin : {d.traitementMatin}</Text>
+          ) : null}
+          {d.traitementMidi && momentTraitementVisible(momentTraitement, 'MIDI') ? (
+            <Text style={styles.ligne}>Midi : {d.traitementMidi}</Text>
+          ) : null}
+          {d.traitementSoir && momentTraitementVisible(momentTraitement, 'SOIR') ? (
+            <Text style={styles.ligne}>Soir : {d.traitementSoir}</Text>
+          ) : null}
+          {d.traitementSiBesoin && momentTraitementVisible(momentTraitement, 'SI_BESOIN') ? (
             <Text style={styles.ligne}>Si besoin : {d.traitementSiBesoin}</Text>
           ) : null}
         </View>
@@ -125,6 +181,7 @@ export default function DossierSanitaire() {
   const sejourId = sejour?.id;
   const [lignes, setLignes] = useState<EnfantDossierSanitaireLigneDto[]>([]);
   const [filtre, setFiltre] = useState<Filtre>('TOUT');
+  const [filtreTraitement, setFiltreTraitement] = useState<FiltreTraitement>('TOUS');
   const rafraichirSejour = useRafraichirSejourCourant();
 
   const executer = useCallback(async () => {
@@ -142,7 +199,7 @@ export default function DossierSanitaire() {
   );
 
   const visibles = trierEnfantsDuSejour(
-    lignes.filter((l) => l.dossier && correspondAuFiltre(l.dossier, filtre)),
+    lignes.filter((l) => l.dossier && correspondAuFiltre(l.dossier, filtre, filtreTraitement)),
     sejour,
   );
 
@@ -172,19 +229,40 @@ export default function DossierSanitaire() {
 
   return (
     <View style={styles.flex}>
-      <View style={styles.filtres}>
-        {FILTRES.map(({ cle, libelle }) => {
-          const actif = cle === filtre;
-          return (
-            <Pressable
-              key={cle}
-              onPress={() => setFiltre(cle)}
-              style={[styles.chip, actif && styles.chipActif]}
-            >
-              <Text style={[styles.chipTexte, actif && styles.chipTexteActif]}>{libelle}</Text>
-            </Pressable>
-          );
-        })}
+      <View style={styles.barreFiltre}>
+        <Dropdown
+          style={styles.dropdown}
+          containerStyle={styles.dropdownContainer}
+          placeholderStyle={styles.dropdownTexte}
+          selectedTextStyle={styles.dropdownTexte}
+          itemTextStyle={styles.dropdownItemText}
+          activeColor={colors.primarySoft}
+          data={OPTIONS_FILTRE}
+          labelField="label"
+          valueField="value"
+          placeholder="Filtrer"
+          value={filtre}
+          onChange={(item) => {
+            setFiltre(item.value);
+            if (item.value !== 'TRAITEMENTS') setFiltreTraitement('TOUS');
+          }}
+        />
+        {filtre === 'TRAITEMENTS' ? (
+          <Dropdown
+            style={styles.dropdown}
+            containerStyle={styles.dropdownContainer}
+            placeholderStyle={styles.dropdownTexte}
+            selectedTextStyle={styles.dropdownTexte}
+            itemTextStyle={styles.dropdownItemText}
+            activeColor={colors.primarySoft}
+            data={OPTIONS_FILTRE_TRAITEMENT}
+            labelField="label"
+            valueField="value"
+            placeholder="Moment"
+            value={filtreTraitement}
+            onChange={(item) => setFiltreTraitement(item.value)}
+          />
+        ) : null}
       </View>
 
       <FlatList
@@ -194,7 +272,13 @@ export default function DossierSanitaire() {
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={refresh} colors={[colors.primary]} tintColor={colors.primary} />
         }
-        renderItem={({ item }) => <Ligne item={item} sejour={sejour} />}
+        renderItem={({ item }) => (
+          <Ligne
+            item={item}
+            sejour={sejour}
+            momentTraitement={filtre === 'TRAITEMENTS' ? filtreTraitement : undefined}
+          />
+        )}
         ListEmptyComponent={
           <Text style={styles.empty}>Aucune information sanitaire pour ce filtre.</Text>
         }
@@ -214,32 +298,35 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.surface,
   },
-  filtres: {
+  barreFiltre: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    paddingHorizontal: 12,
-    paddingTop: 10,
-    gap: 8,
+    gap: spacing.sm,
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.sm,
   },
-  chip: {
-    paddingVertical: 6,
-    paddingHorizontal: 14,
-    borderRadius: 9999,
+  dropdown: {
+    flex: 1,
+    minWidth: 140,
+    minHeight: 42,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.sm,
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.surface,
   },
-  chipActif: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
+  dropdownContainer: {
+    borderRadius: radius.sm,
+    maxHeight: 320,
   },
-  chipTexte: {
-    fontSize: 13,
+  dropdownTexte: {
+    fontSize: fontSizes.sm,
     color: colors.text,
   },
-  chipTexteActif: {
-    color: colors.surface,
-    fontWeight: '700',
+  dropdownItemText: {
+    fontSize: fontSizes.sm,
+    color: colors.text,
   },
   list: {
     padding: 12,

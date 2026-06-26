@@ -20,7 +20,7 @@ export default creerTopTab<SanitaireTabParamList>({
     },
     {
       name: 'DossierSanitaire',
-      title: 'Dossier sanitaire',
+      title: 'Dossiers sanitaires',
       component: DossierSanitaire,
       icon: (f) => (
         <MaterialCommunityIcons size={25} name="clipboard-pulse-outline" color={couleur(f)} />

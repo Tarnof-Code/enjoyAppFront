@@ -22,7 +22,7 @@ Patterns et choix techniques de l'app mobile. Garder ce fichier comme référenc
 - **Bottom tabs (6)** : `Home`, `Listes`, **`Orga`**, `Menus`, `Activités`, `Sanitaire` (icônes FontAwesome5). L'onglet plannings s'affiche « Orga » ; route `Orga` dans `BottomTabParamList`.
 - **Top tabs** (`creerTopTab`) : `TopTabLists` (Animators, Children, Groups, Bedrooms), `TopTabActivities` (Activites, Sorties), **`TopTabSanitaire`** (CahierInfirmerie, DossierSanitaire). Titre du `Header` suit l'onglet actif.
 - **Stack Organisation** (`OrganisationNavigator`) : `GrillesList` → `GrilleDetail` (params `grilleId`, `titre`).
-- **Écrans pleine page** (header propre) : `Menus`, `Home`. **Sanitaire** : header via `creerTopTab` (titre Cahier d'infirmerie / Dossier sanitaire).
+- **Écrans pleine page** (header propre) : `Menus`, `Home`. **Sanitaire** : header via `creerTopTab` (titre Cahier d'infirmerie / Dossiers sanitaires).
 - Types centralisés : `Navigators/types.ts`.
 
 ## Authentification & client HTTP
@@ -97,7 +97,7 @@ Patterns et choix techniques de l'app mobile. Garder ce fichier comme référenc
 
 - **Navigation** : onglet bottom **Sanitaire** → **`TopTabSanitaire`** — **CahierInfirmerie** (icône book-medical) + **DossierSanitaire** (icône clipboard).
 - **Cahier** (`CahierInfirmerie.tsx`) : `GET/POST/PUT/DELETE …/cahier-infirmerie` ; liste cartes (date/heure, enfant, description, soins, appels, soigneur) ; recherche texte + filtre jour (**dates avec entrées** via `joursAvecEntrees`, pas toute la plage séjour ; reset si jour vide) ; FAB « + » ; édition/suppression selon **`droitsCahierInfirmerie`** ; refresh séjour au pull-to-refresh ; affichage dates via **`dayjsDepuisValeurApi`**.
-- **Dossier sanitaire** (`DossierSanitaire.tsx`) : lecture seule `GET …/dossiers-enfants` ; filtres chips Tout / Traitements / Régime / Médical ; tri/libellé enfants selon `triListesEnfants`.
+- **Dossier sanitaire** (`DossierSanitaire.tsx`) : lecture seule `GET …/dossiers-enfants` ; filtre principal **`Dropdown`** (Tout / Traitements / Alimentation / Médical / À prendre en sortie / Autres infos) ; filtre **Traitements** → second **`Dropdown`** moment (Tous / Matin / Midi / Soir / Si besoin), reset à « Tous les moments » si filtre principal ≠ Traitements ; cartes : section traitements limitée au moment sélectionné ; tri/libellé enfants selon `triListesEnfants`.
 - **Libellés soins/appels** : **`constants/cahierInfirmerieLabels.ts`**. Pas d'historique ni impression mobile.
 
 ## Sécurité

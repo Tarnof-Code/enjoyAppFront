@@ -10,17 +10,21 @@
 
 **Sorties (onglet liste)** : accordéons avec gestion enfants participants (`PUT …/enfants`), filtres date/groupes (valeurs présentes uniquement).
 
-**Sanitaire** : top-tabs **Cahier d'infirmerie** (CRUD) + **Dossier sanitaire** (lecture).
+**Sanitaire** : top-tabs **Cahier d'infirmerie** (CRUD) + **Dossiers sanitaires** (lecture, filtres déroulants).
 
 Reste mineur : photos animateurs codées en dur dans `Header.tsx`, composant orphelin `DropdownAnim.tsx`, assets `LogosGroupes/` non référencés, spike refresh token en prod (HTTPS).
 
 ## Journal
 
+### 2026-06-26 (Dossiers sanitaires — filtres)
+- **`TopTabSanitaire.tsx`** : titre sous-onglet **Dossiers sanitaires** (pluriel).
+- **`DossierSanitaire.tsx`** : filtres chips remplacés par **`Dropdown`** (`react-native-element-dropdown`) — Tout / Traitements / Alimentation / Médical / À prendre en sortie / Autres infos ; sous-filtre **Traitements** (Tous les moments / Matin / Midi / Soir / Si besoin) affiché conditionnellement ; liste et lignes traitement filtrées par moment ; reset du sous-filtre au changement de filtre principal.
+
 ### 2026-06-26 (Cahier d'infirmerie — filtre jour)
 - **`CahierInfirmerie.tsx`** : dropdown filtre jour limité aux **dates avec au moins une entrée** (`joursAvecEntrees`, tri décroissant) ; masqué si aucune entrée ; réinitialisation automatique du filtre si le jour sélectionné n'a plus d'entrée (ex. suppression).
 
 ### 2026-06-26 (Sanitaire — top-tabs + cahier d'infirmerie CRUD)
-- **Navigation** : onglet **Sanitaire** → **`TopTabSanitaire`** (`creerTopTab`) — sous-onglets **Cahier d'infirmerie** (`CahierInfirmerie`) et **Dossier sanitaire** (`DossierSanitaire`, ex-`Sanitaire.tsx`).
+- **Navigation** : onglet **Sanitaire** → **`TopTabSanitaire`** (`creerTopTab`) — sous-onglets **Cahier d'infirmerie** (`CahierInfirmerie`) et **Dossiers sanitaires** (`DossierSanitaire`, ex-`Sanitaire.tsx`).
 - **Cahier d'infirmerie** : service **`cahierInfirmerie.service`** (GET/POST/PUT/DELETE `/sejours/{id}/cahier-infirmerie`) ; liste avec recherche + filtre jour (dates avec entrées uniquement) ; création/édition via **`CahierInfirmerieFormModal`** (soins, appels, température, soigneur) ; suppression avec confirmation ; droits **`droitsCahierInfirmerie`** (directeur/adjoint/admin, auteur, soigneur).
 - **Dates** : **`parseDateDepuisValeurApi`** / **`dayjsDepuisValeurApi`** dans **`dateApi.ts`** — epoch **secondes** ou ms (aligné web `parseDate`) ; formulaire date/heure **séparés** via **`@react-native-community/datetimepicker`** (iOS compact ; Android **`DateTimePickerAndroid.open`**).
 - **Constantes** : **`constants/cahierInfirmerieLabels.ts`** (libellés/ordre soins et appels). Pas d'historique des modifications sur mobile.

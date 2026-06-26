@@ -8,7 +8,7 @@ Suivi synthétique. Plan détaillé : [`.cursor/plans/migration-api-mobile.plan.
 - [x] Couche API / auth (httpClient, SecureStore, refresh single-flight).
 - [x] Bootstrap session + types `api.d.ts`.
 - [x] **Phase A** — Suppression Infos utiles, Plannings, groupes en dur, composants Sheets orphelins.
-- [x] **Phase B** — Listes (Équipe, Enfants, Groupes, Chambres), Menus, Organisation (+ détail grille), Activités/Sorties, Sanitaire (top-tabs Dossier sanitaire + Cahier d'infirmerie CRUD).
+- [x] **Phase B** — Listes (Équipe, Enfants, Groupes, Chambres), Menus, Organisation (+ détail grille), Activités/Sorties, Sanitaire (top-tabs Dossiers sanitaires + Cahier d'infirmerie CRUD).
 - [x] **Phase C** — Nettoyage Sheets (`config/api.ts`, `types/sheets.ts`, `overlaySlice`, clé Google) ; fabrique `creerTopTab` ; titres header dynamiques ; pull-to-refresh global.
 - [x] Écran Équipe : recherche, filtres rôle séjour (chip Direction), MultiSelect groupes, modal détail membre (`FichePersonneModal`).
 - [x] Écran Enfants : recherche, filtres groupes/genre, modal détail, anniversaire pendant séjour ; modal partagée avec Équipe.
