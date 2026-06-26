@@ -35,7 +35,7 @@ App.tsx
 | Sous-onglet | Écran | Titre header | Source |
 |-------------|-------|--------------|--------|
 | Activites | `screens/Activities/Activites` | Activités | Grille calendrier animateur×jours (1/3/5 j., paysage, filtres animateurs/groupes) ; `GET /activites` + `GET /activites-prestataires` + moments/lieux/types/groupes ; CRUD modales ; fusion sorties ; conflits directeur ; libellés **`libelleMembreDansCelluleEquipe`** ; jour initial = aujourd'hui (si séjour) ou 1er jour |
-| Sorties | `screens/Activities/Sorties` | Sorties | `GET /activites-prestataires` (liste par jour, hors grille Activités) |
+| Sorties | `screens/Activities/Sorties` | Sorties | `GET /activites-prestataires` + groupes/activites/moments (modale) ; accordéons **`ListeAccordion`** (nom, date, moment → détail) ; filtres date/groupes (existants uniquement) ; **`PUT …/enfants`** via **`SortieEnfantsParticipantsModal`** |
 
 ## Orga (`OrganisationNavigator`)
 
@@ -61,7 +61,8 @@ Onglet bottom tab : route **`Orga`**, libellé **Orga**. Titre header liste : «
 - **`AffecterOccupantsModal`** : sélection multi occupants (enfants ou équipe) pour une chambre.
 - **`PlanningCelluleModal`** : édition cellule planning (bottom sheet) ; directeur/adjoint = contenu complet ; animateur = ma présence (contenu `MEMBRE_EQUIPE`) ou édition complète **sur sa ligne** (libellé `MEMBRE_EQUIPE`).
 - **`BoutonModePaysageGrille`** / **`ConteneurGrillePaysage`** : paysage visuel du tableau sur **`Menus`**, **`GrilleDetail`** et **`Activites`** (rotation 90°, appareil en portrait).
-- **`ActiviteFormulaireModal`** / **`ActiviteEnfantsParticipantsModal`** / **`ActiviteConflitSortieModal`** : CRUD activité, enfants participants, résolution conflit sortie (directeur).
+- **`ActiviteFormulaireModal`** / **`ActiviteEnfantsParticipantsModal`** / **`ActiviteConflitSortieModal`** : CRUD activité, enfants participants activité interne, résolution conflit sortie (directeur).
+- **`SortieEnfantsParticipantsModal`** : enfants participants sortie (`PUT …/enfants`, tout membre séjour) ; défaut groupes prévus, édition sur tous les enfants inscrits.
 - **`DropdownAnim.tsx`** : orphelin (plus référencé).
 
 ## UX transverse

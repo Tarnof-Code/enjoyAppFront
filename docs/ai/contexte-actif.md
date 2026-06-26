@@ -6,11 +6,19 @@
 
 **Migration Sheets → API largement terminée** (phases A/B/C du plan `.cursor/plans/migration-api-mobile.plan.md`). L'app mobile reflète la structure du web : 6 onglets bas, données via l'API Enjoy, plus de Google Sheets.
 
-**Activités (onglet calendrier)** : refonte livrée en session récente — grille animateur × jours (modèle Menus/plannings), fusion sorties prestataires, CRUD modale, filtres, conflits activité/sortie (directeur). Onglet **Sorties** (liste seule) inchangé.
+**Activités (onglet calendrier)** : refonte livrée — grille animateur × jours, fusion sorties, CRUD modales, filtres, conflits directeur/adjoint.
+
+**Sorties (onglet liste)** : accordéons avec gestion enfants participants (`PUT …/enfants`), filtres date/groupes (valeurs présentes uniquement).
 
 Reste mineur : photos animateurs codées en dur dans `Header.tsx`, composant orphelin `DropdownAnim.tsx`, assets `LogosGroupes/` non référencés, spike refresh token en prod (HTTPS).
 
 ## Journal
+
+### 2026-06-26 (Sorties — enfants participants + accordéons)
+- **API / types** : `ActivitePrestataireDto.enfants`, `SaveActivitePrestataireRequest.enfantIds?`, `UpdateActivitePrestataireEnfantsRequest` ; service **`activitePrestataire.service`** — `getActivitePrestataireById`, **`modifierEnfantsActivitePrestataire`** (`PUT …/activites-prestataires/{id}/enfants`, `preserveResponseData` pour conflit créneau).
+- **Helpers** : **`enfantsEffectifsSortie`**, **`idsEnfantsSelectionInitialeSortie`** (défaut = enfants des `groupeIds` si pas d'assignation enregistrée) ; **`idsEnfantsDejaAffectesAutreEvenement`** (activités internes + autres sorties, hiérarchie moments).
+- **UI** (`Sorties.tsx`) : accordéons **`ListeAccordion`** — replié : nom, date, moment ; déplié : horaires, groupes, infos, tél., **Gérer les participants** ; filtres **date** (Dropdown) et **groupes** (MultiSelect) limités aux dates/groupes réellement présents ; pas d'affichage enfants sur la carte (modale uniquement).
+- **Modale** : **`SortieEnfantsParticipantsModal`** — tous les enfants inscrits au séjour en édition ; conflits créneau grisés ; enregistrement via PUT `/enfants` (tout membre du séjour, `ACCES_SEJOUR`). CRUD sortie complète reste web / direction (`GESTION_SEJOURS`).
 
 ### 2026-06-25 (suite 10)
 - **Activités — calendrier** (`Activites.tsx`) : grille **animateur × jours** (fenêtre 1/3/5, swipe, **Aujourd'hui**, paysage tableau) ; chargement parallèle activités internes + **sorties prestataires** + groupes/lieux/moments/types ; fusion cellules (**activité** / **sortie** vert / **conflit** orange) via **`activitePrestataireCalendrier.ts`**.

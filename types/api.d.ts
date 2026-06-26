@@ -362,6 +362,7 @@ export interface ActivitePrestataireDto {
   informations: string | null;
   telephone: string | null;
   groupeIds: number[];
+  enfants: EnfantParticipantInfo[];
   nonParticipations: NonParticipationPrestataireDto[];
 }
 
@@ -374,7 +375,12 @@ export interface SaveActivitePrestataireRequest {
   informations?: string | null;
   telephone?: string | null;
   groupeIds?: number[];
+  enfantIds?: number[];
   nonParticipations?: NonParticipationPrestataireDto[];
+}
+
+export interface UpdateActivitePrestataireEnfantsRequest {
+  enfantIds: number[];
 }
 
 export interface DossierEnfantDto {

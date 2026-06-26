@@ -1,7 +1,9 @@
 import type {
   ActiviteDto,
   ActiviteMembreEquipeInfo,
+  ActivitePrestataireDto,
   EnfantDto,
+  EnfantParticipantInfo,
   GroupeDto,
   LieuDto,
   MomentDto,
@@ -9,9 +11,10 @@ import type {
   UpdateActiviteRequest,
 } from '../types/api';
 import { jourISOdepuisValeurApi } from './dateApi';
+import { datePrestataireVersYmd } from './activitePrestataireCalendrier';
 import { aplatirMomentsHierarchiquement, idsEnConflit } from './construireArbreMoments';
 import { peutGererMembresEquipeSejour } from './peutGererMembresEquipeSejour';
-import { trierEnfantsDuSejour } from './triListesSejour';
+import { libelleEnfantDuSejour, trierEnfantsDuSejour } from './triListesSejour';
 import type { PersonneNomPrenom } from './trierUtilisateurs';
 
 const CALENDRIER_TYPE_NB_TEINTES = 36;
@@ -135,6 +138,100 @@ export function enfantsEligiblesPourGroupesActivite(
     }
   }
   return trierEnfantsDuSejour(result, sejour);
+}
+
+/** Enfants déjà affectés à une autre activité ou sortie le même jour (créneaux chevauchants). */
+export function idsEnfantsDejaAffectesAutreEvenement(
+  activites: readonly ActiviteDto[],
+  prestataires: readonly ActivitePrestataireDto[],
+  dateYmd: string,
+  momentIds: readonly number[],
+  moments: readonly MomentDto[],
+  options?: {
+    excludeActiviteId?: number | null;
+    excludePrestataireId?: number | null;
+  },
+): Map<number, { activiteNom: string; momentNom: string }> {
+  const ymd = dateYmd.trim();
+  if (!ymd || momentIds.length === 0) return new Map();
+
+  const result = new Map<number, { activiteNom: string; momentNom: string }>();
+
+  const momentsEnConflit = (idsA: readonly number[], idsB: readonly number[]): boolean => {
+    for (const a of idsA) {
+      const conflicts = idsEnConflit(a, moments);
+      for (const b of idsB) {
+        if (conflicts.has(b)) return true;
+      }
+    }
+    return false;
+  };
+
+  for (const a of activites) {
+    if (options?.excludeActiviteId != null && a.id === options.excludeActiviteId) continue;
+    if (jourActivite(a) !== ymd) continue;
+    const aMomentId = a.moment?.id;
+    if (aMomentId == null) continue;
+    if (!momentsEnConflit(momentIds, [aMomentId])) continue;
+    for (const e of a.enfants ?? []) {
+      result.set(e.id, {
+        activiteNom: a.nom,
+        momentNom: a.moment?.nom ?? '—',
+      });
+    }
+  }
+
+  for (const s of prestataires) {
+    if (options?.excludePrestataireId != null && s.id === options.excludePrestataireId) continue;
+    if (datePrestataireVersYmd(s.date) !== ymd) continue;
+    const sortieMomentIds = (s.moments ?? []).map((m) => m.id);
+    if (!momentsEnConflit(momentIds, sortieMomentIds)) continue;
+    const momentNom =
+      (s.moments ?? [])
+        .map((m) => m.nom.trim())
+        .filter(Boolean)
+        .join(', ') || '—';
+    for (const e of s.enfants ?? []) {
+      result.set(e.id, {
+        activiteNom: s.nom,
+        momentNom,
+      });
+    }
+  }
+
+  return result;
+}
+
+export function libelleEnfantsParticipants(
+  enfants: readonly { prenom: string; nom: string }[] | null | undefined,
+  sejour: SejourDTO,
+): string {
+  if (!enfants?.length) return '';
+  return trierEnfantsDuSejour([...enfants], sejour)
+    .map((e) => libelleEnfantDuSejour(e, sejour))
+    .join(', ');
+}
+
+/**
+ * Participants effectifs d'une sortie : assignation individuelle enregistrée,
+ * ou à défaut les enfants des groupes prévus (`groupeIds`).
+ */
+export function enfantsEffectifsSortie(
+  sortie: ActivitePrestataireDto,
+  groupes: readonly GroupeDto[],
+  sejour: SejourDTO | null | undefined,
+): EnfantParticipantInfo[] {
+  const assignes = sortie.enfants ?? [];
+  if (assignes.length > 0) return assignes;
+  return enfantsEligiblesPourGroupesActivite(groupes, sortie.groupeIds ?? [], sejour);
+}
+
+export function idsEnfantsSelectionInitialeSortie(
+  sortie: ActivitePrestataireDto,
+  groupes: readonly GroupeDto[],
+  sejour: SejourDTO | null | undefined,
+): number[] {
+  return enfantsEffectifsSortie(sortie, groupes, sejour).map((e) => e.id);
 }
 
 /** Enfants déjà affectés à une autre activité sur le même jour et créneau (hiérarchie des moments). */

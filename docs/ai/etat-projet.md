@@ -24,7 +24,7 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | Plannings (écriture) | `PUT …/{grilleId}/lignes/{ligneId}/cellules` (`GESTION_SEJOURS` ou **`ACCES_SEJOUR`** sur sa ligne si libellé `MEMBRE_EQUIPE`), `PATCH …/cellules/{jour}/ma-presence` | `GrilleDetail` — directeur/adjoint : toutes lignes ; animateur : PATCH si contenu `MEMBRE_EQUIPE`, PUT sa ligne si libellé `MEMBRE_EQUIPE` |
 | Réf. planning | `GET …/moments`, `…/lieux`, `…/horaires` | `GrilleDetail` (résolution libellés + édition cellule) |
 | Activités | `GET/POST/PUT/DELETE /sejours/{id}/activites`, `GET …/{activiteId}` | `Activites` (grille + CRUD) |
-| Sorties | `GET /sejours/{id}/activites-prestataires`, `PUT …/{activitePrestataireId}` (`SaveActivitePrestataireRequest`, `nonParticipations`) | `Activites` (fusion calendrier, résolution conflits) ; `Sorties` (liste) |
+| Sorties | `GET /sejours/{id}/activites-prestataires`, `GET …/{id}`, `PUT …/{id}/enfants` (`UpdateActivitePrestataireEnfantsRequest`), `PUT …/{id}` (`SaveActivitePrestataireRequest`, `nonParticipations` — résolution conflits calendrier) | `Activites` (fusion calendrier) ; `Sorties` (accordéons + gestion participants) |
 | Types activité | `GET /sejours/{id}/types-activite` | `Activites` (formulaire) |
 | Réf. activités | `GET …/moments`, `…/lieux` (usage ACTIVITE) | `Activites` |
 | Sanitaire | `GET /sejours/{id}/dossiers-enfants` | `Sanitaire`, `Children` (contacts parents dans modal ; chargement silencieux si indisponible) |
@@ -49,7 +49,7 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | `menu.service.ts` | Menus repas |
 | `planningGrille.service.ts` | Grilles planning (liste, détail, PUT cellules, PATCH ma-presence) |
 | `moment.service.ts`, `lieu.service.ts`, `horaire.service.ts` | Référentiels planning |
-| `activite.service.ts`, `activitePrestataire.service.ts`, `typeActivite.service.ts` | Activités internes (CRUD), sorties prestataires (liste + PUT), types d'activité |
+| `activite.service.ts`, `activitePrestataire.service.ts`, `typeActivite.service.ts` | Activités internes (CRUD), sorties prestataires (liste, GET détail, PUT enfants, PUT `nonParticipations`), types d'activité |
 | `dossierEnfant.service.ts` | Fiches sanitaires agrégées (`getDossiersSanitairesBySejour`) |
 
 ## Hooks (`hooks/`)
@@ -80,7 +80,7 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | `enumererJoursSejour.ts` | Liste des jours ISO entre date début/fin séjour |
 | `peutGererMembresEquipeSejour.ts` | Directeur ou adjoint (droits édition structure planning) |
 | `planningGrilleUtils.ts` | Affichage/validation cellules planning, fenêtre jours, permissions par ligne (`peutModifierCellulePlanning`, `ligneEstCelleDeUtilisateur`), résumés, **`libelleMembreDansCelluleEquipe`** |
-| `activiteUtils.ts` | Calendrier activités : droits, indexation par animateur/jour, cartes cellule, filtres groupes âge/niveau, défauts formulaire, enfants participants |
+| `activiteUtils.ts` | Calendrier activités : droits, indexation par animateur/jour, cartes cellule, filtres groupes âge/niveau, défauts formulaire, enfants participants activité ; sorties : **`enfantsEffectifsSortie`**, **`idsEnfantsSelectionInitialeSortie`**, **`idsEnfantsDejaAffectesAutreEvenement`** |
 | `activitePrestataireCalendrier.ts` | Fusion activités/sorties en cellule, conflits hiérarchiques, `nonParticipations`, filtres lignes calendrier |
 | `construireArbreMoments.ts` | Arbre moments hiérarchiques, `idsEnConflit`, sélection visuelle dropdown |
 
@@ -90,7 +90,8 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 |---------|------|
 | `PlanningCelluleModal.tsx` | Bottom sheet édition cellule planning (horaires, moments, groupes, lieux, membres, texte libre) |
 | `ActiviteFormulaireModal.tsx` | CRUD activité (bottom sheet, Dropdown/MultiSelect moments hiérarchiques) |
-| `ActiviteEnfantsParticipantsModal.tsx` | Sélection enfants participants d'une activité |
+| `ActiviteEnfantsParticipantsModal.tsx` | Sélection enfants participants d'une activité interne |
+| `SortieEnfantsParticipantsModal.tsx` | Sélection enfants participants d'une sortie (`PUT …/enfants`) |
 | `ActiviteConflitSortieModal.tsx` | Résolution conflit activité / sortie à l'enregistrement (directeur) |
 
 ## Glossaire

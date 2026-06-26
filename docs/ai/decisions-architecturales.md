@@ -88,7 +88,8 @@ Patterns et choix techniques de l'app mobile. Garder ce fichier comme référenc
 - **Filtres** : MultiSelect animateurs (masqué animateur) + groupes âge/niveau (**`groupesFiltreCalendrierActivites`**, référent connecté en tête) ; filtrage lignes + cartes cellule aligné web.
 - **Libellés animateurs** : **`libelleMembreDansCelluleEquipe`** (`planningGrilleUtils`) — prénom seul, suffixe nom si homonymes dans le périmètre visible.
 - **Jour / date** : fenêtre centrée sur **`jourFocusDefautActivites`** ; nouvelle activité = date de la **cellule** cliquée (`+` ou « + Activité »).
-- **Onglet Sorties** (`Sorties.tsx`) : liste par jour, hors fusion calendrier (inchangé v1).
+- **Onglet Sorties** (`Sorties.tsx`) : liste accordéons (**`ListeAccordion`**) hors grille calendrier ; en-tête replié = nom + date + moment ; corps = horaires, groupes, infos, tél., **Gérer les participants** ; filtres date (Dropdown) et groupes (MultiSelect) **limités aux valeurs présentes** dans les sorties chargées.
+- **Enfants participants sortie** : **`SortieEnfantsParticipantsModal`** ; `PUT …/activites-prestataires/{id}/enfants` (**`modifierEnfantsActivitePrestataire`**) pour tout membre du séjour ; défaut = enfants des **`groupeIds`** tant qu'aucune liste individuelle n'est enregistrée ; pré-validation conflits via **`idsEnfantsDejaAffectesAutreEvenement`** ; pas d'affichage enfants sur la carte.
 
 ## Sécurité
 
