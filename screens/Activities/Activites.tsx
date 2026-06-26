@@ -22,6 +22,7 @@ import ActiviteFormulaireModal, {
 } from '../../Components/ActiviteFormulaireModal';
 import BoutonModePaysageGrille from '../../Components/BoutonModePaysageGrille';
 import ConteneurGrillePaysage from '../../Components/ConteneurGrillePaysage';
+import EnteteJoursGrille from '../../Components/EnteteJoursGrille';
 import { enumererJoursSejour } from '../../helpers/enumererJoursSejour';
 import {
   activiteVersUpdateRequest,
@@ -933,61 +934,46 @@ function ActivitesContent({
 
       <ConteneurGrillePaysage modePaysage={modePaysage}>
         <GestureDetector gesture={swipeGesture}>
-          <ScrollView
-            style={[styles.grilleScroll, modePaysage && styles.grilleScrollPaysage]}
-            contentContainerStyle={styles.grilleContenu}
-            refreshControl={
-              <RefreshControl
-                refreshing={refreshing}
-                onRefresh={refresh}
-                colors={[colors.primary]}
-                tintColor={colors.primary}
-              />
-            }
-          >
+          <View style={styles.grilleZone}>
             {equipePourCalendrier.length === 0 ? (
-              <Text style={styles.empty}>
-                Aucun animateur ne correspond aux filtres sélectionnés.
-              </Text>
+              <ScrollView
+                style={[styles.grilleScroll, modePaysage && styles.grilleScrollPaysage]}
+                contentContainerStyle={styles.grilleScrollContenuVide}
+                refreshControl={
+                  <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={refresh}
+                    colors={[colors.primary]}
+                    tintColor={colors.primary}
+                  />
+                }
+              >
+                <Text style={styles.empty}>
+                  Aucun animateur ne correspond aux filtres sélectionnés.
+                </Text>
+              </ScrollView>
             ) : (
               <View style={styles.grille}>
-                <View style={styles.enteteLigne}>
-                  <View style={[styles.celluleAnimateur, styles.enteteCoin]} />
-                  {joursFenetre.map(({ ymd, jourSemaine, dateReste }, index) => {
-                    const estAujourdhui = ymd === aujourdhui;
-                    const derniereColonne = index === joursFenetre.length - 1;
-                    const dansSejour = jours.includes(ymd);
-                    return (
-                      <View
-                        key={ymd}
-                        style={[
-                          styles.celluleJourEntete,
-                          styles.celluleJourFlexible,
-                          derniereColonne && styles.celluleSansBordureDroite,
-                          !dansSejour && styles.celluleHorsSejour,
-                        ]}
-                      >
-                        <Text
-                          style={[
-                            styles.enteteJourSemaine,
-                            estAujourdhui && styles.enteteJourAujourdhui,
-                          ]}
-                        >
-                          {jourSemaine}
-                        </Text>
-                        <Text
-                          style={[
-                            styles.enteteJourDate,
-                            estAujourdhui && styles.enteteJourAujourdhui,
-                          ]}
-                        >
-                          {dateReste}
-                        </Text>
-                      </View>
-                    );
-                  })}
-                </View>
-
+                <EnteteJoursGrille
+                  joursFenetre={joursFenetre}
+                  aujourdhui={aujourdhui}
+                  joursSejour={jours}
+                  colonneGauche={
+                    <View style={[styles.celluleAnimateur, styles.enteteCoin]} />
+                  }
+                />
+                <ScrollView
+                  style={[styles.grilleScroll, modePaysage && styles.grilleScrollPaysage]}
+                  contentContainerStyle={styles.grilleScrollContenu}
+                  refreshControl={
+                    <RefreshControl
+                      refreshing={refreshing}
+                      onRefresh={refresh}
+                      colors={[colors.primary]}
+                      tintColor={colors.primary}
+                    />
+                  }
+                >
                 {equipePourCalendrier.map((membre, indexMembre) => {
                   const ligneEditable = ligneCalendrierActiviteEditable(
                     membre.tokenId,
@@ -1231,9 +1217,10 @@ function ActivitesContent({
                     </View>
                   );
                 })}
+                </ScrollView>
               </View>
             )}
-          </ScrollView>
+          </View>
         </GestureDetector>
       </ConteneurGrillePaysage>
 
@@ -1462,6 +1449,9 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.sm,
     color: colors.actionWarning,
   },
+  grilleZone: {
+    flex: 1,
+  },
   grilleScroll: {
     flex: 1,
   },
@@ -1469,22 +1459,20 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  grilleContenu: {
-    padding: spacing.md,
+  grilleScrollContenu: {
+    flexGrow: 1,
+    paddingBottom: spacing.xxl,
+  },
+  grilleScrollContenuVide: {
+    flexGrow: 1,
     paddingBottom: spacing.xxl,
   },
   grille: {
+    flex: 1,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: radius.sm,
     overflow: 'hidden',
     backgroundColor: colors.surface,
-  },
-  enteteLigne: {
-    flexDirection: 'row',
-    backgroundColor: colors.background,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
   },
   enteteCoin: {
     backgroundColor: colors.background,
@@ -1495,14 +1483,6 @@ const styles = StyleSheet.create({
     borderRightColor: colors.border,
     backgroundColor: colors.background,
   },
-  celluleJourEntete: {
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.xs,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRightWidth: 1,
-    borderRightColor: colors.border,
-  },
   celluleJourFlexible: {
     flex: 1,
     minWidth: 0,
@@ -1512,23 +1492,6 @@ const styles = StyleSheet.create({
   },
   celluleHorsSejour: {
     opacity: 0.5,
-  },
-  enteteJourSemaine: {
-    fontSize: fontSizes.xs,
-    fontWeight: '700',
-    color: colors.text,
-    textAlign: 'center',
-    textTransform: 'capitalize',
-  },
-  enteteJourDate: {
-    marginTop: 2,
-    fontSize: fontSizes.xs,
-    fontWeight: '600',
-    color: colors.muted,
-    textAlign: 'center',
-  },
-  enteteJourAujourdhui: {
-    color: colors.primary,
   },
   ligneDonnees: {
     flexDirection: 'row',

@@ -17,6 +17,7 @@ import 'dayjs/locale/fr';
 import Header from '../../Components/Header';
 import BoutonModePaysageGrille from '../../Components/BoutonModePaysageGrille';
 import ConteneurGrillePaysage from '../../Components/ConteneurGrillePaysage';
+import EnteteJoursGrille from '../../Components/EnteteJoursGrille';
 import PlanningCelluleModal, {
   type ResultatEnregistrementCellule,
 } from '../../Components/PlanningCelluleModal';
@@ -361,106 +362,80 @@ function GrilleDetailContent({ route, navigation, modePaysage, basculerModePaysa
 
       <ConteneurGrillePaysage modePaysage={modePaysage}>
         <GestureDetector gesture={swipeGesture}>
-          <ScrollView
-            style={[styles.grilleScroll, modePaysage && styles.grilleScrollPaysage]}
-            contentContainerStyle={styles.grilleContenu}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={refresh}
-              colors={[colors.primary]}
-              tintColor={colors.primary}
-            />
-          }
-        >
-          <View style={styles.grille}>
-            <View style={styles.enteteLigne}>
-              {afficherColonneLibelle ? (
-                <View style={[styles.celluleLibelle, styles.enteteCoin]} />
-              ) : null}
-              {joursFenetre.map(({ ymd, jourSemaine, dateReste }, index) => {
-                const estAujourdhui = ymd === aujourdhui;
-                const derniereColonne = index === joursFenetre.length - 1;
-                return (
-                  <View
-                    key={ymd}
-                    style={[
-                      styles.celluleJourEntete,
-                      styles.celluleJourFlexible,
-                      derniereColonne && styles.celluleSansBordureDroite,
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.enteteJourSemaine,
-                        estAujourdhui && styles.enteteJourAujourdhui,
-                      ]}
-                    >
-                      {jourSemaine}
-                    </Text>
-                    <Text
-                      style={[
-                        styles.enteteJourDate,
-                        estAujourdhui && styles.enteteJourAujourdhui,
-                      ]}
-                    >
-                      {dateReste}
-                    </Text>
-                  </View>
-                );
-              })}
-            </View>
-
-            {lignesTriees.map((ligne, index) => {
-              const rg = regroupements[index];
-              return (
-                <React.Fragment key={ligne.id}>
-                  {rg?.showLeadingCell && rg.libelleRegroupement ? (
-                    <View style={styles.sectionEntete}>
-                      <Text style={styles.sectionEnteteTexte}>{rg.libelleRegroupement}</Text>
-                    </View>
-                  ) : null}
-                  <View style={styles.ligneDonnees}>
-                    {afficherColonneLibelle ? (
-                      <View style={[styles.celluleLibelle, styles.celluleLibelleDonnees]}>
-                        <Text style={styles.libelleLigneTexte} numberOfLines={4}>
-                          {libelleLigne(ligne).trim() || '—'}
-                        </Text>
+          <View style={styles.grilleZone}>
+            <View style={styles.grille}>
+              <EnteteJoursGrille
+                joursFenetre={joursFenetre}
+                aujourdhui={aujourdhui}
+                colonneGauche={
+                  afficherColonneLibelle ? (
+                    <View style={[styles.celluleLibelle, styles.enteteCoin]} />
+                  ) : undefined
+                }
+              />
+              <ScrollView
+                style={[styles.grilleScroll, modePaysage && styles.grilleScrollPaysage]}
+                contentContainerStyle={styles.grilleScrollContenu}
+                refreshControl={
+                  <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={refresh}
+                    colors={[colors.primary]}
+                    tintColor={colors.primary}
+                  />
+                }
+              >
+                {lignesTriees.map((ligne, index) => {
+                  const rg = regroupements[index];
+                  return (
+                    <React.Fragment key={ligne.id}>
+                      {rg?.showLeadingCell && rg.libelleRegroupement ? (
+                        <View style={styles.sectionEntete}>
+                          <Text style={styles.sectionEnteteTexte}>{rg.libelleRegroupement}</Text>
+                        </View>
+                      ) : null}
+                      <View style={styles.ligneDonnees}>
+                        {afficherColonneLibelle ? (
+                          <View style={[styles.celluleLibelle, styles.celluleLibelleDonnees]}>
+                            <Text style={styles.libelleLigneTexte} numberOfLines={4}>
+                              {libelleLigne(ligne).trim() || '—'}
+                            </Text>
+                          </View>
+                        ) : null}
+                        {joursFenetre.map(({ ymd }, jourIndex) => {
+                          const texte = texteCellule(ligne, ymd);
+                          const vide = celluleEstVide(texte);
+                          const editable = celluleEditable(ligne);
+                          const derniereColonne = jourIndex === joursFenetre.length - 1;
+                          return (
+                            <Pressable
+                              key={`${ligne.id}-${ymd}`}
+                              onPress={() => ouvrirCellule(ligne, ymd)}
+                              disabled={!editable}
+                              style={({ pressed }) => [
+                                styles.celluleDonnees,
+                                styles.celluleJourFlexible,
+                                derniereColonne && styles.celluleSansBordureDroite,
+                                vide && styles.celluleVide,
+                                editable && pressed && styles.cellulePressed,
+                              ]}
+                            >
+                              <Text
+                                style={[styles.celluleTexte, vide && styles.celluleTexteVide]}
+                                numberOfLines={4}
+                              >
+                                {texte}
+                              </Text>
+                            </Pressable>
+                          );
+                        })}
                       </View>
-                    ) : null}
-                    {joursFenetre.map(({ ymd }, jourIndex) => {
-                      const texte = texteCellule(ligne, ymd);
-                      const vide = celluleEstVide(texte);
-                      const editable = celluleEditable(ligne);
-                      const derniereColonne = jourIndex === joursFenetre.length - 1;
-                      return (
-                        <Pressable
-                          key={`${ligne.id}-${ymd}`}
-                          onPress={() => ouvrirCellule(ligne, ymd)}
-                          disabled={!editable}
-                          style={({ pressed }) => [
-                            styles.celluleDonnees,
-                            styles.celluleJourFlexible,
-                            derniereColonne && styles.celluleSansBordureDroite,
-                            vide && styles.celluleVide,
-                            editable && pressed && styles.cellulePressed,
-                          ]}
-                        >
-                          <Text
-                            style={[styles.celluleTexte, vide && styles.celluleTexteVide]}
-                            numberOfLines={4}
-                          >
-                            {texte}
-                          </Text>
-                        </Pressable>
-                      );
-                    })}
-                  </View>
-                </React.Fragment>
-              );
-            })}
+                    </React.Fragment>
+                  );
+                })}
+              </ScrollView>
+            </View>
           </View>
-        </ScrollView>
         </GestureDetector>
       </ConteneurGrillePaysage>
 
@@ -619,6 +594,9 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: colors.primary,
   },
+  grilleZone: {
+    flex: 1,
+  },
   grilleScroll: {
     flex: 1,
   },
@@ -626,22 +604,16 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  grilleContenu: {
-    padding: spacing.md,
+  grilleScrollContenu: {
+    flexGrow: 1,
     paddingBottom: spacing.xxl,
   },
   grille: {
+    flex: 1,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: radius.sm,
     overflow: 'hidden',
     backgroundColor: colors.surface,
-  },
-  enteteLigne: {
-    flexDirection: 'row',
-    backgroundColor: colors.background,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
   },
   enteteCoin: {
     backgroundColor: colors.background,
@@ -652,37 +624,12 @@ const styles = StyleSheet.create({
     borderRightColor: colors.border,
     backgroundColor: colors.background,
   },
-  celluleJourEntete: {
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.xs,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRightWidth: 1,
-    borderRightColor: colors.border,
-  },
   celluleJourFlexible: {
     flex: 1,
     minWidth: 0,
   },
   celluleSansBordureDroite: {
     borderRightWidth: 0,
-  },
-  enteteJourSemaine: {
-    fontSize: fontSizes.xs,
-    fontWeight: '700',
-    color: colors.text,
-    textAlign: 'center',
-    textTransform: 'capitalize',
-  },
-  enteteJourDate: {
-    marginTop: 2,
-    fontSize: fontSizes.xs,
-    fontWeight: '600',
-    color: colors.muted,
-    textAlign: 'center',
-  },
-  enteteJourAujourdhui: {
-    color: colors.primary,
   },
   sectionEntete: {
     paddingHorizontal: spacing.sm,

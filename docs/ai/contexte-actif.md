@@ -14,6 +14,10 @@ Reste mineur : photos animateurs codées en dur dans `Header.tsx`, composant orp
 
 ## Journal
 
+### 2026-06-26 (Grilles Orga / Activités — en-tête dates fixe)
+- **Composant** : **`EnteteJoursGrille`** — ligne jours/dates partagée ; coin haut-gauche optionnel (`colonneGauche`) ; colonnes hors séjour atténuées si `joursSejour` (activités).
+- **UX** (`GrilleDetail.tsx`, **`Activites.tsx`**) : en-tête dates **hors** `ScrollView` (fixe sous la barre d’outils) ; corps lignes seul scrollable ; grille **bord à bord** (sans marge haut/côtés, sans `borderRadius`) ; `paddingBottom` conservé dans le scroll pour la dernière ligne.
+
 ### 2026-06-26 (Sorties — enfants participants + accordéons)
 - **API / types** : `ActivitePrestataireDto.enfants`, `SaveActivitePrestataireRequest.enfantIds?`, `UpdateActivitePrestataireEnfantsRequest` ; service **`activitePrestataire.service`** — `getActivitePrestataireById`, **`modifierEnfantsActivitePrestataire`** (`PUT …/activites-prestataires/{id}/enfants`, `preserveResponseData` pour conflit créneau).
 - **Helpers** : **`enfantsEffectifsSortie`**, **`idsEnfantsSelectionInitialeSortie`** (défaut = enfants des `groupeIds` si pas d'assignation enregistrée) ; **`idsEnfantsDejaAffectesAutreEvenement`** (activités internes + autres sorties, hiérarchie moments).
