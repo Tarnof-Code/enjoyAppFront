@@ -1,9 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  FlatList,
   Linking,
   Pressable,
-  RefreshControl,
   StyleSheet,
   Text,
   TextInput,
@@ -21,6 +19,7 @@ import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { setSejourCourant } from '../../store/sejourSlice';
 import FichePersonneModal, { LigneInfoFiche } from '../../Components/FichePersonneModal';
 import AvatarProfil from '../../Components/AvatarProfil';
+import ListeEcranLayout, { styleCarteListe } from '../../Components/ListeEcranLayout';
 import { colors } from '../../config/theme';
 import { usePhotosProfilEquipe } from '../../hooks/usePhotosProfilEquipe';
 import type { ChambreDto, GroupeDto } from '../../types/api';
@@ -238,74 +237,75 @@ export default function Animators() {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.barreFiltres}>
-        <TextInput
-          style={styles.recherche}
-          value={recherche}
-          onChangeText={setRecherche}
-          placeholder="Rechercher…"
-          placeholderTextColor={colors.muted}
-          autoCorrect={false}
-          clearButtonMode="while-editing"
-        />
-
-        {optionsGroupes.length > 0 ? (
-          <MultiSelect
-            style={styles.dropdown}
-            containerStyle={styles.dropdownContainer}
-            placeholderStyle={styles.dropdownPlaceholder}
-            selectedTextStyle={styles.dropdownPlaceholder}
-            itemTextStyle={styles.dropdownItemText}
-            activeColor={colors.primarySoft}
-            data={optionsGroupes}
-            labelField="label"
-            valueField="value"
-            value={groupesSelectionnes}
-            onChange={setGroupesSelectionnes}
-            placeholder={
-              groupesSelectionnes.length > 0
-                ? `${groupesSelectionnes.length} groupe${groupesSelectionnes.length > 1 ? 's' : ''}`
-                : 'Groupes'
-            }
-            visibleSelectedItem={false}
-            renderItem={(item, selected) => (
-              <View style={styles.dropdownItem}>
-                <MaterialIcons
-                  name={selected ? 'check-box' : 'check-box-outline-blank'}
-                  size={20}
-                  color={selected ? colors.primary : colors.muted}
-                />
-                <Text style={styles.dropdownItemText}>{item.label}</Text>
-              </View>
-            )}
-          />
-        ) : null}
-      </View>
-
-      {filtresRole.length > 1 ? (
-        <View style={styles.filtres}>
-          {filtresRole.map(({ cle, libelle }) => {
-            const actif = cle === filtreRoleActif;
-            return (
-              <Pressable
-                key={cle}
-                onPress={() => setFiltreRole(cle)}
-                style={[styles.chip, actif && styles.chipActif]}
-              >
-                <Text style={[styles.chipTexte, actif && styles.chipTexteActif]}>{libelle}</Text>
-              </Pressable>
-            );
-          })}
-        </View>
-      ) : null}
-
-      <FlatList
+    <>
+      <ListeEcranLayout
         data={lignesVisibles}
         keyExtractor={(item) => item.key}
-        contentContainerStyle={styles.list}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.primary]} tintColor={colors.primary} />
+        refreshing={refreshing}
+        onRefresh={onRefresh}
+        filtres={
+          <>
+            <View style={styles.barreFiltres}>
+              <TextInput
+                style={styles.recherche}
+                value={recherche}
+                onChangeText={setRecherche}
+                placeholder="Rechercher…"
+                placeholderTextColor={colors.muted}
+                autoCorrect={false}
+                clearButtonMode="while-editing"
+              />
+
+              {optionsGroupes.length > 0 ? (
+                <MultiSelect
+                  style={styles.dropdown}
+                  containerStyle={styles.dropdownContainer}
+                  placeholderStyle={styles.dropdownPlaceholder}
+                  selectedTextStyle={styles.dropdownPlaceholder}
+                  itemTextStyle={styles.dropdownItemText}
+                  activeColor={colors.primarySoft}
+                  data={optionsGroupes}
+                  labelField="label"
+                  valueField="value"
+                  value={groupesSelectionnes}
+                  onChange={setGroupesSelectionnes}
+                  placeholder={
+                    groupesSelectionnes.length > 0
+                      ? `${groupesSelectionnes.length} groupe${groupesSelectionnes.length > 1 ? 's' : ''}`
+                      : 'Groupes'
+                  }
+                  visibleSelectedItem={false}
+                  renderItem={(item, selected) => (
+                    <View style={styles.dropdownItem}>
+                      <MaterialIcons
+                        name={selected ? 'check-box' : 'check-box-outline-blank'}
+                        size={20}
+                        color={selected ? colors.primary : colors.muted}
+                      />
+                      <Text style={styles.dropdownItemText}>{item.label}</Text>
+                    </View>
+                  )}
+                />
+              ) : null}
+            </View>
+
+            {filtresRole.length > 1 ? (
+              <View style={styles.filtres}>
+                {filtresRole.map(({ cle, libelle }) => {
+                  const actif = cle === filtreRoleActif;
+                  return (
+                    <Pressable
+                      key={cle}
+                      onPress={() => setFiltreRole(cle)}
+                      style={[styles.chip, actif && styles.chipActif]}
+                    >
+                      <Text style={[styles.chipTexte, actif && styles.chipTexteActif]}>{libelle}</Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            ) : null}
+          </>
         }
         renderItem={({ item }) => (
           <Pressable
@@ -342,7 +342,7 @@ export default function Animators() {
         chambres={chambres}
         onFermer={() => setMembreSelectionne(null)}
       />
-    </View>
+    </>
   );
 }
 
@@ -409,15 +409,11 @@ function DetailMembre({
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.surface,
-  },
   center: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: colors.surface,
+    backgroundColor: colors.background,
   },
   barreFiltres: {
     flexDirection: 'row',
@@ -492,7 +488,8 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   list: {
-    padding: 12,
+    paddingHorizontal: 12,
+    paddingBottom: 12,
   },
   card: {
     flexDirection: 'row',
@@ -505,6 +502,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 16,
     marginBottom: 10,
+    ...styleCarteListe,
   },
   cardPressed: {
     backgroundColor: colors.background,

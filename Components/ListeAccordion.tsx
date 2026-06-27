@@ -42,6 +42,11 @@ export const listeAccordionStyles = StyleSheet.create({
     borderRadius: 12,
     marginBottom: 10,
     overflow: 'hidden',
+    shadowColor: '#383CA7',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 2,
   },
   cardOuverte: {
     borderColor: colors.primarySoft,

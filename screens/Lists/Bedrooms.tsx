@@ -2,9 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
-  FlatList,
   Pressable,
-  RefreshControl,
   StyleSheet,
   Text,
   View,
@@ -14,7 +12,9 @@ import { MaterialIcons } from '@expo/vector-icons';
 
 import AffecterOccupantsModal from '../../Components/AffecterOccupantsModal';
 import ChambreFormulaireModal from '../../Components/ChambreFormulaireModal';
+import EcranListeFond from '../../Components/EcranListeFond';
 import { ListeAccordion, listeAccordionStyles } from '../../Components/ListeAccordion';
+import { ListeAvecFiltresFixes } from '../../Components/ListeEcranLayout';
 import { useChargementRafraichissable } from '../../hooks/useChargementRafraichissable';
 import { useRafraichirSejourCourant } from '../../hooks/useRafraichirSejourCourant';
 import {
@@ -554,149 +554,159 @@ export default function Bedrooms() {
   }
 
   return (
-    <View style={styles.container}>
-      {actionError ? (
-        <View style={styles.bandeauErreur}>
-          <Text style={styles.bandeauErreurTexte}>{actionError}</Text>
-          <Pressable onPress={() => setActionError(null)} hitSlop={8}>
-            <MaterialIcons name="close" size={18} color={colors.danger} />
+    <>
+      <EcranListeFond>
+        <View style={styles.zoneListe}>
+          <ListeAvecFiltresFixes
+            data={chambresVisibles}
+            keyExtractor={(item) => String(item.id)}
+            refreshing={refreshing}
+            onRefresh={refresh}
+            contentContainerStyle={styles.list}
+            filtres={
+              actionError || afficherFiltres ? (
+                <>
+                  {actionError ? (
+                    <View style={styles.bandeauErreur}>
+                      <Text style={styles.bandeauErreurTexte}>{actionError}</Text>
+                      <Pressable onPress={() => setActionError(null)} hitSlop={8}>
+                        <MaterialIcons name="close" size={18} color={colors.danger} />
+                      </Pressable>
+                    </View>
+                  ) : null}
+
+                  {afficherFiltres ? (
+                    <View style={styles.barreFiltres}>
+                      <View style={styles.ligneFiltres}>
+                        {optionsType.length > 1 ? (
+                          <Dropdown
+                            style={styles.filtre}
+                            containerStyle={styles.dropdownContainer}
+                            placeholderStyle={styles.filtreTexte}
+                            selectedTextStyle={styles.filtreTexte}
+                            itemTextStyle={styles.dropdownItemText}
+                            activeColor={colors.primarySoft}
+                            data={optionsType}
+                            labelField="libelleCourt"
+                            valueField="value"
+                            value={filtreTypeActif}
+                            onChange={(item) => setFiltreType(item.value)}
+                            renderItem={(item, selected) => (
+                              <View style={styles.dropdownItem}>
+                                {selected ? (
+                                  <MaterialIcons name="check" size={18} color={colors.primary} />
+                                ) : (
+                                  <View style={styles.dropdownItemSpacer} />
+                                )}
+                                <Text style={styles.dropdownItemText}>{item.libelle}</Text>
+                              </View>
+                            )}
+                          />
+                        ) : null}
+
+                        {optionsGenre.length > 1 ? (
+                          <Dropdown
+                            style={styles.filtre}
+                            containerStyle={styles.dropdownContainer}
+                            placeholderStyle={styles.filtreTexte}
+                            selectedTextStyle={styles.filtreTexte}
+                            itemTextStyle={styles.dropdownItemText}
+                            activeColor={colors.primarySoft}
+                            data={optionsGenre}
+                            labelField="libelleCourt"
+                            valueField="value"
+                            value={filtreGenreActif}
+                            onChange={(item) => setFiltreGenre(item.value)}
+                            renderItem={(item, selected) => (
+                              <View style={styles.dropdownItem}>
+                                {selected ? (
+                                  <MaterialIcons name="check" size={18} color={colors.primary} />
+                                ) : (
+                                  <View style={styles.dropdownItemSpacer} />
+                                )}
+                                <Text style={styles.dropdownItemText}>{item.libelle}</Text>
+                              </View>
+                            )}
+                          />
+                        ) : null}
+
+                        {afficherFiltreGroupe ? (
+                          <Dropdown
+                            style={styles.filtre}
+                            containerStyle={styles.dropdownContainer}
+                            placeholderStyle={styles.filtreTexte}
+                            selectedTextStyle={styles.filtreTexte}
+                            itemTextStyle={styles.dropdownItemText}
+                            activeColor={colors.primarySoft}
+                            data={optionsGroupes}
+                            labelField="libelleCourt"
+                            valueField="value"
+                            value={filtreGroupeActif}
+                            onChange={(item) => setFiltreGroupe(item.value)}
+                            renderItem={(item, selected) => (
+                              <View style={styles.dropdownItem}>
+                                {selected ? (
+                                  <MaterialIcons name="check" size={18} color={colors.primary} />
+                                ) : (
+                                  <View style={styles.dropdownItemSpacer} />
+                                )}
+                                <Text style={styles.dropdownItemText}>{item.libelle}</Text>
+                              </View>
+                            )}
+                          />
+                        ) : null}
+
+                        <Pressable
+                          onPress={() => setFiltrePlacesDispo((actif) => !actif)}
+                          style={[styles.chipPlaces, filtrePlacesDispo && styles.chipPlacesActif]}
+                        >
+                          <Text
+                            style={[styles.chipPlacesTexte, filtrePlacesDispo && styles.chipPlacesTexteActif]}
+                          >
+                            Places dispo
+                          </Text>
+                        </Pressable>
+                      </View>
+                    </View>
+                  ) : null}
+                </>
+              ) : undefined
+            }
+            renderItem={({ item }) => (
+              <ChambreAccordion
+                chambre={item}
+                sejour={sejour}
+                ouvert={ouverts.has(item.id)}
+                actionEnCours={submitting}
+                onToggle={() => basculerChambre(item.id)}
+                onModifier={() => ouvrirEdition(item)}
+                onAffecter={() => {
+                  setActionError(null);
+                  setAffecterChambre(item);
+                }}
+                onSupprimer={() => confirmerSuppression(item)}
+                onRetirerOccupant={(occupant) => confirmerRetraitOccupant(item, occupant)}
+              />
+            )}
+            ListEmptyComponent={
+              <Text style={styles.empty}>
+                {chambres.length === 0
+                  ? 'Aucune chambre pour ce séjour. Appuyez sur + pour en ajouter une.'
+                  : 'Aucune chambre ne correspond aux filtres.'}
+              </Text>
+            }
+          />
+
+          <Pressable
+            style={({ pressed }) => [styles.fab, pressed && styles.fabPressed]}
+            onPress={ouvrirCreation}
+            disabled={submitting}
+            accessibilityLabel="Ajouter une chambre"
+          >
+            <MaterialIcons name="add" size={28} color={colors.surface} />
           </Pressable>
         </View>
-      ) : null}
-
-      {afficherFiltres ? (
-        <View style={styles.barreFiltres}>
-          <View style={styles.ligneFiltres}>
-            {optionsType.length > 1 ? (
-              <Dropdown
-                style={styles.filtre}
-                containerStyle={styles.dropdownContainer}
-                placeholderStyle={styles.filtreTexte}
-                selectedTextStyle={styles.filtreTexte}
-                itemTextStyle={styles.dropdownItemText}
-                activeColor={colors.primarySoft}
-                data={optionsType}
-                labelField="libelleCourt"
-                valueField="value"
-                value={filtreTypeActif}
-                onChange={(item) => setFiltreType(item.value)}
-                renderItem={(item, selected) => (
-                  <View style={styles.dropdownItem}>
-                    {selected ? (
-                      <MaterialIcons name="check" size={18} color={colors.primary} />
-                    ) : (
-                      <View style={styles.dropdownItemSpacer} />
-                    )}
-                    <Text style={styles.dropdownItemText}>{item.libelle}</Text>
-                  </View>
-                )}
-              />
-            ) : null}
-
-            {optionsGenre.length > 1 ? (
-              <Dropdown
-                style={styles.filtre}
-                containerStyle={styles.dropdownContainer}
-                placeholderStyle={styles.filtreTexte}
-                selectedTextStyle={styles.filtreTexte}
-                itemTextStyle={styles.dropdownItemText}
-                activeColor={colors.primarySoft}
-                data={optionsGenre}
-                labelField="libelleCourt"
-                valueField="value"
-                value={filtreGenreActif}
-                onChange={(item) => setFiltreGenre(item.value)}
-                renderItem={(item, selected) => (
-                  <View style={styles.dropdownItem}>
-                    {selected ? (
-                      <MaterialIcons name="check" size={18} color={colors.primary} />
-                    ) : (
-                      <View style={styles.dropdownItemSpacer} />
-                    )}
-                    <Text style={styles.dropdownItemText}>{item.libelle}</Text>
-                  </View>
-                )}
-              />
-            ) : null}
-
-            {afficherFiltreGroupe ? (
-              <Dropdown
-                style={styles.filtre}
-                containerStyle={styles.dropdownContainer}
-                placeholderStyle={styles.filtreTexte}
-                selectedTextStyle={styles.filtreTexte}
-                itemTextStyle={styles.dropdownItemText}
-                activeColor={colors.primarySoft}
-                data={optionsGroupes}
-                labelField="libelleCourt"
-                valueField="value"
-                value={filtreGroupeActif}
-                onChange={(item) => setFiltreGroupe(item.value)}
-                renderItem={(item, selected) => (
-                  <View style={styles.dropdownItem}>
-                    {selected ? (
-                      <MaterialIcons name="check" size={18} color={colors.primary} />
-                    ) : (
-                      <View style={styles.dropdownItemSpacer} />
-                    )}
-                    <Text style={styles.dropdownItemText}>{item.libelle}</Text>
-                  </View>
-                )}
-              />
-            ) : null}
-
-            <Pressable
-              onPress={() => setFiltrePlacesDispo((actif) => !actif)}
-              style={[styles.chipPlaces, filtrePlacesDispo && styles.chipPlacesActif]}
-            >
-              <Text style={[styles.chipPlacesTexte, filtrePlacesDispo && styles.chipPlacesTexteActif]}>
-                Places dispo
-              </Text>
-            </Pressable>
-          </View>
-        </View>
-      ) : null}
-
-      <FlatList
-        data={chambresVisibles}
-        keyExtractor={(item) => String(item.id)}
-        contentContainerStyle={styles.list}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={refresh} colors={[colors.primary]} tintColor={colors.primary} />
-        }
-        renderItem={({ item }) => (
-          <ChambreAccordion
-            chambre={item}
-            sejour={sejour}
-            ouvert={ouverts.has(item.id)}
-            actionEnCours={submitting}
-            onToggle={() => basculerChambre(item.id)}
-            onModifier={() => ouvrirEdition(item)}
-            onAffecter={() => {
-              setActionError(null);
-              setAffecterChambre(item);
-            }}
-            onSupprimer={() => confirmerSuppression(item)}
-            onRetirerOccupant={(occupant) => confirmerRetraitOccupant(item, occupant)}
-          />
-        )}
-        ListEmptyComponent={
-          <Text style={styles.empty}>
-            {chambres.length === 0
-              ? 'Aucune chambre pour ce séjour. Appuyez sur + pour en ajouter une.'
-              : 'Aucune chambre ne correspond aux filtres.'}
-          </Text>
-        }
-      />
-
-      <Pressable
-        style={({ pressed }) => [styles.fab, pressed && styles.fabPressed]}
-        onPress={ouvrirCreation}
-        disabled={submitting}
-        accessibilityLabel="Ajouter une chambre"
-      >
-        <MaterialIcons name="add" size={28} color={colors.surface} />
-      </Pressable>
+      </EcranListeFond>
 
       <ChambreFormulaireModal
         visible={formulaireOuvert}
@@ -721,20 +731,19 @@ export default function Bedrooms() {
         onFermer={() => !submitting && setAffecterChambre(null)}
         onAffecter={(selection) => void handleAffecterSelection(selection)}
       />
-    </View>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  zoneListe: {
     flex: 1,
-    backgroundColor: colors.surface,
   },
   center: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: colors.surface,
+    backgroundColor: colors.background,
   },
   bandeauErreur: {
     flexDirection: 'row',
@@ -818,7 +827,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   list: {
-    padding: 12,
     paddingBottom: 88,
   },
   metaLigne: {

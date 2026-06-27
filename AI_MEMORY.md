@@ -10,6 +10,6 @@ Fiches utiles :
 - `docs/ai/documentation-ui-routing.md` : navigateurs, écrans, onglets, UX listes.
 - `docs/ai/roadmap.md` : suivi des tâches.
 
-Rappels essentiels : réponses en français ; `npm` + `legacy-peer-deps` ; secrets interdits ; types dans `types/api.d.ts` ; **`tokenId`** jamais id SQL ; **`httpClient.ts`** ; auth SecureStore + refresh single-flight. **Navigation** : Stack `Login` → **`BottomTab`** (+ **`Profil`**) ; **onglets conditionnels** (seul **Home** si pas de `sejourCourant`) ; sélection séjour sur **`Home`** (modale, plus **`SejourPicker`**). **Accueil** : dégradé + **`GlassPanel`** ; CR veille TipTap ; titre « Réunion du … » centré. **`Login`** : fond dégradé/orbes, formulaire blanc classique. **Profil** / **Équipe** / **Sanitaire** / listes / orga / menus / activités — voir fiches `docs/ai/`.
+Rappels essentiels : réponses en français ; `npm` + `legacy-peer-deps` ; secrets interdits ; types dans `types/api.d.ts` ; **`tokenId`** jamais id SQL ; **`httpClient.ts`** ; auth SecureStore + refresh single-flight. **Navigation** : Stack `Login` → **`BottomTab`** (+ **`Profil`**) ; onglets conditionnels (seul **Home** sans séjour) ; sélection séjour sur **`Home`**. **Listes / orga / sanitaire** : fond **`EcranListeFond`** + **`ListeEcranLayout`** (`colors.background`, filtres fixes, cartes blanches). **Accueil / Login** : dégradé + glass ; **Header** : dégradé bleu. **Profil** — voir fiches `docs/ai/`.
 
-Mise à jour mémoire : commande **`/maj`**. Dernière MAJ : **2026-06-27** (séjour sur accueil, suppression SejourPicker).
+Mise à jour mémoire : commande **`/maj`**. Dernière MAJ : **2026-06-27** (fond listes, modales chambres/cahier).

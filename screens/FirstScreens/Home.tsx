@@ -30,6 +30,7 @@ import { enregistrerDernierSejourVisite } from '../../helpers/dernierSejour';
 import { dateVeilleCalendaire, formatTitreCompteRenduAccueil, trouverReunionVeille } from '../../helpers/reunionVeille';
 import { estContenuTipTapVide } from '../../helpers/reunionTipTapTexte';
 import { formatPeriodeSejour, formatPeriodeSejourCourte } from '../../helpers/sejourPeriode';
+import { libelleRoleBadgeProfil } from '../../helpers/libelleRoleProfil';
 import { navigationRef } from '../../Navigators/navigationRef';
 import { accountService } from '../../services/account.service';
 import { sejourService } from '../../services/sejour.service';
@@ -52,7 +53,9 @@ function Home() {
   const insets = useSafeAreaInsets();
   const isFocused = useIsFocused();
   const dispatch = useAppDispatch();
-  const { prenom, nom, tokenId, photoProfilUri, photoProfilRevision } = useAppSelector((state) => state.auth);
+  const { prenom, nom, tokenId, role, genre, photoProfilUri, photoProfilRevision } = useAppSelector(
+    (state) => state.auth,
+  );
   const sejour = useAppSelector((state) => state.sejour.sejourCourant);
   const sejoursDisponibles = useAppSelector((state) => state.sejour.sejoursDisponibles);
 
@@ -175,6 +178,7 @@ function Home() {
   const selecteurSejourActif = peutChoisirSejour && (sejour == null || plusieursSejours);
 
   const ouvrirProfil = () => {
+    if (!sejour) return;
     if (navigationRef.isReady()) {
       navigationRef.navigate('Profil');
     }
@@ -187,6 +191,8 @@ function Home() {
 
   const todayDate = dayjs().format('dddd DD MMMM YYYY');
   const periodeSejour = sejour != null ? formatPeriodeSejourCourte(sejour) : null;
+  const libelleRoleSurSejour =
+    sejour != null ? libelleRoleBadgeProfil(tokenId, genre, role, sejour) : null;
   const peutOuvrirCrGrand =
     !crVide && (crOrdreDuJour.length > 0 || !estContenuTipTapVide(crContenu));
 
@@ -259,9 +265,12 @@ function Home() {
 
         <Pressable
           onPress={ouvrirProfil}
+          disabled={sejour == null}
           accessibilityRole="button"
-          accessibilityLabel="Voir mon profil"
-          style={styles.avatarWrap}
+          accessibilityLabel={
+            sejour ? 'Voir mon profil' : 'Choisissez un séjour pour accéder à votre profil'
+          }
+          style={[styles.avatarWrap, sejour == null && styles.avatarWrapDesactive]}
         >
           <GlassPanel borderRadius={radius.full} intensity={45} style={styles.avatarRing}>
             <AvatarProfil
@@ -272,7 +281,12 @@ function Home() {
               size={AVATAR_SIZE}
             />
           </GlassPanel>
-          {prenom ? <Text style={styles.avatarPrenom}>{prenom}</Text> : null}
+          {prenom ? (
+            <Text style={styles.avatarPrenom} numberOfLines={2}>
+              {prenom}
+              {libelleRoleSurSejour ? ` (${libelleRoleSurSejour})` : ''}
+            </Text>
+          ) : null}
         </Pressable>
 
         <GlassPanel borderRadius={radius.full} intensity={40} style={styles.dateBadge}>
@@ -487,6 +501,9 @@ const styles = StyleSheet.create({
   avatarWrap: {
     alignItems: 'center',
     marginBottom: spacing.sm,
+  },
+  avatarWrapDesactive: {
+    opacity: 0.65,
   },
   avatarRing: {
     padding: 5,

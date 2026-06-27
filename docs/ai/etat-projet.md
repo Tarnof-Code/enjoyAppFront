@@ -65,6 +65,13 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | `useFenetreJoursPlanning.ts` | Fenêtre glissante 1/3/5 jours ; navigation par bonds (= taille vue) ; partagé **`GrilleDetail`**, **`Menus`** et **`Activites`** |
 | `useModePaysageGrille.ts` | Bascule état paysage visuel du tableau (sans rotation appareil) |
 
+## Composants UI (`Components/`)
+
+| Fichier | Rôle |
+|---------|------|
+| `EcranListeFond.tsx` | Fond uni **`colors.background`** pour écrans listes/orga |
+| `ListeEcranLayout.tsx` | **`ListeEcranLayout`** + **`ListeAvecFiltresFixes`** ; export **`styleCarteListe`** |
+
 ## Helpers (`helpers/`)
 
 | Fichier | Rôle |

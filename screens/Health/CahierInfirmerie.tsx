@@ -2,9 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
-  FlatList,
   Pressable,
-  RefreshControl,
   StyleSheet,
   Text,
   TextInput,
@@ -33,6 +31,7 @@ import {
 import { LIBELLE_APPEL, LIBELLE_SOIN } from '../../constants/cahierInfirmerieLabels';
 import { colors, fontSizes, radius, spacing } from '../../config/theme';
 import { ListeAccordion, listeAccordionStyles } from '../../Components/ListeAccordion';
+import ListeEcranLayout from '../../Components/ListeEcranLayout';
 import CahierInfirmerieFormModal, {
   type EnfantOptionCahier,
   type MembreSoigneurOption,
@@ -296,50 +295,51 @@ export default function CahierInfirmerie() {
   }
 
   return (
-    <View style={styles.flex}>
-      <View style={styles.barre}>
-        <TextInput
-          style={styles.recherche}
-          value={recherche}
-          onChangeText={setRecherche}
-          placeholder="Rechercher (enfant, description…)"
-          placeholderTextColor={colors.muted}
-          autoCorrect={false}
-          clearButtonMode="while-editing"
-        />
-        <Pressable
-          onPress={ouvrirCreation}
-          style={({ pressed }) => [styles.btnAjout, pressed && styles.btnPressed]}
-        >
-          <MaterialIcons name="add" size={22} color={colors.surface} />
-        </Pressable>
-      </View>
-
-      {optionsJours.length > 1 ? (
-        <View style={styles.barreJour}>
-          <Dropdown
-            style={styles.dropdown}
-            containerStyle={styles.dropdownContainer}
-            placeholderStyle={styles.dropdownTexte}
-            selectedTextStyle={styles.dropdownTexte}
-            itemTextStyle={styles.dropdownItemText}
-            activeColor={colors.primarySoft}
-            data={optionsJours}
-            labelField="label"
-            valueField="value"
-            placeholder="Tous les jours"
-            value={jourFiltre}
-            onChange={(item) => setJourFiltre(item.value)}
-          />
-        </View>
-      ) : null}
-
-      <FlatList
+    <>
+      <ListeEcranLayout
         data={entreesVisibles}
         keyExtractor={(item) => String(item.id)}
-        contentContainerStyle={styles.list}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={refresh} colors={[colors.primary]} tintColor={colors.primary} />
+        refreshing={refreshing}
+        onRefresh={refresh}
+        filtres={
+          <>
+            <View style={styles.barre}>
+              <TextInput
+                style={styles.recherche}
+                value={recherche}
+                onChangeText={setRecherche}
+                placeholder="Rechercher (enfant, description…)"
+                placeholderTextColor={colors.muted}
+                autoCorrect={false}
+                clearButtonMode="while-editing"
+              />
+              <Pressable
+                onPress={ouvrirCreation}
+                style={({ pressed }) => [styles.btnAjout, pressed && styles.btnPressed]}
+              >
+                <MaterialIcons name="add" size={22} color={colors.surface} />
+              </Pressable>
+            </View>
+
+            {optionsJours.length > 1 ? (
+              <View style={styles.barreJour}>
+                <Dropdown
+                  style={styles.dropdown}
+                  containerStyle={styles.dropdownContainer}
+                  placeholderStyle={styles.dropdownTexte}
+                  selectedTextStyle={styles.dropdownTexte}
+                  itemTextStyle={styles.dropdownItemText}
+                  activeColor={colors.primarySoft}
+                  data={optionsJours}
+                  labelField="label"
+                  valueField="value"
+                  placeholder="Tous les jours"
+                  value={jourFiltre}
+                  onChange={(item) => setJourFiltre(item.value)}
+                />
+              </View>
+            ) : null}
+          </>
         }
         renderItem={({ item }) => {
           const modifiable = peutModifierEntreeCahierInfirmerie(
@@ -456,20 +456,16 @@ export default function CahierInfirmerie() {
         onFermer={fermerModal}
         onEnregistrer={enregistrer}
       />
-    </View>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  flex: {
-    flex: 1,
-    backgroundColor: colors.surface,
-  },
   center: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: colors.surface,
+    backgroundColor: colors.background,
   },
   barre: {
     flexDirection: 'row',
@@ -524,9 +520,6 @@ const styles = StyleSheet.create({
   dropdownItemText: {
     fontSize: fontSizes.sm,
     color: colors.text,
-  },
-  list: {
-    padding: spacing.md,
   },
   dateEntree: {
     color: colors.primary,

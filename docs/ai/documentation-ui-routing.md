@@ -28,10 +28,10 @@ App.tsx
 
 | Sous-onglet | Écran | Titre header | Source données |
 |-------------|-------|--------------|----------------|
-| Animators | `screens/Lists/Animators` | Équipe | Redux `sejourCourant` (+ refresh séjour) ; groupes/chambres/profil directeur en parallèle — tri/libellé équipe selon `triListesEquipe` ; recherche, chips rôle séjour (chip **Direction**), MultiSelect groupes ; cartes **avatar + nom** + rôle ; **`usePhotosProfilEquipe`** ; modal `FichePersonneModal` (photo zoomable, contact, groupes, chambre) |
-| Children | `screens/Lists/Children` | Enfants | `GET /enfants` + groupes/chambres/dossiers + refresh séjour en parallèle ; tri/libellé selon `triListesEnfants` ; dates séjour pour anniversaire — recherche, MultiSelect groupes, chips genre ; cartes nom (+ icône gâteau si anniversaire) + badge groupes ; modal `FichePersonneModal` (âge, niveau, groupes, chambre, contacts parents) |
-| Groups | `screens/Lists/Groups` | Groupes | `GET /groupes` + refresh séjour — accordéons par groupe ; enfants triés/libellés selon `triListesEnfants` ; chips filtre **type** ; groupes thématiques : à droite du nom, groupes par âge/niveau de l'enfant |
-| Bedrooms | `screens/Lists/Bedrooms` | Chambres | `GET /chambres` + groupes + enfants + refresh séjour — accordéons (`ListeAccordion`) ; **FAB +** création ; déplié → **Affecter** (`AffecterOccupantsModal`, ~92 % écran), **Modifier** (`ChambreFormulaireModal`), **Supprimer**, retrait occupant ; occupants triés/libellés ; filtres Type / Genre / Groupe + chip **Places dispo** |
+| Animators | `screens/Lists/Animators` | Équipe | **`ListeEcranLayout`** (fond **`background`**, filtres fixes) ; Redux `sejourCourant` ; groupes/chambres/profil directeur ; recherche, chips rôle, MultiSelect groupes ; cartes avatar + ombre ; modal `FichePersonneModal` |
+| Children | `screens/Lists/Children` | Enfants | **`ListeEcranLayout`** ; `GET /enfants` + groupes/chambres/dossiers ; recherche, MultiSelect groupes, chips genre ; cartes + modal `FichePersonneModal` |
+| Groups | `screens/Lists/Groups` | Groupes | **`ListeEcranLayout`** ; accordéons **`ListeAccordion`** ; chips filtre type |
+| Bedrooms | `screens/Lists/Bedrooms` | Chambres | **`EcranListeFond`** + **`ListeAvecFiltresFixes`** (FAB) ; accordéons ; modales chambre/affectation (feuille **`background`**) ; filtres Type/Genre/Groupe + chip Places dispo |
 
 ## Onglets Activités (`TopTabActivities`)
 
@@ -48,15 +48,15 @@ Onglet bottom tab : route **`Orga`**, libellé **Orga**. Titre header liste : «
 
 | Écran | Composant | Navigation |
 |-------|-----------|------------|
-| GrillesList | `screens/Organisation/Organisation` | Liste plannings tri alpha ; recherche titre (normalisation casse/accents, bouton ✕) ; tap → détail |
-| GrilleDetail | `screens/Organisation/GrilleDetail` | Matrice multi-jours (1/3/5) : colonnes jours, lignes libellés, sections regroupement ; toolbar **‹ Retour** + chips 1j/3j/5j ; swipe + flèches + **Aujourd'hui** ; en-tête dates fixe (**`EnteteJoursGrille`**) ; tap cellule → `PlanningCelluleModal` si droits **sur cette ligne** ; refresh séjour au pull-to-refresh |
+| GrillesList | `screens/Organisation/Organisation` | **`ListeEcranLayout`** — liste plannings tri alpha, recherche titre (bouton ✕) ; tap → détail |
+| GrilleDetail | `screens/Organisation/GrilleDetail` | **`EcranListeFond`** ; section haute blanche (consigne + toolbar) ; matrice 1/3/5 j. ; en-tête dates fixe ; `PlanningCelluleModal` |
 
 ## Onglets Sanitaire (`TopTabSanitaire`)
 
 | Sous-onglet | Écran | Titre header | Source |
 |-------------|-------|--------------|--------|
-| CahierInfirmerie | `screens/Health/CahierInfirmerie` | Cahier d'infirmerie | `GET/POST/PUT/DELETE …/cahier-infirmerie` + enfants séjour ; accordéons **`ListeAccordion`** (replié : enfant + date/heure ; déplié : détail + auteur + actions) ; recherche + filtre jour (dates avec entrées uniquement, tri décroissant) ; CRUD **`CahierInfirmerieFormModal`** ; droits **`droitsCahierInfirmerie`** |
-| DossierSanitaire | `screens/Health/DossierSanitaire` | Dossiers sanitaires | `GET …/dossiers-enfants` ; tri/libellé selon `triListesEnfants` ; **MultiSelect** groupes (présents dans les lignes) + **`Dropdown`** filtre contenu (Tout / Traitements / Alimentation / Médical / À prendre en sortie / Autres infos) ; sous-filtre Traitements (moment, ligne dédiée) ; lecture seule |
+| CahierInfirmerie | `screens/Health/CahierInfirmerie` | Cahier d'infirmerie | **`ListeEcranLayout`** ; accordéons ; recherche + filtre jour ; **`CahierInfirmerieFormModal`** (feuille **`background`**) |
+| DossierSanitaire | `screens/Health/DossierSanitaire` | Dossiers sanitaires | **`ListeEcranLayout`** ; MultiSelect groupes + Dropdown filtre contenu ; cartes ombre légère ; lecture seule |
 
 ## Écrans autonomes
 
@@ -66,21 +66,21 @@ Onglet bottom tab : route **`Orga`**, libellé **Orga**. Titre header liste : «
 
 ## Composants partagés
 
-- **`Header`** : icône FontAwesome5 + titre (script) en **`colors.primary`** + **avatar profil** (API via Redux **`photoProfilUri`**, initiales si absent) ; tap avatar → **`Profil`**.
+- **`Header`** : dégradé bleu marque ; icône + titre script blancs ; avatar profil (Redux) → **`Profil`**.
+- **`EcranListeFond`** / **`ListeEcranLayout`** : fond listes **`colors.background`** ; **`ListeAvecFiltresFixes`** (filtres fixes, liste derrière) ; export **`styleCarteListe`**.
 - **`GlassPanel`** : panneau givré réutilisable (`expo-blur` / overlay) — accueil, modal séjour.
 - **`ReunionContenuTipTap`** : rendu TipTap réunion (accueil compact + modale plein écran).
 - **`CompteRenduPleinEcranModal`** : lecture CR veille plein écran depuis **`Home`**.
 - **`FichePersonneModal`** : modal fiche personne + `LigneInfoFiche` (Équipe avec **`photoUri`** + zoom, Enfants sans photo).
 - **`AvatarProfil`** : avatar circulaire photo ou initiales (cartes/modale Équipe).
-- **`ListeAccordion`** : coque accordéon liste (chevron, carte, en-tête/corps) + styles `listeAccordionStyles` ; contenu métier dans l'écran (`Groups`, `Bedrooms`, `Sorties`, **`CahierInfirmerie`**).
-- **`ChambreFormulaireModal`** : création/édition chambre (bottom sheet, scroll gesture-handler).
-- **`AffecterOccupantsModal`** : sélection multi occupants (enfants ou équipe) pour une chambre.
+- **`ListeAccordion`** : coque accordéon (ombre légère) + `listeAccordionStyles` ; `Groups`, `Bedrooms`, `Sorties`, **`CahierInfirmerie`**.
+- **`ChambreFormulaireModal`** / **`AffecterOccupantsModal`** : bottom sheets feuille **`background`**, champs blancs.
 - **`PlanningCelluleModal`** : édition cellule planning (bottom sheet) ; directeur/adjoint = contenu complet ; animateur = ma présence (contenu `MEMBRE_EQUIPE`) ou édition complète **sur sa ligne** (libellé `MEMBRE_EQUIPE`).
 - **`EnteteJoursGrille`** : en-tête jours/dates fixe des grilles **`GrilleDetail`** et **`Activites`** (corps scrollable en dessous) ; variante **`compact`** sur **`Activites`**.
 - **`BoutonModePaysageGrille`** / **`ConteneurGrillePaysage`** : paysage visuel du tableau sur **`Menus`**, **`GrilleDetail`** et **`Activites`** (rotation 90°, appareil en portrait) ; bouton rotation aligné **à droite** de la toolbar.
 - **`ActiviteFormulaireModal`** / **`ActiviteEnfantsParticipantsModal`** / **`ActiviteConflitSortieModal`** : CRUD activité, enfants participants activité interne, résolution conflit sortie (directeur).
 - **`SortieEnfantsParticipantsModal`** : enfants participants sortie (`PUT …/enfants`, tout membre séjour) ; défaut groupes prévus, édition sur tous les enfants inscrits.
-- **`CahierInfirmerieFormModal`** : création/édition entrée cahier d'infirmerie ; date et heure séparées (`@react-native-community/datetimepicker`).
+- **`CahierInfirmerieFormModal`** : entrée cahier d'infirmerie ; feuille **`background`** ; date/heure séparées (`datetimepicker`).
 - **`ChangePasswordModal`** : modification mot de passe (depuis **`Profil`**).
 - **`PhotoProfilRecadrageModal`** : recadrage photo profil (masque circulaire, pinch/pan Reanimated, Valider/Annuler).
 - **`PhotoProfilZoomModal`** : agrandissement photo profil (pinch / double-tap / pan ; fermeture fond ou croix).
@@ -90,10 +90,11 @@ Onglet bottom tab : route **`Orga`**, libellé **Orga**. Titre header liste : «
 
 - **Pull-to-refresh** sur tous les écrans de données (hook `useChargementRafraichissable` ou logique dédiée). Inclut **`rafraichirPhotoProfil`** (avatar **`Header`** / **`Home`**). Écrans avec personnes : inclure **`useRafraichirSejourCourant`** dans le `executer` pour synchroniser le tri listes (`triListesEnfants` / `triListesEquipe`).
 - **Tri et libellés personnes** (`helpers/triListesSejour.ts`) : ordre et affichage « Nom Prénom » ou « Prénom Nom » selon réglage séjour (lecture seule, aligné web).
-- **Recherche + filtre liste** (modèle `Animators` / `Children`) : barre compacte (`TextInput` + normalisation casse/accents) + **MultiSelect** groupes (`react-native-element-dropdown`, cases à cocher) + chips (rôle séjour sur Équipe ; genre sur Enfants). **Carte** : **Équipe** — avatar + nom + badge rôle ; **Enfants** — nom (+ gâteau) + badge groupes ; **modal** `FichePersonneModal` au tap. Filtres par chips sur **`Groups`** (type de groupe), **`Bedrooms`** (chip Places dispo). **`DossierSanitaire`** : **MultiSelect** groupes + **`Dropdown`** filtre contenu (ligne 1) ; sous-filtre moment si Traitements (ligne 2, pleine largeur ; libellés web : Alimentation, Autres infos). **`CahierInfirmerie`** (jour avec entrées + recherche texte ; aligné modèle Sorties/Bedrooms). **`Bedrooms`** : menus déroulants Type / Genre / Groupe sur une ligne (`Dropdown` single-select). **Orga** (liste plannings, écran `Organisation.tsx`) : recherche titre seule + bouton ✕ pour vider (cross-platform).
+- **Fond listes** (**`EcranListeFond`**, **`ListeEcranLayout`**) : **`colors.background`** uniforme (filtres + zone liste) ; cartes blanches + ombre ; accordéons idem. **Accueil / Login** : dégradé + orbes (hors pattern listes).
+- **Recherche + filtre liste** (modèle `Animators` / `Children`) : barre dans bande filtres fixe (`ListeAvecFiltresFixes`) ; `TextInput` + normalisation + **MultiSelect** groupes + chips. **`DossierSanitaire`** : MultiSelect + Dropdown (ligne 1) ; moment Traitements (ligne 2). **`CahierInfirmerie`** : recherche + filtre jour. **`Bedrooms`** : Dropdowns + chip Places dispo ; **`ListeAvecFiltresFixes`** (FAB sibling). **Orga liste** : recherche titre seule.
 - **Planning matrice** (`GrilleDetail`, **`Menus`**, **`Activites`**) : colonne libellés fixe (**108 px** orga/menus ; **76 px** animateurs sur **`Activites`**) ; colonnes jours en `flex: 1` ; en-tête jour = nom + date ; fenêtre 1/3/5 j. via **`useFenetreJoursPlanning`** (flèches/swipe par bonds = taille vue) ; chips 1j/3j/5j compacts + **`BoutonModePaysageGrille`** (à droite, rotation 90° du scroll grille via **`ConteneurGrillePaysage`**, header/toolbar en portrait) ; toolbar `minHeight: 36`, alignement vertical centré ; **`GrilleDetail`** / **`Activites`** : en-tête dates fixe (**`EnteteJoursGrille`**, corps seul scrollable), grille bord à bord ; **`GrilleDetail`** : **‹ Retour** sous le header ; **`Menus`** / **`Activites`** : écran racine onglet.
 - **Accordéons listes** (`Groups`, `Bedrooms`, `Sorties`, **`CahierInfirmerie`** via **`ListeAccordion`**) : plusieurs items ouverts possibles (`Set` d'ids). **`Bedrooms`** : actions CRUD et affectation occupants dans modales dédiées (confirmations `Alert` pour suppression/retrait). **`CahierInfirmerie`** : édition/suppression dans le corps déplié (icônes, droits **`droitsCahierInfirmerie`**).
-- **Bottom sheets formulaire** : éviter `react-native-element-dropdown` dans un `ScrollView` (conflits gestes) ; préférer pills / liste dépliable + `ScrollView` de `react-native-gesture-handler`.
+- **Bottom sheets formulaire** : feuille **`colors.background`**, champs **`surface`** (chambres, cahier, affectation occupants) ; éviter `Dropdown` dans `ScrollView` gesture-handler — pills / liste dépliable.
 - **Anniversaire pendant séjour** (`Children`) : icône gâteau avant le nom ; modale « Anniversaire : {jour date} » (`helpers/anniversaireSejour.ts`).
 - Thème RNEUI + tokens `config/theme.ts` ; accent navigation **`colors.primary`** (bottom tabs, top-tabs, **`Header`**).
 - États : `ActivityIndicator` au 1er chargement ; indicateur natif au refresh.

@@ -25,6 +25,7 @@ Suivi synthétique. Plan détaillé : [`.cursor/plans/migration-api-mobile.plan.
 - [x] **Mon profil** : écran **`Profil`** (édition infos, mot de passe, photo API) ; avatar **`Header`** / **`Home`** depuis Redux ; recadrage **`PhotoProfilRecadrageModal`**, zoom **`PhotoProfilZoomModal`** ; refresh photo au pull-to-refresh.
 - [x] **Accueil** : refonte UI (dégradé, **`GlassPanel`**, **`AvatarProfil`**) ; CR veille TipTap natif ; **`Login`** fond dégradé, formulaire classique.
 - [x] **Séjour sur accueil** : suppression **`SejourPicker`** ; connexion sans séjour ; onglets bottom conditionnels ; choix via modal **`Home`**.
+- [x] **Fond UI listes / orga / sanitaire** : **`EcranListeFond`**, **`ListeEcranLayout`** (filtres fixes, fond uni **`background`**) ; modales chambre/cahier/affectation (feuille grise, champs blancs) ; **`GrilleDetail`** section haute blanche.
 
 ## Reste (mineur)
 

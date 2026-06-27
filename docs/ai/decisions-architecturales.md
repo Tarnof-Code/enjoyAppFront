@@ -14,7 +14,15 @@ Patterns et choix techniques de l'app mobile. Garder ce fichier comme référenc
 
 - **Tokens centralisés** : `config/theme.ts` (`colors`, `gradients`, `fonts`, `spacing`, `radius`, `fontSizes`).
 - **Source de vérité = app web** : palette mirroir de `enjoyWebApp/src/_variables.scss`.
-- **Accent navigation** : onglet bottom actif, top-tabs et **`Header`** (icône + titre script) en **`colors.primary`** (`#383CA7`) ; inactifs **`colors.disabled`**.
+- **Accent navigation** : onglet bottom actif, top-tabs et **`Header`** (icône + titre script blancs sur dégradé bleu) ; inactifs **`colors.disabled`**. **`Header`** : dégradé **`primary` → `primaryDark` → `#2a2d8a`** (web = fond plat **`bleu_principal`**).
+
+## Fond listes & modales formulaire
+
+- **`EcranListeFond`** : conteneur plein écran fond **`colors.background`** (`#f1f2f6`) — pas de dégradé ni orbe (uniformité filtres / liste).
+- **`ListeEcranLayout`** : **`EcranListeFond`** + **`ListeAvecFiltresFixes`** — filtres en overlay fixe (`backgroundColor: colors.background`), **`FlatList`** avec `paddingTop` dynamique (`onLayout`), pull-to-refresh `progressViewOffset` aligné ; export **`styleCarteListe`** et **`ESPACE_FILTRES_LISTE`** (12 px).
+- **Cartes listes** : fond blanc + bordure + ombre légère (`styleCarteListe` ou **`ListeAccordion`**).
+- **Modales bottom sheet chambres / cahier** : feuille **`colors.background`** ; champs, dropdowns et pills inactifs **`colors.surface`** — **`ChambreFormulaireModal`**, **`CahierInfirmerieFormModal`**, **`AffecterOccupantsModal`** (pied actions aussi **`background`**).
+- **Exception orga détail** : **`GrilleDetail`** — section haute (consigne + toolbar) **`colors.surface`** ; reste sur **`EcranListeFond`**.
 
 ## Navigation (React Navigation 7)
 
@@ -64,10 +72,11 @@ Patterns et choix techniques de l'app mobile. Garder ce fichier comme référenc
 - **`AvatarProfil`** (`Components/AvatarProfil.tsx`) : cercle photo ou initiales (taille paramétrable) — cartes **`Animators`**, en-tête **`FichePersonneModal`**.
 - **`PhotoProfilZoomModal`** : pinch / pan / double-tap ; fermeture croix ou **tap fond**.
 - **`GlassPanel`** (`Components/GlassPanel.tsx`) : conteneur givré réutilisable — **`BlurView`** (`expo-blur`) sur iOS, overlay blanc semi-opaque sur Android ; props `intensity`, `overlayOpacity`, `borderRadius`.
+- **`EcranListeFond`** / **`ListeEcranLayout`** (`Components/ListeEcranLayout.tsx`) : fond listes orga/sanitaire — uni **`colors.background`** ; filtres fixes même teinte ; **`ListeAvecFiltresFixes`** exporté pour cas sans wrapper complet (**`Bedrooms`** FAB, **`GrilleDetail`**).
 - **`ReunionContenuTipTap`** (`Components/ReunionContenuTipTap.tsx`) : rendu natif du JSON TipTap réunion (`ReunionContenuTipTapJson`) — blocs doc/paragraph/heading/list/blockquote/code/hr + marques inline ; prop **`compact?`** pour la carte accueil.
 - **`CompteRenduPleinEcranModal`** : modal slide plein écran (titre, ordre du jour, **`ReunionContenuTipTap`**) ; ouverte depuis **`Home`** (icône expand).
-- **`ListeAccordion`** (`Components/ListeAccordion.tsx`) : coque accordéon réutilisable (chevron MaterialIcons, carte bordée, slot en-tête/corps) ; styles partagés exportés (`listeAccordionStyles`). Consommé par `Groups`, `Bedrooms`, `Sorties` et **`CahierInfirmerie`** — contenu métier reste dans chaque écran.
-- **`ChambreFormulaireModal`** / **`AffecterOccupantsModal`** : bottom sheets (zone sombre cliquable au-dessus, feuille en bas) ; scroll via **`ScrollView` de `react-native-gesture-handler`** ; formulaire chambre sans `Dropdown` dans le scroll (pills + liste groupe dépliable) pour éviter conflits de gestes ; feuille affectation ~92 % hauteur écran, liste en `flex: 1`.
+- **`ListeAccordion`** (`Components/ListeAccordion.tsx`) : coque accordéon réutilisable (chevron MaterialIcons, carte bordée + ombre légère, slot en-tête/corps) ; styles partagés exportés (`listeAccordionStyles`). Consommé par `Groups`, `Bedrooms`, `Sorties` et **`CahierInfirmerie`** — contenu métier reste dans chaque écran.
+- **`ChambreFormulaireModal`** / **`AffecterOccupantsModal`** : bottom sheets (zone sombre cliquable au-dessus, feuille **`colors.background`**) ; scroll via **`ScrollView` de `react-native-gesture-handler`** ; formulaire chambre sans `Dropdown` dans le scroll (pills + liste groupe dépliable) ; champs blancs ; feuille affectation ~92 % hauteur écran, liste en `flex: 1`.
 - **`PlanningCelluleModal`** : bottom sheet édition cellule planning (~92 % écran) ; cases à cocher horaires/moments/groupes/lieux/membres ou texte libre selon `sourceContenuCellules` ; scroll gesture-handler ; retour `ResultatEnregistrementCellule` (`cellules` → PUT, `ma-presence` → PATCH).
 - **`EnteteJoursGrille`** : ligne en-tête jours (nom + date) pour grilles calendrier ; fixe au-dessus du corps scrollable ; consommé par **`GrilleDetail`** et **`Activites`** (pas **`Menus`**, en-tête encore dans le scroll) ; prop **`compact?`** (en-tête plus bas, **`Activites`**).
 - **`BoutonModePaysageGrille`** + **`ConteneurGrillePaysage`** : bascule paysage **visuelle** (rotation 90° du scroll grille) sur **`Menus`**, **`GrilleDetail`** et **`Activites`** ; hook **`useModePaysageGrille`** ; l'appareil reste en portrait (`app.json`) ; bouton rotation **`marginLeft: 'auto'`** dans la toolbar (chips 1/3/5 j. à gauche).
@@ -102,13 +111,13 @@ Patterns et choix techniques de l'app mobile. Garder ce fichier comme référenc
 - **Jour / date** : fenêtre centrée sur **`jourFocusDefautActivites`** ; nouvelle activité = date de la **cellule** cliquée (`+` ou « + Activité »).
 - **Onglet Sorties** (`Sorties.tsx`) : liste accordéons (**`ListeAccordion`**) hors grille calendrier ; en-tête replié = nom + date + moment ; corps = horaires, groupes, infos, tél., **Gérer les participants** ; filtres date (Dropdown) et groupes (MultiSelect) **limités aux valeurs présentes** dans les sorties chargées.
 - **`SortieEnfantsParticipantsModal`** : bottom sheet sélection enfants participants sortie (`PUT …/enfants`, tout membre séjour) ; défaut groupes prévus, édition sur tous les enfants inscrits.
-- **`CahierInfirmerieFormModal`** : bottom sheet création/édition entrée cahier d'infirmerie ; champs date et heure **séparés** ; **`@react-native-community/datetimepicker`** (iOS `display="compact"` ; Android **`DateTimePickerAndroid.open`**, évite crash dans Modal) ; Dropdown enfant (recherche) et soigneur ; cases à cocher soins/appels.
+- **`CahierInfirmerieFormModal`** : bottom sheet création/édition entrée cahier d'infirmerie ; feuille **`colors.background`** ; champs date et heure **séparés** ; **`@react-native-community/datetimepicker`** (iOS `display="compact"` ; Android **`DateTimePickerAndroid.open`**, évite crash dans Modal) ; Dropdown enfant (recherche) et soigneur ; cases à cocher soins/appels.
 
 ## Cahier d'infirmerie & dossier sanitaire
 
 - **Navigation** : onglet bottom **Sanitaire** → **`TopTabSanitaire`** — **CahierInfirmerie** (icône book-medical) + **DossierSanitaire** (icône clipboard).
-- **Cahier** (`CahierInfirmerie.tsx`) : `GET/POST/PUT/DELETE …/cahier-infirmerie` ; liste **accordéons** **`ListeAccordion`** (replié : enfant + date/heure ; déplié : description, localisation, soins, appels, soigneur, auteur, icônes édition/suppression) ; recherche texte + filtre jour (**dates avec entrées** via `joursAvecEntrees`, pas toute la plage séjour ; reset si jour vide) ; FAB « + » ; édition/suppression selon **`droitsCahierInfirmerie`** ; refresh séjour au pull-to-refresh ; affichage dates via **`dayjsDepuisValeurApi`**.
-- **Dossier sanitaire** (`DossierSanitaire.tsx`) : lecture seule `GET …/dossiers-enfants` ; **MultiSelect** groupes (options extraites de `EnfantDossierSanitaireLigneDto.groupes`, tri alpha) ; filtre principal **`Dropdown`** (Tout / Traitements / Alimentation / Médical / À prendre en sortie / Autres infos) ; filtre **Traitements** → second **`Dropdown`** moment (Tous / Matin / Midi / Soir / Si besoin) sur ligne dédiée, reset à « Tous les moments » si filtre principal ≠ Traitements ; cartes : section traitements limitée au moment sélectionné ; tri/libellé enfants selon `triListesEnfants`.
+- **Cahier** (`CahierInfirmerie.tsx`) : `GET/POST/PUT/DELETE …/cahier-infirmerie` ; **`ListeEcranLayout`** (fond **`background`**, filtres fixes) ; accordéons **`ListeAccordion`** ; recherche + filtre jour ; FAB « + » ; **`CahierInfirmerieFormModal`** (feuille grise) ; droits **`droitsCahierInfirmerie`**.
+- **Dossier sanitaire** (`DossierSanitaire.tsx`) : lecture seule `GET …/dossiers-enfants` ; **`ListeEcranLayout`** ; **MultiSelect** groupes + **`Dropdown`** filtre contenu ; sous-filtre moment Traitements ; cartes **`styleCarteListe`** ; tri/libellé enfants selon `triListesEnfants`.
 - **Libellés soins/appels** : **`constants/cahierInfirmerieLabels.ts`**. Pas d'historique ni impression mobile.
 
 ## Profil utilisateur

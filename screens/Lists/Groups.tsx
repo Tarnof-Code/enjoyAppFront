@@ -1,15 +1,14 @@
 import React, { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
-  FlatList,
   Pressable,
-  RefreshControl,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
 
 import { ListeAccordion, listeAccordionStyles } from '../../Components/ListeAccordion';
+import ListeEcranLayout from '../../Components/ListeEcranLayout';
 import { useChargementRafraichissable } from '../../hooks/useChargementRafraichissable';
 import { useRafraichirSejourCourant } from '../../hooks/useRafraichirSejourCourant';
 import { groupeService } from '../../services/groupe.service';
@@ -188,62 +187,55 @@ export default function Groups() {
   }
 
   return (
-    <View style={styles.container}>
-      {filtresType.length > 1 ? (
-        <View style={styles.filtres}>
-          {filtresType.map(({ cle, libelle }) => {
-            const actif = cle === filtreTypeActif;
-            return (
-              <Pressable
-                key={cle}
-                onPress={() => setFiltreType(cle)}
-                style={[styles.chip, actif && styles.chipActif]}
-              >
-                <Text style={[styles.chipTexte, actif && styles.chipTexteActif]}>{libelle}</Text>
-              </Pressable>
-            );
-          })}
-        </View>
-      ) : null}
-
-      <FlatList
-        data={groupesVisibles}
-        keyExtractor={(item) => String(item.id)}
-        contentContainerStyle={styles.list}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={refresh} colors={[colors.primary]} tintColor={colors.primary} />
-        }
-        renderItem={({ item }) => (
-          <GroupeAccordion
-            groupe={item}
-            tousLesGroupes={groupes}
-            sejour={sejour}
-            ouvert={ouverts.has(item.id)}
-            onToggle={() => basculerGroupe(item.id)}
-          />
-        )}
-        ListEmptyComponent={
-          <Text style={styles.empty}>
-            {groupes.length === 0
-              ? 'Aucun groupe pour ce séjour.'
-              : 'Aucun groupe ne correspond au filtre.'}
-          </Text>
-        }
-      />
-    </View>
+    <ListeEcranLayout
+      data={groupesVisibles}
+      keyExtractor={(item) => String(item.id)}
+      refreshing={refreshing}
+      onRefresh={refresh}
+      filtres={
+        filtresType.length > 1 ? (
+          <View style={styles.filtres}>
+            {filtresType.map(({ cle, libelle }) => {
+              const actif = cle === filtreTypeActif;
+              return (
+                <Pressable
+                  key={cle}
+                  onPress={() => setFiltreType(cle)}
+                  style={[styles.chip, actif && styles.chipActif]}
+                >
+                  <Text style={[styles.chipTexte, actif && styles.chipTexteActif]}>{libelle}</Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        ) : undefined
+      }
+      renderItem={({ item }) => (
+        <GroupeAccordion
+          groupe={item}
+          tousLesGroupes={groupes}
+          sejour={sejour}
+          ouvert={ouverts.has(item.id)}
+          onToggle={() => basculerGroupe(item.id)}
+        />
+      )}
+      ListEmptyComponent={
+        <Text style={styles.empty}>
+          {groupes.length === 0
+            ? 'Aucun groupe pour ce séjour.'
+            : 'Aucun groupe ne correspond au filtre.'}
+        </Text>
+      }
+    />
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.surface,
-  },
   center: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: colors.surface,
+    backgroundColor: colors.background,
   },
   filtres: {
     flexDirection: 'row',
@@ -271,9 +263,6 @@ const styles = StyleSheet.create({
   chipTexteActif: {
     color: colors.surface,
     fontWeight: '700',
-  },
-  list: {
-    padding: 12,
   },
   count: {
     fontSize: fontSizes.xs,

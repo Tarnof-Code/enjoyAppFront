@@ -1,9 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
-  FlatList,
   Pressable,
-  RefreshControl,
   StyleSheet,
   Text,
   TextInput,
@@ -15,6 +13,7 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/fr';
 
 import Header from '../../Components/Header';
+import ListeEcranLayout, { styleCarteListe } from '../../Components/ListeEcranLayout';
 import { useChargementRafraichissable } from '../../hooks/useChargementRafraichissable';
 import { planningGrilleService } from '../../services/planningGrille.service';
 import type { OrganisationStackParamList } from '../../Navigators/types';
@@ -94,59 +93,57 @@ function GrillesList({ navigation }: Props) {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.barreRecherche}>
-        <View style={styles.rechercheConteneur}>
-          <TextInput
-            style={styles.recherche}
-            value={recherche}
-            onChangeText={setRecherche}
-            placeholder="Rechercher un planning…"
-            placeholderTextColor={colors.muted}
-            autoCorrect={false}
-          />
-          {recherche.length > 0 ? (
-            <Pressable
-              style={styles.rechercheEffacer}
-              onPress={() => setRecherche('')}
-              hitSlop={8}
-              accessibilityLabel="Effacer la recherche"
-            >
-              <MaterialIcons name="close" size={20} color={colors.muted} />
-            </Pressable>
-          ) : null}
+    <ListeEcranLayout
+      data={grillesVisibles}
+      keyExtractor={(item) => String(item.id)}
+      refreshing={refreshing}
+      onRefresh={refresh}
+      filtres={
+        <View style={styles.barreRecherche}>
+          <View style={styles.rechercheConteneur}>
+            <TextInput
+              style={styles.recherche}
+              value={recherche}
+              onChangeText={setRecherche}
+              placeholder="Rechercher un planning…"
+              placeholderTextColor={colors.muted}
+              autoCorrect={false}
+            />
+            {recherche.length > 0 ? (
+              <Pressable
+                style={styles.rechercheEffacer}
+                onPress={() => setRecherche('')}
+                hitSlop={8}
+                accessibilityLabel="Effacer la recherche"
+              >
+                <MaterialIcons name="close" size={20} color={colors.muted} />
+              </Pressable>
+            ) : null}
+          </View>
         </View>
-      </View>
-      <FlatList
-        data={grillesVisibles}
-        keyExtractor={(item) => String(item.id)}
-        contentContainerStyle={styles.list}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={refresh} colors={[colors.primary]} tintColor={colors.primary} />
-        }
-        renderItem={({ item }) => {
-          const maj = formatMiseAJour(item.miseAJour as unknown);
-          return (
-            <Pressable
-              style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
-              onPress={() =>
-                navigation.navigate('GrilleDetail', { grilleId: item.id, titre: item.titre })
-              }
-            >
-              <Text style={styles.titre}>{item.titre}</Text>
-              {maj ? <Text style={styles.meta}>Mis à jour le {maj}</Text> : null}
-            </Pressable>
-          );
-        }}
-        ListEmptyComponent={
-          <Text style={styles.empty}>
-            {grilles.length === 0
-              ? 'Aucun planning pour ce séjour.'
-              : 'Aucun planning ne correspond à la recherche.'}
-          </Text>
-        }
-      />
-    </View>
+      }
+      renderItem={({ item }) => {
+        const maj = formatMiseAJour(item.miseAJour as unknown);
+        return (
+          <Pressable
+            style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
+            onPress={() =>
+              navigation.navigate('GrilleDetail', { grilleId: item.id, titre: item.titre })
+            }
+          >
+            <Text style={styles.titre}>{item.titre}</Text>
+            {maj ? <Text style={styles.meta}>Mis à jour le {maj}</Text> : null}
+          </Pressable>
+        );
+      }}
+      ListEmptyComponent={
+        <Text style={styles.empty}>
+          {grilles.length === 0
+            ? 'Aucun planning pour ce séjour.'
+            : 'Aucun planning ne correspond à la recherche.'}
+        </Text>
+      }
+    />
   );
 }
 
@@ -160,15 +157,11 @@ export default function Organisation(props: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.surface,
-  },
   center: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: colors.surface,
+    backgroundColor: colors.background,
   },
   barreRecherche: {
     paddingHorizontal: 12,
@@ -195,10 +188,6 @@ const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: 'center',
   },
-  list: {
-    padding: 12,
-    backgroundColor: colors.surface,
-  },
   card: {
     backgroundColor: colors.surface,
     borderWidth: 1,
@@ -206,6 +195,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     marginBottom: 10,
+    ...styleCarteListe,
   },
   cardPressed: {
     opacity: 0.85,

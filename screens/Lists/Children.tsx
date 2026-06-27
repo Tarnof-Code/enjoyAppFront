@@ -1,10 +1,8 @@
 import React, { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
-  FlatList,
   Linking,
   Pressable,
-  RefreshControl,
   StyleSheet,
   Text,
   TextInput,
@@ -23,6 +21,7 @@ import { dossierEnfantService } from '../../services/dossierEnfant.service';
 import type { ChambreDto, DossierEnfantDto, EnfantDto, GroupeDto } from '../../types/api';
 import { useAppSelector } from '../../store/hooks';
 import FichePersonneModal, { LigneInfoFiche } from '../../Components/FichePersonneModal';
+import ListeEcranLayout, { styleCarteListe } from '../../Components/ListeEcranLayout';
 import { anniversairePendantSejour } from '../../helpers/anniversaireSejour';
 import { libelleEnfantDuSejour, trierEnfantsDuSejour } from '../../helpers/triListesSejour';
 import { colors, fontSizes } from '../../config/theme';
@@ -166,74 +165,75 @@ export default function Children() {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.barreFiltres}>
-        <TextInput
-          style={styles.recherche}
-          value={recherche}
-          onChangeText={setRecherche}
-          placeholder="Rechercher…"
-          placeholderTextColor={colors.muted}
-          autoCorrect={false}
-          clearButtonMode="while-editing"
-        />
-
-        {optionsGroupes.length > 0 ? (
-          <MultiSelect
-            style={styles.dropdown}
-            containerStyle={styles.dropdownContainer}
-            placeholderStyle={styles.dropdownPlaceholder}
-            selectedTextStyle={styles.dropdownPlaceholder}
-            itemTextStyle={styles.dropdownItemText}
-            activeColor={colors.primarySoft}
-            data={optionsGroupes}
-            labelField="label"
-            valueField="value"
-            value={groupesSelectionnes}
-            onChange={setGroupesSelectionnes}
-            placeholder={
-              groupesSelectionnes.length > 0
-                ? `${groupesSelectionnes.length} groupe${groupesSelectionnes.length > 1 ? 's' : ''}`
-                : 'Groupes'
-            }
-            visibleSelectedItem={false}
-            renderItem={(item, selected) => (
-              <View style={styles.dropdownItem}>
-                <MaterialIcons
-                  name={selected ? 'check-box' : 'check-box-outline-blank'}
-                  size={20}
-                  color={selected ? colors.primary : colors.muted}
-                />
-                <Text style={styles.dropdownItemText}>{item.label}</Text>
-              </View>
-            )}
-          />
-        ) : null}
-      </View>
-
-      {filtresGenre.length > 1 ? (
-        <View style={styles.filtres}>
-          {filtresGenre.map(({ cle, libelle }) => {
-            const actif = cle === filtreGenreActif;
-            return (
-              <Pressable
-                key={cle}
-                onPress={() => setFiltreGenre(cle)}
-                style={[styles.chip, actif && styles.chipActif]}
-              >
-                <Text style={[styles.chipTexte, actif && styles.chipTexteActif]}>{libelle}</Text>
-              </Pressable>
-            );
-          })}
-        </View>
-      ) : null}
-
-      <FlatList
+    <>
+      <ListeEcranLayout
         data={enfantsAffiches}
         keyExtractor={(item) => String(item.id)}
-        contentContainerStyle={styles.list}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={refresh} colors={[colors.primary]} tintColor={colors.primary} />
+        refreshing={refreshing}
+        onRefresh={refresh}
+        filtres={
+          <>
+            <View style={styles.barreFiltres}>
+              <TextInput
+                style={styles.recherche}
+                value={recherche}
+                onChangeText={setRecherche}
+                placeholder="Rechercher…"
+                placeholderTextColor={colors.muted}
+                autoCorrect={false}
+                clearButtonMode="while-editing"
+              />
+
+              {optionsGroupes.length > 0 ? (
+                <MultiSelect
+                  style={styles.dropdown}
+                  containerStyle={styles.dropdownContainer}
+                  placeholderStyle={styles.dropdownPlaceholder}
+                  selectedTextStyle={styles.dropdownPlaceholder}
+                  itemTextStyle={styles.dropdownItemText}
+                  activeColor={colors.primarySoft}
+                  data={optionsGroupes}
+                  labelField="label"
+                  valueField="value"
+                  value={groupesSelectionnes}
+                  onChange={setGroupesSelectionnes}
+                  placeholder={
+                    groupesSelectionnes.length > 0
+                      ? `${groupesSelectionnes.length} groupe${groupesSelectionnes.length > 1 ? 's' : ''}`
+                      : 'Groupes'
+                  }
+                  visibleSelectedItem={false}
+                  renderItem={(item, selected) => (
+                    <View style={styles.dropdownItem}>
+                      <MaterialIcons
+                        name={selected ? 'check-box' : 'check-box-outline-blank'}
+                        size={20}
+                        color={selected ? colors.primary : colors.muted}
+                      />
+                      <Text style={styles.dropdownItemText}>{item.label}</Text>
+                    </View>
+                  )}
+                />
+              ) : null}
+            </View>
+
+            {filtresGenre.length > 1 ? (
+              <View style={styles.filtres}>
+                {filtresGenre.map(({ cle, libelle }) => {
+                  const actif = cle === filtreGenreActif;
+                  return (
+                    <Pressable
+                      key={cle}
+                      onPress={() => setFiltreGenre(cle)}
+                      style={[styles.chip, actif && styles.chipActif]}
+                    >
+                      <Text style={[styles.chipTexte, actif && styles.chipTexteActif]}>{libelle}</Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            ) : null}
+          </>
         }
         renderItem={({ item }) => {
           const groupesLabel = groupesDeEnfant(item.id, groupes).join(', ');
@@ -278,7 +278,7 @@ export default function Children() {
         dateFinSejour={sejour?.dateFin}
         onFermer={() => setEnfantSelectionne(null)}
       />
-    </View>
+    </>
   );
 }
 
@@ -379,15 +379,11 @@ function DetailEnfant({
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.surface,
-  },
   center: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: colors.surface,
+    backgroundColor: colors.background,
   },
   barreFiltres: {
     flexDirection: 'row',
@@ -461,9 +457,6 @@ const styles = StyleSheet.create({
     color: colors.surface,
     fontWeight: '700',
   },
-  list: {
-    padding: 12,
-  },
   card: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -475,6 +468,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 16,
     marginBottom: 10,
+    ...styleCarteListe,
   },
   cardPressed: {
     backgroundColor: colors.background,

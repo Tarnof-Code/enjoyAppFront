@@ -18,9 +18,20 @@
 
 **Accueil (`Home`)** : refonte visuelle (dégradé, **`GlassPanel`**, avatar **`AvatarProfil`**) ; CR veille TipTap + modale plein écran ; **sélection séjour sur l’accueil** (plus d’écran **`SejourPicker`**) — sans séjour : invite « Veuillez choisir votre séjour », pas de carte réunion ; onglets bottom restreints à **Home** jusqu’au choix.
 
+**Listes / orga / sanitaire (fond UI)** : fond gris clair uniforme **`colors.background`** via **`EcranListeFond`** + **`ListeEcranLayout`** (filtres fixes, cartes blanches ombre légère) ; modales chambres/cahier/affectation — feuille **`background`**, champs blancs.
+
 Reste mineur : composant orphelin `DropdownAnim.tsx`, assets `LogosGroupes/` non référencés, spike refresh token en prod (HTTPS).
 
 ## Journal
+
+### 2026-06-27 (Fond listes / orga / sanitaire + modales chambres & cahier)
+- **Composants** : **`EcranListeFond`** (fond uni **`colors.background`**, sans dégradé) ; **`ListeEcranLayout`** + **`ListeAvecFiltresFixes`** (bande filtres fixe même teinte, liste scroll derrière, espacement 12 px) ; export **`styleCarteListe`** (ombre cartes).
+- **Écrans listes** : **`Animators`**, **`Children`**, **`Groups`**, **`Bedrooms`** migrés vers **`ListeEcranLayout`** ; états vides/chargement sur **`background`**.
+- **Orga** : liste plannings (**`Organisation.tsx`**) — **`ListeEcranLayout`** ; **`GrilleDetail`** — **`EcranListeFond`** + section haute blanche (consigne + toolbar), grille en dessous.
+- **Sanitaire** : **`CahierInfirmerie`**, **`DossierSanitaire`** — **`ListeEcranLayout`**.
+- **`ListeAccordion`** : ombre légère sur cartes accordéon.
+- **Modales** (feuille **`colors.background`**, champs **`surface`**) : **`ChambreFormulaireModal`**, **`CahierInfirmerieFormModal`**, **`AffecterOccupantsModal`**.
+- **`Header`** : dégradé bleu marque conservé (non aligné fond plat web).
 
 ### 2026-06-27 (Séjour — choix sur accueil, suppression SejourPicker)
 - **`SejourPicker.tsx`** supprimé ; Stack `Login` → **`BottomTab`** directement.

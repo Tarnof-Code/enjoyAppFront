@@ -1,8 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
-  FlatList,
-  RefreshControl,
   StyleSheet,
   Text,
   View,
@@ -11,6 +9,7 @@ import { Dropdown, MultiSelect } from 'react-native-element-dropdown';
 import { MaterialIcons } from '@expo/vector-icons';
 
 import { useChargementRafraichissable } from '../../hooks/useChargementRafraichissable';
+import ListeEcranLayout, { styleCarteListe } from '../../Components/ListeEcranLayout';
 import { useRafraichirSejourCourant } from '../../hooks/useRafraichirSejourCourant';
 import { dossierEnfantService } from '../../services/dossierEnfant.service';
 import type { DossierEnfantDto, EnfantDossierSanitaireLigneDto, SejourDTO } from '../../types/api';
@@ -261,108 +260,101 @@ export default function DossierSanitaire() {
   }
 
   return (
-    <View style={styles.flex}>
-      <View style={styles.barreFiltre}>
-        <View style={styles.ligneFiltres}>
-          {optionsGroupes.length > 0 ? (
-            <MultiSelect
+    <ListeEcranLayout
+      data={visibles}
+      keyExtractor={(item) => String(item.enfantId)}
+      refreshing={refreshing}
+      onRefresh={refresh}
+      filtres={
+        <View style={styles.barreFiltre}>
+          <View style={styles.ligneFiltres}>
+            {optionsGroupes.length > 0 ? (
+              <MultiSelect
+                style={styles.dropdown}
+                containerStyle={styles.dropdownContainer}
+                placeholderStyle={styles.dropdownTexte}
+                selectedTextStyle={styles.dropdownTexte}
+                itemTextStyle={styles.dropdownItemText}
+                activeColor={colors.primarySoft}
+                data={optionsGroupes}
+                labelField="label"
+                valueField="value"
+                value={groupesSelectionnes}
+                onChange={setGroupesSelectionnes}
+                placeholder={
+                  groupesSelectionnes.length > 0
+                    ? `${groupesSelectionnes.length} groupe${groupesSelectionnes.length > 1 ? 's' : ''}`
+                    : 'Groupes'
+                }
+                visibleSelectedItem={false}
+                renderItem={(item, selected) => (
+                  <View style={styles.dropdownItem}>
+                    <MaterialIcons
+                      name={selected ? 'check-box' : 'check-box-outline-blank'}
+                      size={20}
+                      color={selected ? colors.primary : colors.muted}
+                    />
+                    <Text style={styles.dropdownItemText}>{item.label}</Text>
+                  </View>
+                )}
+              />
+            ) : null}
+            <Dropdown
               style={styles.dropdown}
               containerStyle={styles.dropdownContainer}
               placeholderStyle={styles.dropdownTexte}
               selectedTextStyle={styles.dropdownTexte}
               itemTextStyle={styles.dropdownItemText}
               activeColor={colors.primarySoft}
-              data={optionsGroupes}
+              data={OPTIONS_FILTRE}
               labelField="label"
               valueField="value"
-              value={groupesSelectionnes}
-              onChange={setGroupesSelectionnes}
-              placeholder={
-                groupesSelectionnes.length > 0
-                  ? `${groupesSelectionnes.length} groupe${groupesSelectionnes.length > 1 ? 's' : ''}`
-                  : 'Groupes'
-              }
-              visibleSelectedItem={false}
-              renderItem={(item, selected) => (
-                <View style={styles.dropdownItem}>
-                  <MaterialIcons
-                    name={selected ? 'check-box' : 'check-box-outline-blank'}
-                    size={20}
-                    color={selected ? colors.primary : colors.muted}
-                  />
-                  <Text style={styles.dropdownItemText}>{item.label}</Text>
-                </View>
-              )}
+              placeholder="Filtrer"
+              value={filtre}
+              onChange={(item) => {
+                setFiltre(item.value);
+                if (item.value !== 'TRAITEMENTS') setFiltreTraitement('TOUS');
+              }}
+            />
+          </View>
+          {filtre === 'TRAITEMENTS' ? (
+            <Dropdown
+              style={styles.dropdownPlein}
+              containerStyle={styles.dropdownContainer}
+              placeholderStyle={styles.dropdownTexte}
+              selectedTextStyle={styles.dropdownTexte}
+              itemTextStyle={styles.dropdownItemText}
+              activeColor={colors.primarySoft}
+              data={OPTIONS_FILTRE_TRAITEMENT}
+              labelField="label"
+              valueField="value"
+              placeholder="Moment"
+              value={filtreTraitement}
+              onChange={(item) => setFiltreTraitement(item.value)}
             />
           ) : null}
-          <Dropdown
-            style={styles.dropdown}
-            containerStyle={styles.dropdownContainer}
-            placeholderStyle={styles.dropdownTexte}
-            selectedTextStyle={styles.dropdownTexte}
-            itemTextStyle={styles.dropdownItemText}
-            activeColor={colors.primarySoft}
-            data={OPTIONS_FILTRE}
-            labelField="label"
-            valueField="value"
-            placeholder="Filtrer"
-            value={filtre}
-            onChange={(item) => {
-              setFiltre(item.value);
-              if (item.value !== 'TRAITEMENTS') setFiltreTraitement('TOUS');
-            }}
-          />
         </View>
-        {filtre === 'TRAITEMENTS' ? (
-          <Dropdown
-            style={styles.dropdownPlein}
-            containerStyle={styles.dropdownContainer}
-            placeholderStyle={styles.dropdownTexte}
-            selectedTextStyle={styles.dropdownTexte}
-            itemTextStyle={styles.dropdownItemText}
-            activeColor={colors.primarySoft}
-            data={OPTIONS_FILTRE_TRAITEMENT}
-            labelField="label"
-            valueField="value"
-            placeholder="Moment"
-            value={filtreTraitement}
-            onChange={(item) => setFiltreTraitement(item.value)}
-          />
-        ) : null}
-      </View>
-
-      <FlatList
-        data={visibles}
-        keyExtractor={(item) => String(item.enfantId)}
-        contentContainerStyle={styles.list}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={refresh} colors={[colors.primary]} tintColor={colors.primary} />
-        }
-        renderItem={({ item }) => (
-          <Ligne
-            item={item}
-            sejour={sejour}
-            momentTraitement={filtre === 'TRAITEMENTS' ? filtreTraitement : undefined}
-          />
-        )}
-        ListEmptyComponent={
-          <Text style={styles.empty}>Aucune information sanitaire pour ce filtre.</Text>
-        }
-      />
-    </View>
+      }
+      renderItem={({ item }) => (
+        <Ligne
+          item={item}
+          sejour={sejour}
+          momentTraitement={filtre === 'TRAITEMENTS' ? filtreTraitement : undefined}
+        />
+      )}
+      ListEmptyComponent={
+        <Text style={styles.empty}>Aucune information sanitaire pour ce filtre.</Text>
+      }
+    />
   );
 }
 
 const styles = StyleSheet.create({
-  flex: {
-    flex: 1,
-    backgroundColor: colors.surface,
-  },
   center: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: colors.surface,
+    backgroundColor: colors.background,
   },
   barreFiltre: {
     gap: spacing.sm,
@@ -411,9 +403,6 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
   },
-  list: {
-    padding: 12,
-  },
   card: {
     backgroundColor: colors.surface,
     borderWidth: 1,
@@ -421,6 +410,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 14,
     marginBottom: 10,
+    ...styleCarteListe,
   },
   cardHeader: {
     flexDirection: 'row',

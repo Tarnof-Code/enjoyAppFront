@@ -15,6 +15,7 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/fr';
 
 import Header from '../../Components/Header';
+import EcranListeFond from '../../Components/EcranListeFond';
 import BoutonModePaysageGrille from '../../Components/BoutonModePaysageGrille';
 import ConteneurGrillePaysage from '../../Components/ConteneurGrillePaysage';
 import EnteteJoursGrille from '../../Components/EnteteJoursGrille';
@@ -282,13 +283,15 @@ function GrilleDetailContent({ route, navigation, modePaysage, basculerModePaysa
   }
 
   return (
-    <View style={styles.container}>
-      {grille.consigneGlobale ? (
-        <Text style={styles.consigne}>{grille.consigneGlobale}</Text>
-      ) : null}
+    <EcranListeFond>
+      <View style={styles.content}>
+        <View style={styles.sectionHaut}>
+          {grille.consigneGlobale ? (
+            <Text style={styles.consigne}>{grille.consigneGlobale}</Text>
+          ) : null}
 
-      <View style={styles.barreOutils}>
-        <View style={styles.ligneFiltres}>
+          <View style={styles.barreOutils}>
+            <View style={styles.ligneFiltres}>
           <Pressable
             onPress={() => navigation.goBack()}
             style={({ pressed }) => [styles.btnRetour, pressed && styles.btnRetourPressed]}
@@ -357,10 +360,11 @@ function GrilleDetailContent({ route, navigation, modePaysage, basculerModePaysa
           >
             <Text style={styles.btnAujourdhuiTexte}>Aujourd’hui</Text>
           </Pressable>
-        ) : null}
-      </View>
+          ) : null}
+          </View>
+        </View>
 
-      <ConteneurGrillePaysage modePaysage={modePaysage}>
+        <ConteneurGrillePaysage modePaysage={modePaysage}>
         <GestureDetector gesture={swipeGesture}>
           <View style={styles.grilleZone}>
             <View style={styles.grille}>
@@ -437,9 +441,9 @@ function GrilleDetailContent({ route, navigation, modePaysage, basculerModePaysa
             </View>
           </View>
         </GestureDetector>
-      </ConteneurGrillePaysage>
+        </ConteneurGrillePaysage>
 
-      <PlanningCelluleModal
+        <PlanningCelluleModal
         visible={cellModalVisible}
         submitting={cellSubmitting}
         error={cellError}
@@ -457,8 +461,9 @@ function GrilleDetailContent({ route, navigation, modePaysage, basculerModePaysa
         tokenUtilisateur={tokenUtilisateur}
         onFermer={fermerCellule}
         onEnregistrer={handleEnregistrerCellule}
-      />
-    </View>
+        />
+      </View>
+    </EcranListeFond>
   );
 }
 
@@ -478,15 +483,17 @@ export default function GrilleDetail(props: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: {
+  content: {
     flex: 1,
+  },
+  sectionHaut: {
     backgroundColor: colors.surface,
   },
   center: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: colors.surface,
+    backgroundColor: colors.background,
   },
   consigne: {
     fontSize: fontSizes.sm,
