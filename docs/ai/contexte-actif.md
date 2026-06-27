@@ -14,9 +14,17 @@
 
 **Mon profil** : écran Stack **`Profil`** (édition infos, mot de passe, photo API) ; avatar **`Header`** / **`Home`** via Redux ; refresh photo au pull-to-refresh.
 
+**Liste Équipe** : cartes et modale détail avec **photo de profil API** (`AvatarProfil`, **`usePhotosProfilEquipe`**) ; zoom **`PhotoProfilZoomModal`** (fermeture fond ou croix).
+
 Reste mineur : composant orphelin `DropdownAnim.tsx`, assets `LogosGroupes/` non référencés, spike refresh token en prod (HTTPS).
 
 ## Journal
+
+### 2026-06-27 (Équipe — photos de profil cartes + modale)
+- **`AvatarProfil`** : avatar circulaire (photo ou initiales) ; **`hooks/usePhotosProfilEquipe`** — charge les photos des membres avec `photoProfilUrl` via **`getPhotoProfilDataUri`**, réutilise Redux pour l'utilisateur connecté ; refresh au pull-to-refresh **`Animators`**.
+- **`Animators`** : photo sur chaque carte membre ; **`FichePersonneModal`** reçoit `photoUri` (en-tête photo + initiales) ; tap photo → **`PhotoProfilZoomModal`**.
+- **`FichePersonneModal`** : prop optionnelle **`photoUri`** ; en-tête photo + nom/rôle.
+- **`PhotoProfilZoomModal`** : fermeture au tap sur le fond (en plus de la croix) ; pinch / pan / double-tap inchangés.
 
 ### 2026-06-27 (alignement `@react-native-community/datetimepicker`)
 - **`package.json`** : version **8.4.4** (SDK 54) via `npx expo install` — suppression du warning Expo (`9.1.0` incompatible). Consommateurs : **`Profil`** (date de naissance), **`CahierInfirmerieFormModal`** (date/heure).

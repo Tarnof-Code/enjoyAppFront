@@ -13,7 +13,7 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | Domaine | Endpoint | Écran / usage |
 |---------|----------|---------------|
 | Auth | `POST /auth/connexion`, `/refresh-token`, `/logout` | Connexion, session |
-| Profil | `GET /utilisateurs/profil?tokenId=`, `PUT /utilisateurs`, `PATCH /utilisateurs/mot-de-passe`, `GET/POST/DELETE /utilisateurs/{tokenId}/photo-profil` | Bootstrap, **`Profil`**, **`Home`**, **`Header`**, **`Animators`** (coordonnées directeur) |
+| Profil | `GET /utilisateurs/profil?tokenId=`, `PUT /utilisateurs`, `PATCH /utilisateurs/mot-de-passe`, `GET/POST/DELETE /utilisateurs/{tokenId}/photo-profil` | Bootstrap, **`Profil`**, **`Home`**, **`Header`**, **`Animators`** (directeur + photos équipe via `photoProfilUrl`) |
 | Séjours | `GET /sejours/utilisateur/{tokenId}`, `GET /sejours/{id}` | `SejourPicker`, `Home`, refresh séjour (`useRafraichirSejourCourant` sur listes, Sanitaire, Activités, GrilleDetail) |
 | Réunions | `GET /sejours/{sejourId}/reunions` | `Home` (CR veille) |
 | Enfants | `GET /sejours/{id}/enfants` | `Children` |
@@ -60,6 +60,7 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 |---------|------|
 | `useChargementRafraichissable.ts` | Chargement initial + pull-to-refresh (+ **`rafraichirPhotoProfil`** au refresh) |
 | `usePhotoProfilLoader.ts` | Charge **`photoProfilUri`** dans Redux (montage BottomTab + focus) |
+| `usePhotosProfilEquipe.ts` | Photos profil membres équipe (`photoProfilUrl` → data URI ; réutilise Redux si connecté) |
 | `useRafraichirSejourCourant.ts` | Recharge `sejourCourant` (critères tri listes) au refresh |
 | `useFenetreJoursPlanning.ts` | Fenêtre glissante 1/3/5 jours ; navigation par bonds (= taille vue) ; partagé **`GrilleDetail`**, **`Menus`** et **`Activites`** |
 | `useModePaysageGrille.ts` | Bascule état paysage visuel du tableau (sans rotation appareil) |
@@ -105,8 +106,9 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | `ActiviteConflitSortieModal.tsx` | Résolution conflit activité / sortie à l'enregistrement (directeur) |
 | `CahierInfirmerieFormModal.tsx` | Création/édition entrée cahier d'infirmerie (date/heure séparées, soins, appels, soigneur) |
 | `ChangePasswordModal.tsx` | Modification mot de passe (depuis **`Profil`**) |
+| `AvatarProfil.tsx` | Avatar circulaire (photo ou initiales) — **`Animators`**, **`FichePersonneModal`** |
 | `PhotoProfilRecadrageModal.tsx` | Recadrage photo profil (cercle, Valider/Annuler) |
-| `PhotoProfilZoomModal.tsx` | Agrandissement photo profil (pinch / double-tap) |
+| `PhotoProfilZoomModal.tsx` | Agrandissement photo profil (pinch / double-tap / pan ; fermeture fond ou croix) |
 
 ## Glossaire
 

@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
+  Image,
   Modal,
   Pressable,
   ScrollView,
@@ -8,7 +9,11 @@ import {
   View,
 } from 'react-native';
 
+import AvatarProfil from './AvatarProfil';
+import PhotoProfilZoomModal from './PhotoProfilZoomModal';
 import { colors, fontSizes, radius, spacing } from '../config/theme';
+
+const TAILLE_PHOTO_MODALE = 80;
 
 export function LigneInfoFiche({
   libelle,
@@ -41,6 +46,7 @@ interface FichePersonneModalProps {
   sousTitre: string;
   children: React.ReactNode;
   aucuneInfo?: boolean;
+  photoUri?: string | null;
 }
 
 export default function FichePersonneModal({
@@ -51,15 +57,43 @@ export default function FichePersonneModal({
   sousTitre,
   children,
   aucuneInfo = false,
+  photoUri = null,
 }: FichePersonneModalProps) {
+  const [photoZoomOpen, setPhotoZoomOpen] = useState(false);
+
+  useEffect(() => {
+    if (!visible) setPhotoZoomOpen(false);
+  }, [visible]);
+
+  const fermer = () => {
+    setPhotoZoomOpen(false);
+    onFermer();
+  };
+
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onFermer}>
-      <Pressable style={styles.modalOverlay} onPress={onFermer}>
+    <>
+      <Modal visible={visible} transparent animationType="fade" onRequestClose={fermer}>
+      <Pressable style={styles.modalOverlay} onPress={fermer}>
         <Pressable style={styles.modalCard} onPress={() => {}}>
-          <Text style={styles.modalNom}>
-            {prenom} {nom.toUpperCase()}
-          </Text>
-          <Text style={styles.modalRole}>{sousTitre}</Text>
+          <View style={styles.modalEntete}>
+            {photoUri ? (
+              <Pressable
+                onPress={() => setPhotoZoomOpen(true)}
+                accessibilityRole="button"
+                accessibilityLabel="Voir la photo en grand"
+              >
+                <Image source={{ uri: photoUri }} style={styles.modalPhoto} />
+              </Pressable>
+            ) : (
+              <AvatarProfil prenom={prenom} nom={nom} size={TAILLE_PHOTO_MODALE} />
+            )}
+            <View style={styles.modalEnteteTexte}>
+              <Text style={styles.modalNom}>
+                {prenom} {nom.toUpperCase()}
+              </Text>
+              <Text style={styles.modalRole}>{sousTitre}</Text>
+            </View>
+          </View>
 
           <ScrollView style={styles.modalCorps} contentContainerStyle={styles.modalCorpsContenu}>
             {children}
@@ -70,13 +104,20 @@ export default function FichePersonneModal({
 
           <Pressable
             style={({ pressed }) => [styles.modalFermer, pressed && styles.modalFermerPressed]}
-            onPress={onFermer}
+            onPress={fermer}
           >
             <Text style={styles.modalFermerTexte}>Fermer</Text>
           </Pressable>
         </Pressable>
       </Pressable>
-    </Modal>
+      </Modal>
+
+      <PhotoProfilZoomModal
+        visible={visible && photoZoomOpen}
+        uri={photoUri}
+        onClose={() => setPhotoZoomOpen(false)}
+      />
+    </>
   );
 }
 
@@ -94,6 +135,20 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderRadius: radius.sm,
     padding: spacing.xl,
+  },
+  modalEntete: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.lg,
+  },
+  modalPhoto: {
+    width: TAILLE_PHOTO_MODALE,
+    height: TAILLE_PHOTO_MODALE,
+    borderRadius: TAILLE_PHOTO_MODALE / 2,
+    backgroundColor: colors.border,
+  },
+  modalEnteteTexte: {
+    flex: 1,
   },
   modalNom: {
     fontSize: fontSizes.lg,

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   FlatList,
   Linking,
@@ -20,7 +20,9 @@ import { rafraichirPhotoProfil } from '../../helpers/rafraichirPhotoProfil';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { setSejourCourant } from '../../store/sejourSlice';
 import FichePersonneModal, { LigneInfoFiche } from '../../Components/FichePersonneModal';
+import AvatarProfil from '../../Components/AvatarProfil';
 import { colors } from '../../config/theme';
+import { usePhotosProfilEquipe } from '../../hooks/usePhotosProfilEquipe';
 import type { ChambreDto, GroupeDto } from '../../types/api';
 import { ROLES_SEJOUR, libelleRoleSejour, libelleRoleSejourCourt } from '../../helpers/roleSejour';
 import { libelleEquipeDuSejour, trierEquipeDuSejour } from '../../helpers/triListesSejour';
@@ -33,6 +35,7 @@ interface TeamRow {
   roleFiltre: string;
   telephone?: string;
   email?: string;
+  photoProfilUrl?: string | null;
 }
 
 const FILTRE_TOUT = 'TOUT';
@@ -71,7 +74,12 @@ export default function Animators() {
   const [membreSelectionne, setMembreSelectionne] = useState<TeamRow | null>(null);
   const [groupes, setGroupes] = useState<GroupeDto[]>([]);
   const [chambres, setChambres] = useState<ChambreDto[]>([]);
-  const [contactDirecteur, setContactDirecteur] = useState<{ telephone?: string; email?: string }>();
+  const [infosDirecteur, setInfosDirecteur] = useState<{
+    telephone?: string;
+    email?: string;
+    photoProfilUrl?: string | null;
+  }>();
+  const [photosRefreshKey, setPhotosRefreshKey] = useState(0);
 
   const chargerAffectations = useCallback(async () => {
     if (sejourId == null) return;
@@ -101,6 +109,7 @@ export default function Animators() {
         chargerAffectations(),
         rafraichirPhotoProfil().catch(() => {}),
       ]);
+      setPhotosRefreshKey((k) => k + 1);
     } catch {
       // rafraîchissement silencieux : on conserve les données déjà affichées
     } finally {
@@ -114,14 +123,15 @@ export default function Animators() {
 
   useEffect(() => {
     if (!directeurTokenId) {
-      setContactDirecteur(undefined);
+      setInfosDirecteur(undefined);
       return;
     }
     const profilEquipe = membres.find((membre) => membre.tokenId === directeurTokenId);
     if (profilEquipe) {
-      setContactDirecteur({
+      setInfosDirecteur({
         telephone: profilEquipe.telephone || undefined,
         email: profilEquipe.email || undefined,
+        photoProfilUrl: profilEquipe.photoProfilUrl,
       });
       return;
     }
@@ -130,46 +140,58 @@ export default function Animators() {
       .getProfilByTokenId(directeurTokenId)
       .then((profil) => {
         if (!annule) {
-          setContactDirecteur({
+          setInfosDirecteur({
             telephone: profil.telephone || undefined,
             email: profil.email || undefined,
+            photoProfilUrl: profil.photoProfilUrl,
           });
         }
       })
       .catch(() => {
-        if (!annule) setContactDirecteur(undefined);
+        if (!annule) setInfosDirecteur(undefined);
       });
     return () => {
       annule = true;
     };
   }, [directeurTokenId, membres]);
 
-  const rows: TeamRow[] = [];
-  if (directeur) {
-    rows.push({
-      key: directeur.tokenId,
-      prenom: directeur.prenom,
-      nom: directeur.nom,
-      roleLabel: 'Directeur',
-      roleFiltre: 'DIRECTEUR',
-      telephone: contactDirecteur?.telephone,
-      email: contactDirecteur?.email,
+  const rows = useMemo(() => {
+    const result: TeamRow[] = [];
+    if (directeur) {
+      result.push({
+        key: directeur.tokenId,
+        prenom: directeur.prenom,
+        nom: directeur.nom,
+        roleLabel: 'Directeur',
+        roleFiltre: 'DIRECTEUR',
+        telephone: infosDirecteur?.telephone,
+        email: infosDirecteur?.email,
+        photoProfilUrl: infosDirecteur?.photoProfilUrl,
+      });
+    }
+    const membresHorsDirecteur = membres.filter(
+      (membre) => !directeur || membre.tokenId !== directeur.tokenId,
+    );
+    trierEquipeDuSejour(membresHorsDirecteur, sejour).forEach((membre) => {
+      result.push({
+        key: membre.tokenId,
+        prenom: membre.prenom,
+        nom: membre.nom,
+        roleLabel: libelleRoleSejour(membre.roleSejour, membre.genre),
+        roleFiltre: String(membre.roleSejour ?? 'AUTRE'),
+        telephone: membre.telephone || undefined,
+        email: membre.email || undefined,
+        photoProfilUrl: membre.photoProfilUrl,
+      });
     });
-  }
-  const membresHorsDirecteur = membres.filter(
-    (membre) => !directeur || membre.tokenId !== directeur.tokenId,
+    return result;
+  }, [directeur, membres, sejour, infosDirecteur]);
+
+  const membresPhoto = useMemo(
+    () => rows.map((ligne) => ({ tokenId: ligne.key, photoProfilUrl: ligne.photoProfilUrl })),
+    [rows],
   );
-  trierEquipeDuSejour(membresHorsDirecteur, sejour).forEach((membre) => {
-    rows.push({
-      key: membre.tokenId,
-      prenom: membre.prenom,
-      nom: membre.nom,
-      roleLabel: libelleRoleSejour(membre.roleSejour, membre.genre),
-      roleFiltre: String(membre.roleSejour ?? 'AUTRE'),
-      telephone: membre.telephone || undefined,
-      email: membre.email || undefined,
-    });
-  });
+  const photosProfil = usePhotosProfilEquipe(membresPhoto, photosRefreshKey);
 
   const rolesPresents = new Set(membres.map((membre) => String(membre.roleSejour ?? 'AUTRE')));
   const aDirection = !!directeur || rolesPresents.has('ADJOINT');
@@ -291,6 +313,12 @@ export default function Animators() {
             onPress={() => setMembreSelectionne(item)}
           >
             <View style={styles.cardMain}>
+              <AvatarProfil
+                prenom={item.prenom}
+                nom={item.nom}
+                uri={photosProfil[item.key]}
+                size={44}
+              />
               <Text style={styles.name}>
                 {libelleEquipeDuSejour(item, sejour, { nomEnMajuscules: true })}
               </Text>
@@ -309,6 +337,7 @@ export default function Animators() {
 
       <DetailMembre
         membre={membreSelectionne}
+        photoUri={membreSelectionne ? photosProfil[membreSelectionne.key] : undefined}
         groupes={groupes}
         chambres={chambres}
         onFermer={() => setMembreSelectionne(null)}
@@ -319,11 +348,13 @@ export default function Animators() {
 
 function DetailMembre({
   membre,
+  photoUri,
   groupes,
   chambres,
   onFermer,
 }: {
   membre: TeamRow | null;
+  photoUri?: string;
   groupes: GroupeDto[];
   chambres: ChambreDto[];
   onFermer: () => void;
@@ -344,6 +375,7 @@ function DetailMembre({
       prenom={membre?.prenom ?? ''}
       nom={membre?.nom ?? ''}
       sousTitre={membre?.roleLabel ?? ''}
+      photoUri={photoUri}
       aucuneInfo={!aDesInfos}
     >
       {membre?.telephone ? (
@@ -479,6 +511,9 @@ const styles = StyleSheet.create({
   },
   cardMain: {
     flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
     paddingRight: 12,
   },
   name: {

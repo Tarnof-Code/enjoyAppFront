@@ -10,7 +10,7 @@ Suivi synthétique. Plan détaillé : [`.cursor/plans/migration-api-mobile.plan.
 - [x] **Phase A** — Suppression Infos utiles, Plannings, groupes en dur, composants Sheets orphelins.
 - [x] **Phase B** — Listes (Équipe, Enfants, Groupes, Chambres), Menus, Organisation (+ détail grille), Activités/Sorties, Sanitaire (top-tabs Dossiers sanitaires + Cahier d'infirmerie CRUD).
 - [x] **Phase C** — Nettoyage Sheets (`config/api.ts`, `types/sheets.ts`, `overlaySlice`, clé Google) ; fabrique `creerTopTab` ; titres header dynamiques ; pull-to-refresh global.
-- [x] Écran Équipe : recherche, filtres rôle séjour (chip Direction), MultiSelect groupes, modal détail membre (`FichePersonneModal`).
+- [x] Écran Équipe : recherche, filtres rôle séjour (chip Direction), MultiSelect groupes, photos profil (**`AvatarProfil`**, **`usePhotosProfilEquipe`**), modal détail avec photo zoomable (`FichePersonneModal`).
 - [x] Écran Enfants : recherche, filtres groupes/genre, modal détail, anniversaire pendant séjour ; modal partagée avec Équipe.
 - [x] Écran Groupes : accordéons, filtre par type, croisement groupes âge/niveau dans les listes thématiques.
 - [x] Écran Chambres : accordéons (`ListeAccordion`), filtres Type/Genre/Groupe + chip Places dispo, occupants enfants ou équipe.

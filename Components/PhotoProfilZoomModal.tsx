@@ -138,6 +138,13 @@ function PhotoProfilZoomModal({ visible, uri, onClose }: PhotoProfilZoomModalPro
     >
       <GestureHandlerRootView style={styles.root}>
         <View style={styles.overlay}>
+          <Pressable
+            style={StyleSheet.absoluteFillObject}
+            onPress={onClose}
+            accessibilityRole="button"
+            accessibilityLabel="Fermer"
+          />
+
           <Pressable style={styles.closeBtn} onPress={onClose} accessibilityLabel="Fermer">
             <Ionicons name="close" size={28} color={colors.surface} />
           </Pressable>
@@ -180,6 +187,7 @@ const styles = StyleSheet.create({
     padding: spacing.sm,
   },
   imageWrap: {
+    zIndex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
