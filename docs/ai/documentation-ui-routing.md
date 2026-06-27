@@ -7,21 +7,21 @@ Cartographie des navigateurs et écrans. Types dans `Navigators/types.ts`.
 ```
 App.tsx
 └─ BottomTabNavigator (Stack natif, headerShown: false)
-   ├─ Login            (FirstScreens/Login) — dégradé aligné accueil
-   ├─ SejourPicker     (FirstScreens/SejourPicker)
+   ├─ Login            (FirstScreens/Login) — dégradé + orbes, formulaire blanc
    ├─ Profil           (screens/Profil/Profil) — plein écran, retour goBack
-   └─ BottomTab        (6 onglets)
-      ├─ Home          (FirstScreens/Home) — pas de Header commun
-      ├─ Listes        → TopTabLists (creerTopTab)
-      ├─ Orga            → OrganisationNavigator (Stack) — libellé onglet « Orga »
-      ├─ Menus         (screens/Menus/Menus) — Header propre
+   └─ BottomTab        (onglets conditionnels selon sejourCourant)
+      ├─ Home          (FirstScreens/Home) — toujours visible
+      ├─ Listes        → TopTabLists (creerTopTab)     — si séjour choisi
+      ├─ Orga            → OrganisationNavigator (Stack)
+      ├─ Menus         (screens/Menus/Menus)
       ├─ Activités     → TopTabActivities (creerTopTab)
       └─ Sanitaire     → TopTabSanitaire (creerTopTab)
          ├─ CahierInfirmerie  (screens/Health/CahierInfirmerie)
          └─ DossierSanitaire  (screens/Health/DossierSanitaire)
 ```
 
-- **Bootstrap** : restaure profil + dernier séjour → `Login` / `SejourPicker` / `BottomTab`.
+- **Bootstrap** : session valide → **`BottomTab`** ; restauration profil + **optionnel** dernier séjour mémorisé ; sinon **`Login`**.
+- **Connexion** : `clearSejour` → **`BottomTab` / Home** sans séjour (onglet Home seul, pas de carte réunion).
 - **Session expirée / déconnexion** : reset store + `navigationRef` (`Navigators/navigationRef.ts`) → `Login`.
 
 ## Onglets Listes (`TopTabLists`)
@@ -61,7 +61,7 @@ Onglet bottom tab : route **`Orga`**, libellé **Orga**. Titre header liste : «
 ## Écrans autonomes
 
 - **`Menus`** : grille calendrier repas × jours (`screens/Menus/Menus.tsx`) — fenêtre 1/3/5 j., swipe + flèches (bonds = taille vue), **Aujourd'hui**, bouton **paysage tableau** ; ouverture centrée sur aujourd'hui (si dans le séjour) ou 1er jour ; pull-to-refresh ; lecture seule.
-- **`Home`** : fond dégradé + orbes ; titre Enjoy, sélecteur séjour (modal **`GlassPanel`**), avatar **`AvatarProfil`** (anneau givré) + prénom → **`Profil`** ; badge date ; carte CR veille **`GlassPanel`** — titre « Réunion du … », ordre du jour, **`ReunionContenuTipTap`** (`compact`), icône expand → **`CompteRenduPleinEcranModal`** ; pull-to-refresh dans la carte (réunions + **`rafraichirPhotoProfil`**) ; déconnexion coin haut droit ; modales fermées si écran non focus.
+- **`Home`** : fond dégradé + orbes ; titre Enjoy ; **sélecteur séjour** — sans séjour : « Veuillez choisir votre séjour » + modal liste ; avec séjour : nom + période (modal si plusieurs) ; avatar **`AvatarProfil`** + prénom → **`Profil`** ; badge date ; **carte réunion** **`GlassPanel`** uniquement si séjour choisi — titre centré « Réunion du … », ordre du jour, **`ReunionContenuTipTap`** (`compact`), expand → **`CompteRenduPleinEcranModal`** ; pull-to-refresh dans la carte ; déconnexion coin haut droit ; modales fermées si écran non focus.
 - **`Profil`** : écran Mon profil (Stack, hors onglets) — sections infos / contact / compte ; édition champ par champ ; badge rôle ; photo (choix, recadrage cercle, zoom, suppression) ; **`ChangePasswordModal`**.
 
 ## Composants partagés

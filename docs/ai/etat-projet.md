@@ -14,7 +14,7 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 |---------|----------|---------------|
 | Auth | `POST /auth/connexion`, `/refresh-token`, `/logout` | Connexion, session |
 | Profil | `GET /utilisateurs/profil?tokenId=`, `PUT /utilisateurs`, `PATCH /utilisateurs/mot-de-passe`, `GET/POST/DELETE /utilisateurs/{tokenId}/photo-profil` | Bootstrap, **`Profil`**, **`Home`**, **`Header`**, **`Animators`** (directeur + photos équipe via `photoProfilUrl`) |
-| Séjours | `GET /sejours/utilisateur/{tokenId}`, `GET /sejours/{id}` | `SejourPicker`, `Home`, refresh séjour (`useRafraichirSejourCourant` sur listes, Sanitaire, Activités, GrilleDetail) |
+| Séjours | `GET /sejours/utilisateur/{tokenId}`, `GET /sejours/{id}` | **`Home`** (liste + choix modal, persistance dernier séjour), refresh séjour (`useRafraichirSejourCourant` sur listes, Sanitaire, Activités, GrilleDetail) |
 | Réunions | `GET /sejours/{sejourId}/reunions` | `Home` (CR veille) |
 | Enfants | `GET /sejours/{id}/enfants` | `Children` |
 | Chambres | `GET/POST /sejours/{id}/chambres`, `GET/PUT/DELETE …/{chambreId}`, `POST/DELETE …/occupants/enfants[/{enfantId}]`, `POST/DELETE …/occupants/equipe[/{membreTokenId}]` | `Bedrooms` (lecture + CRUD + occupants), `Animators`, `Children` (modal chambre occupant) |
@@ -116,7 +116,8 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 ## Glossaire
 
 - **`tokenId`** : identifiant public utilisateur (claim `sub` du JWT).
-- **Bootstrap** : restauration session au démarrage → profil + dernier séjour → route initiale.
+- **Bootstrap** : restauration session au démarrage → profil + **optionnel** dernier séjour mémorisé → **`BottomTab`** (ou **`Login`**).
+- **Séjour courant** : sélection sur **`Home`** ; connexion explicite sans séjour ; onglets applicatifs masqués tant que `sejourCourant` est null.
 - **Single-flight** : un seul refresh token concurrent.
 - **Compte rendu de la veille** : dernière réunion à J−1 sur `Home` ; titre **`formatTitreCompteRenduAccueil`** ; contenu **`ReunionContenuTipTapJson`** rendu par **`ReunionContenuTipTap`** (plus d'extraction texte brut seule).
 - **Pull-to-refresh** : tirer vers le bas pour recharger (`useChargementRafraichissable` ou logique dédiée `Home`) ; inclut le **rafraîchissement photo profil** (`rafraichirPhotoProfil`).

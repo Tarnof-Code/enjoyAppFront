@@ -45,7 +45,6 @@ dayjs.locale('fr');
 
 const AVATAR_SIZE = 100;
 const GLASS_INTENSITY = 65;
-const GLASS_OVERLAY = 0.28;
 const HEADER_TOP_OFFSET = 52;
 const TITLE_LIFT = 28;
 
@@ -86,7 +85,11 @@ function Home() {
 
   const loadAccueil = useCallback(async (estRafraichissement = false) => {
     if (!sejour?.id) {
-      setError('Aucun séjour sélectionné.');
+      setCrTitre('Réunion');
+      setCrOrdreDuJour('');
+      setCrContenu(null);
+      setCrVide(false);
+      setError(null);
       if (!estRafraichissement) setLoading(false);
       return;
     }
@@ -168,6 +171,8 @@ function Home() {
   };
 
   const plusieursSejours = sejoursDisponibles.length > 1;
+  const peutChoisirSejour = sejoursDisponibles.length > 0;
+  const selecteurSejourActif = peutChoisirSejour && (sejour == null || plusieursSejours);
 
   const ouvrirProfil = () => {
     if (navigationRef.isReady()) {
@@ -185,7 +190,7 @@ function Home() {
   const peutOuvrirCrGrand =
     !crVide && (crOrdreDuJour.length > 0 || !estContenuTipTapVide(crContenu));
 
-  if (!fontsLoaded || loading) {
+  if (!fontsLoaded || (loading && sejour?.id)) {
     return (
       <View style={styles.loadingBox}>
         <ActivityIndicator size="large" color={colors.surface} />
@@ -225,30 +230,32 @@ function Home() {
       >
         <Text style={styles.title}>Enjoy</Text>
 
-        {sejour || periodeSejour ? (
-          <Pressable
-            style={({ pressed }) => [
-              styles.sejourDropdown,
-              pressed && plusieursSejours && styles.dropdownPressed,
-            ]}
-            onPress={() => setMenuOuvert(true)}
-            disabled={!plusieursSejours}
-            accessibilityRole="button"
-            accessibilityLabel="Changer de séjour"
-          >
-            <View style={styles.sejourDropdownRow}>
-              {sejour ? (
-                <Text style={styles.sejourNom} numberOfLines={1}>
-                  {sejour.nom}
-                </Text>
-              ) : null}
-              {plusieursSejours ? (
-                <Ionicons name="chevron-down" size={18} color={colors.surface} />
-              ) : null}
-            </View>
-            {periodeSejour ? <Text style={styles.sejourPeriode}>{periodeSejour}</Text> : null}
-          </Pressable>
-        ) : null}
+        <Pressable
+          style={({ pressed }) => [
+            styles.sejourDropdown,
+            pressed && selecteurSejourActif && styles.dropdownPressed,
+          ]}
+          onPress={() => setMenuOuvert(true)}
+          disabled={!selecteurSejourActif}
+          accessibilityRole="button"
+          accessibilityLabel={sejour ? 'Changer de séjour' : 'Choisir un séjour'}
+        >
+          <View style={styles.sejourDropdownRow}>
+            {sejour ? (
+              <Text style={styles.sejourNom} numberOfLines={1}>
+                {sejour.nom}
+              </Text>
+            ) : (
+              <Text style={styles.sejourInvite} numberOfLines={2}>
+                Veuillez choisir votre séjour
+              </Text>
+            )}
+            {selecteurSejourActif ? (
+              <Ionicons name="chevron-down" size={18} color={colors.surface} />
+            ) : null}
+          </View>
+          {periodeSejour ? <Text style={styles.sejourPeriode}>{periodeSejour}</Text> : null}
+        </Pressable>
 
         <Pressable
           onPress={ouvrirProfil}
@@ -272,61 +279,63 @@ function Home() {
           <Text style={styles.date}>{todayDate}</Text>
         </GlassPanel>
 
-        <GlassPanel
-          intensity={GLASS_INTENSITY}
-          overlayOpacity={0.42}
-          style={styles.reportCard}
-          contentStyle={styles.reportCardInner}
-        >
-          <View style={styles.reportCardHeader}>
-            <View style={styles.crHeaderRow}>
-              <Text style={styles.crTitle} numberOfLines={2}>{crTitre}</Text>
-            </View>
-            {peutOuvrirCrGrand ? (
-              <Pressable
-                onPress={() => setCrPleinEcranOuvert(true)}
-                hitSlop={10}
-                style={styles.crExpandBtn}
-                accessibilityRole="button"
-                accessibilityLabel="Ouvrir la réunion en plein écran"
-              >
-                <Ionicons name="expand-outline" size={22} color={colors.primary} />
-              </Pressable>
-            ) : null}
-            <View style={styles.crDivider} />
-          </View>
-          <ScrollView
-            style={styles.crScroll}
-            contentContainerStyle={styles.crScrollContent}
-            showsVerticalScrollIndicator
-            refreshControl={
-              <RefreshControl
-                refreshing={refreshing}
-                onRefresh={onRefresh}
-                colors={[colors.danger]}
-                tintColor={colors.primary}
-                progressBackgroundColor={colors.surface}
-              />
-            }
+        {sejour ? (
+          <GlassPanel
+            intensity={GLASS_INTENSITY}
+            overlayOpacity={0.42}
+            style={styles.reportCard}
+            contentStyle={styles.reportCardInner}
           >
-            {error ? <Text style={styles.error}>{error}</Text> : null}
-            {!error && crVide ? (
-              <Text style={styles.emptyCr}>Pas de réunion pour hier.</Text>
-            ) : null}
-            {!error && !crVide && crOrdreDuJour ? (
-              <View style={styles.odjBloc}>
-                <Text style={styles.odjLabel}>Ordre du jour</Text>
-                <Text style={styles.odjTexte}>{crOrdreDuJour}</Text>
+            <View style={styles.reportCardHeader}>
+              <View style={styles.crHeaderRow}>
+                <Text style={styles.crTitle} numberOfLines={2}>{crTitre}</Text>
               </View>
-            ) : null}
-            {!error && !crVide && !estContenuTipTapVide(crContenu) ? (
-              <ReunionContenuTipTap contenu={crContenu} compact />
-            ) : null}
-            {!error && !crVide && !crOrdreDuJour && estContenuTipTapVide(crContenu) ? (
-              <Text style={styles.emptyCr}>Réunion vide.</Text>
-            ) : null}
-          </ScrollView>
-        </GlassPanel>
+              {peutOuvrirCrGrand ? (
+                <Pressable
+                  onPress={() => setCrPleinEcranOuvert(true)}
+                  hitSlop={10}
+                  style={styles.crExpandBtn}
+                  accessibilityRole="button"
+                  accessibilityLabel="Ouvrir la réunion en plein écran"
+                >
+                  <Ionicons name="expand-outline" size={22} color={colors.primary} />
+                </Pressable>
+              ) : null}
+              <View style={styles.crDivider} />
+            </View>
+            <ScrollView
+              style={styles.crScroll}
+              contentContainerStyle={styles.crScrollContent}
+              showsVerticalScrollIndicator
+              refreshControl={
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={onRefresh}
+                  colors={[colors.danger]}
+                  tintColor={colors.primary}
+                  progressBackgroundColor={colors.surface}
+                />
+              }
+            >
+              {error ? <Text style={styles.error}>{error}</Text> : null}
+              {!error && crVide ? (
+                <Text style={styles.emptyCr}>Pas de réunion pour hier.</Text>
+              ) : null}
+              {!error && !crVide && crOrdreDuJour ? (
+                <View style={styles.odjBloc}>
+                  <Text style={styles.odjLabel}>Ordre du jour</Text>
+                  <Text style={styles.odjTexte}>{crOrdreDuJour}</Text>
+                </View>
+              ) : null}
+              {!error && !crVide && !estContenuTipTapVide(crContenu) ? (
+                <ReunionContenuTipTap contenu={crContenu} compact />
+              ) : null}
+              {!error && !crVide && !crOrdreDuJour && estContenuTipTapVide(crContenu) ? (
+                <Text style={styles.emptyCr}>Réunion vide.</Text>
+              ) : null}
+            </ScrollView>
+          </GlassPanel>
+        ) : null}
       </View>
 
       <Modal
@@ -459,6 +468,14 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     lineHeight: 34,
   },
+  sejourInvite: {
+    fontFamily: fonts.script,
+    fontSize: 24,
+    color: colors.surface,
+    textAlign: 'center',
+    flexShrink: 1,
+    lineHeight: 30,
+  },
   sejourPeriode: {
     fontFamily: fonts.script,
     fontSize: 17,
@@ -518,7 +535,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   crHeaderRow: {
-    paddingRight: 36,
+    paddingHorizontal: 36,
     marginBottom: spacing.sm,
   },
   crTitle: {
@@ -527,6 +544,7 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.sm,
     lineHeight: 18,
     color: colors.ink,
+    textAlign: 'center',
   },
   crExpandBtn: {
     position: 'absolute',

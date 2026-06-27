@@ -23,6 +23,7 @@ import { accountService } from '../../services/account.service';
 import { useAppDispatch } from '../../store/hooks';
 import { setName as setAnimName } from '../../store/animNameSlice';
 import { setUserFromProfil } from '../../store/authSlice';
+import { clearSejour } from '../../store/sejourSlice';
 import { colors, fonts, radius } from '../../config/theme';
 
 type LoginScreenProps = NativeStackScreenProps<RootStackParamList, 'Login'>;
@@ -64,9 +65,10 @@ function Login({ navigation }: LoginScreenProps) {
         }),
       );
       dispatch(setAnimName(profil.prenom.trim().toUpperCase()));
+      dispatch(clearSejour());
       navigation.reset({
         index: 0,
-        routes: [{ name: 'SejourPicker' }],
+        routes: [{ name: 'BottomTab', params: { screen: 'Home' } }],
       });
     } catch (err) {
       setError(accountService.getApiLoginErrorMessage(err));

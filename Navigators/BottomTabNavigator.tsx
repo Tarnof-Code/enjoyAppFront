@@ -8,7 +8,6 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { lireDernierSejourVisite } from '../helpers/dernierSejour';
 import Login from '../screens/FirstScreens/Login';
 import Home from '../screens/FirstScreens/Home';
-import SejourPicker from '../screens/FirstScreens/SejourPicker';
 import { accountService } from '../services/account.service';
 import { sejourService } from '../services/sejour.service';
 import { setOnSessionExpired } from '../services/httpClient';
@@ -27,12 +26,14 @@ import { navigationRef } from './navigationRef';
 import type { BottomTabParamList, RootStackParamList } from './types';
 import Profil from '../screens/Profil/Profil';
 import { usePhotoProfilLoader } from '../hooks/usePhotoProfilLoader';
+import { useAppSelector } from '../store/hooks';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<BottomTabParamList>();
 
 function BottomTab() {
   usePhotoProfilLoader();
+  const sejourSelectionne = useAppSelector((state) => state.sejour.sejourCourant != null);
 
   return (
     <Tab.Navigator
@@ -60,11 +61,15 @@ function BottomTab() {
       })}
     >
       <Tab.Screen name="Home" component={Home} />
-      <Tab.Screen name="Listes" component={TopTabLists} />
-      <Tab.Screen name="Orga" component={OrganisationNavigator} />
-      <Tab.Screen name="Menus" component={Menus} />
-      <Tab.Screen name="Activités" component={TopTabActivities} />
-      <Tab.Screen name="Sanitaire" component={TopTabSanitaire} />
+      {sejourSelectionne ? (
+        <>
+          <Tab.Screen name="Listes" component={TopTabLists} />
+          <Tab.Screen name="Orga" component={OrganisationNavigator} />
+          <Tab.Screen name="Menus" component={Menus} />
+          <Tab.Screen name="Activités" component={TopTabActivities} />
+          <Tab.Screen name="Sanitaire" component={TopTabSanitaire} />
+        </>
+      ) : null}
     </Tab.Navigator>
   );
 }
@@ -108,13 +113,12 @@ export default function BottomTabNavigator() {
           );
           store.dispatch(setAnimName(profil.prenom.trim().toUpperCase()));
 
-          route = 'SejourPicker';
+          route = 'BottomTab';
           const dernierId = await lireDernierSejourVisite(profil.tokenId);
           if (dernierId != null) {
             try {
               const sejour = await sejourService.getSejourById(dernierId);
               store.dispatch(setSejourCourant(sejour));
-              route = 'BottomTab';
             } catch {
               /* séjour mémorisé inaccessible */
             }
@@ -148,7 +152,6 @@ export default function BottomTabNavigator() {
     <NavigationContainer ref={navigationRef}>
       <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName={initialRoute}>
         <Stack.Screen name="Login" component={Login} />
-        <Stack.Screen name="SejourPicker" component={SejourPicker} />
         <Stack.Screen name="BottomTab" component={BottomTab} />
         <Stack.Screen name="Profil" component={Profil} />
       </Stack.Navigator>

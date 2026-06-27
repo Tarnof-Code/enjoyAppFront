@@ -16,11 +16,19 @@
 
 **Liste Équipe** : cartes et modale détail avec **photo de profil API** (`AvatarProfil`, **`usePhotosProfilEquipe`**) ; zoom **`PhotoProfilZoomModal`** (fermeture fond ou croix).
 
-**Accueil (`Home`)** : refonte visuelle (dégradé, **`GlassPanel`**, avatar **`AvatarProfil`**) ; CR veille en **TipTap natif** (`ReunionContenuTipTap`) + modale plein écran **`CompteRenduPleinEcranModal`**.
+**Accueil (`Home`)** : refonte visuelle (dégradé, **`GlassPanel`**, avatar **`AvatarProfil`**) ; CR veille TipTap + modale plein écran ; **sélection séjour sur l’accueil** (plus d’écran **`SejourPicker`**) — sans séjour : invite « Veuillez choisir votre séjour », pas de carte réunion ; onglets bottom restreints à **Home** jusqu’au choix.
 
 Reste mineur : composant orphelin `DropdownAnim.tsx`, assets `LogosGroupes/` non référencés, spike refresh token en prod (HTTPS).
 
 ## Journal
+
+### 2026-06-27 (Séjour — choix sur accueil, suppression SejourPicker)
+- **`SejourPicker.tsx`** supprimé ; Stack `Login` → **`BottomTab`** directement.
+- **Connexion** (`Login.tsx`) : `clearSejour` puis reset **`BottomTab` / Home** ; pas de séjour pré-sélectionné.
+- **Bootstrap** : session valide → **`BottomTab`** ; restauration optionnelle du dernier séjour mémorisé (`dernierSejour.ts`) sans écran intermédiaire.
+- **`BottomTabNavigator`** : onglets **Listes / Orga / Menus / Activités / Sanitaire** rendus seulement si `sejourCourant` défini ; sinon tab bar = **Home** seul.
+- **`Home.tsx`** : sans séjour — texte « Veuillez choisir votre séjour » (modal liste) ; carte réunion masquée ; avec séjour — comportement inchangé (modal si plusieurs séjours). Titre réunion centré (« Réunion du … »).
+- **`Login.tsx`** : fond dégradé + orbes + voile brillant ; formulaire blanc d’origine (pas de glass sur les champs).
 
 ### 2026-06-27 (Accueil — refonte UI + rendu TipTap réunion veille)
 - **`Home.tsx`** : fond **`LinearGradient`** + orbes ; panneaux **`GlassPanel`** (carte réunion, badge date, anneau avatar, modal séjour) ; avatar **`AvatarProfil`** + prénom ; déconnexion en haut à droite ; modales fermées au blur écran (`useIsFocused`).
