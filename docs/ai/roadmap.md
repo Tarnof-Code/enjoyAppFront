@@ -23,6 +23,7 @@ Suivi synthétique. Plan détaillé : [`.cursor/plans/migration-api-mobile.plan.
 - [x] Thème centralisé aligné web.
 - [x] Règles Cursor app web / API (`30-app-web.mdc`, `40-api.mdc`).
 - [x] **Mon profil** : écran **`Profil`** (édition infos, mot de passe, photo API) ; avatar **`Header`** / **`Home`** depuis Redux ; recadrage **`PhotoProfilRecadrageModal`**, zoom **`PhotoProfilZoomModal`** ; refresh photo au pull-to-refresh.
+- [x] **Accueil** : refonte UI (dégradé, **`GlassPanel`**, **`AvatarProfil`**) ; CR veille TipTap natif (**`ReunionContenuTipTap`**, **`CompteRenduPleinEcranModal`**) ; **`Login`** visuellement aligné.
 
 ## Reste (mineur)
 

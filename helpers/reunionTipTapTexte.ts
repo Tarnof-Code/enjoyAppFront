@@ -19,3 +19,7 @@ export function extraireTexteBrutDepuisTipTapJson(
   collectTexteTipTapRecursive(contenu, parts);
   return parts.join(' ').replace(/\s+/g, ' ').trim();
 }
+
+export function estContenuTipTapVide(contenu: ReunionContenuTipTapJson | null | undefined): boolean {
+  return extraireTexteBrutDepuisTipTapJson(contenu).length === 0;
+}

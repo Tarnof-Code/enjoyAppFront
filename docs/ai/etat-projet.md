@@ -74,7 +74,7 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | `menuRepas.ts` | Types repas, ordre, indexation jour×type, résumé cellule grille, jour focus défaut, couleurs affichage |
 | `dernierSejour.ts` | Dernier séjour visité (SecureStore) |
 | `sejourPeriode.ts` | Formatage périodes séjour |
-| `reunionVeille.ts`, `reunionTipTapTexte.ts` | CR réunion J−1 (`Home`) |
+| `reunionVeille.ts`, `reunionTipTapTexte.ts` | CR réunion J−1 (`Home`) — **`trouverReunionVeille`**, **`formatTitreCompteRenduAccueil`**, **`estContenuTipTapVide`** |
 | `photoProfil.ts` | Blob photo profil → data URI |
 | `rafraichirPhotoProfil.ts` | **`chargerPhotoProfilDansStore`**, **`rafraichirPhotoProfil`** (store Redux) |
 | `photoProfilRecadrage.ts` | Recadrage pinch/pan → rectangle crop + export JPEG |
@@ -109,12 +109,15 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | `AvatarProfil.tsx` | Avatar circulaire (photo ou initiales) — **`Animators`**, **`FichePersonneModal`** |
 | `PhotoProfilRecadrageModal.tsx` | Recadrage photo profil (cercle, Valider/Annuler) |
 | `PhotoProfilZoomModal.tsx` | Agrandissement photo profil (pinch / double-tap / pan ; fermeture fond ou croix) |
+| `GlassPanel.tsx` | Panneau givré (`expo-blur` iOS, overlay Android) — **`Home`**, modal séjour |
+| `ReunionContenuTipTap.tsx` | Rendu natif JSON TipTap réunion (mode **`compact`** sur accueil) |
+| `CompteRenduPleinEcranModal.tsx` | Lecture plein écran CR veille (ordre du jour + TipTap) |
 
 ## Glossaire
 
 - **`tokenId`** : identifiant public utilisateur (claim `sub` du JWT).
 - **Bootstrap** : restauration session au démarrage → profil + dernier séjour → route initiale.
 - **Single-flight** : un seul refresh token concurrent.
-- **Compte rendu de la veille** : dernière réunion à J−1, affichée sur `Home`.
+- **Compte rendu de la veille** : dernière réunion à J−1 sur `Home` ; titre **`formatTitreCompteRenduAccueil`** ; contenu **`ReunionContenuTipTapJson`** rendu par **`ReunionContenuTipTap`** (plus d'extraction texte brut seule).
 - **Pull-to-refresh** : tirer vers le bas pour recharger (`useChargementRafraichissable` ou logique dédiée `Home`) ; inclut le **rafraîchissement photo profil** (`rafraichirPhotoProfil`).
 - **`CritereTriListeApi`** : `NOM` ou `PRENOM` — ordre d'affichage des listes enfants/équipe, configuré côté web, appliqué côté mobile à l'affichage et au tri.

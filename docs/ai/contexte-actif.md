@@ -16,9 +16,18 @@
 
 **Liste Équipe** : cartes et modale détail avec **photo de profil API** (`AvatarProfil`, **`usePhotosProfilEquipe`**) ; zoom **`PhotoProfilZoomModal`** (fermeture fond ou croix).
 
+**Accueil (`Home`)** : refonte visuelle (dégradé, **`GlassPanel`**, avatar **`AvatarProfil`**) ; CR veille en **TipTap natif** (`ReunionContenuTipTap`) + modale plein écran **`CompteRenduPleinEcranModal`**.
+
 Reste mineur : composant orphelin `DropdownAnim.tsx`, assets `LogosGroupes/` non référencés, spike refresh token en prod (HTTPS).
 
 ## Journal
+
+### 2026-06-27 (Accueil — refonte UI + rendu TipTap réunion veille)
+- **`Home.tsx`** : fond **`LinearGradient`** + orbes ; panneaux **`GlassPanel`** (carte réunion, badge date, anneau avatar, modal séjour) ; avatar **`AvatarProfil`** + prénom ; déconnexion en haut à droite ; modales fermées au blur écran (`useIsFocused`).
+- **CR veille** : titre **`formatTitreCompteRenduAccueil`** (« Réunion du Vendredi 26 juin ») ; ordre du jour + contenu TipTap JSON via **`ReunionContenuTipTap`** (`compact`) ; bouton agrandir → **`CompteRenduPleinEcranModal`** ; vide = « Pas de réunion pour hier. » / « Réunion vide. » ; pull-to-refresh dans la carte CR.
+- **Composants** : **`ReunionContenuTipTap`** (paragraphes, titres, listes, blockquote, code, hr, marques bold/italic/strike) ; **`GlassPanel`** (`expo-blur` iOS, overlay givré Android).
+- **Helpers** : **`estContenuTipTapVide`** (`reunionTipTapTexte.ts`) ; **`formatTitreCompteRenduAccueil`** + locale `fr` (`reunionVeille.ts`).
+- **`Login.tsx`** : même dégradé/orbes que l'accueil ; indicateur de chargement polices (plus d'écran vide).
 
 ### 2026-06-27 (Équipe — photos de profil cartes + modale)
 - **`AvatarProfil`** : avatar circulaire (photo ou initiales) ; **`hooks/usePhotosProfilEquipe`** — charge les photos des membres avec `photoProfilUrl` via **`getPhotoProfilDataUri`**, réutilise Redux pour l'utilisateur connecté ; refresh au pull-to-refresh **`Animators`**.

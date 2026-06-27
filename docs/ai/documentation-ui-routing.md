@@ -7,7 +7,7 @@ Cartographie des navigateurs et écrans. Types dans `Navigators/types.ts`.
 ```
 App.tsx
 └─ BottomTabNavigator (Stack natif, headerShown: false)
-   ├─ Login            (FirstScreens/Login)
+   ├─ Login            (FirstScreens/Login) — dégradé aligné accueil
    ├─ SejourPicker     (FirstScreens/SejourPicker)
    ├─ Profil           (screens/Profil/Profil) — plein écran, retour goBack
    └─ BottomTab        (6 onglets)
@@ -61,12 +61,15 @@ Onglet bottom tab : route **`Orga`**, libellé **Orga**. Titre header liste : «
 ## Écrans autonomes
 
 - **`Menus`** : grille calendrier repas × jours (`screens/Menus/Menus.tsx`) — fenêtre 1/3/5 j., swipe + flèches (bonds = taille vue), **Aujourd'hui**, bouton **paysage tableau** ; ouverture centrée sur aujourd'hui (si dans le séjour) ou 1er jour ; pull-to-refresh ; lecture seule.
-- **`Home`** : titre Enjoy, sélecteur séjour (modal), bienvenue, date, encart CR veille ; **photo profil** (Redux) cliquable → **`Profil`** ; pull-to-refresh inclut **`rafraichirPhotoProfil`**.
+- **`Home`** : fond dégradé + orbes ; titre Enjoy, sélecteur séjour (modal **`GlassPanel`**), avatar **`AvatarProfil`** (anneau givré) + prénom → **`Profil`** ; badge date ; carte CR veille **`GlassPanel`** — titre « Réunion du … », ordre du jour, **`ReunionContenuTipTap`** (`compact`), icône expand → **`CompteRenduPleinEcranModal`** ; pull-to-refresh dans la carte (réunions + **`rafraichirPhotoProfil`**) ; déconnexion coin haut droit ; modales fermées si écran non focus.
 - **`Profil`** : écran Mon profil (Stack, hors onglets) — sections infos / contact / compte ; édition champ par champ ; badge rôle ; photo (choix, recadrage cercle, zoom, suppression) ; **`ChangePasswordModal`**.
 
 ## Composants partagés
 
 - **`Header`** : icône FontAwesome5 + titre (script) en **`colors.primary`** + **avatar profil** (API via Redux **`photoProfilUri`**, initiales si absent) ; tap avatar → **`Profil`**.
+- **`GlassPanel`** : panneau givré réutilisable (`expo-blur` / overlay) — accueil, modal séjour.
+- **`ReunionContenuTipTap`** : rendu TipTap réunion (accueil compact + modale plein écran).
+- **`CompteRenduPleinEcranModal`** : lecture CR veille plein écran depuis **`Home`**.
 - **`FichePersonneModal`** : modal fiche personne + `LigneInfoFiche` (Équipe avec **`photoUri`** + zoom, Enfants sans photo).
 - **`AvatarProfil`** : avatar circulaire photo ou initiales (cartes/modale Équipe).
 - **`ListeAccordion`** : coque accordéon liste (chevron, carte, en-tête/corps) + styles `listeAccordionStyles` ; contenu métier dans l'écran (`Groups`, `Bedrooms`, `Sorties`, **`CahierInfirmerie`**).

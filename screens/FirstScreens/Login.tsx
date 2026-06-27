@@ -16,14 +16,14 @@ import { useFonts, DancingScript_400Regular } from '@expo-google-fonts/dancing-s
 import { Roboto_400Regular } from '@expo-google-fonts/roboto';
 import { PTSans_400Regular } from '@expo-google-fonts/pt-sans';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 
-import { getUserFacingErrorMessage } from '../../helpers/axiosError';
 import type { RootStackParamList } from '../../Navigators/types';
 import { accountService } from '../../services/account.service';
 import { useAppDispatch } from '../../store/hooks';
 import { setName as setAnimName } from '../../store/animNameSlice';
 import { setUserFromProfil } from '../../store/authSlice';
-import { colors, fonts } from '../../config/theme';
+import { colors, fonts, radius } from '../../config/theme';
 
 type LoginScreenProps = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
@@ -40,10 +40,6 @@ function Login({ navigation }: LoginScreenProps) {
     Roboto_400Regular,
     PTSans_400Regular,
   });
-
-  if (!fontsLoaded) {
-    return null;
-  }
 
   const handleLogin = async () => {
     const trimmedEmail = email.trim();
@@ -79,11 +75,29 @@ function Login({ navigation }: LoginScreenProps) {
     }
   };
 
+  if (!fontsLoaded) {
+    return (
+      <View style={styles.loadingBox}>
+        <ActivityIndicator size="large" color={colors.surface} />
+      </View>
+    );
+  }
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
+      <LinearGradient
+        colors={[colors.primary, colors.primaryDark, '#2a2d8a']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={StyleSheet.absoluteFillObject}
+      />
+      <View style={styles.orbTop} pointerEvents="none" />
+      <View style={styles.orbBottom} pointerEvents="none" />
+      <View style={styles.shine} pointerEvents="none" />
+
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -127,7 +141,9 @@ function Login({ navigation }: LoginScreenProps) {
           <Pressable
             onPress={() => setPasswordVisible((v) => !v)}
             hitSlop={8}
-            accessibilityLabel={passwordVisible ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+            accessibilityLabel={
+              passwordVisible ? 'Masquer le mot de passe' : 'Afficher le mot de passe'
+            }
           >
             <Ionicons
               name={passwordVisible ? 'eye-off-outline' : 'eye-outline'}
@@ -156,7 +172,7 @@ function Login({ navigation }: LoginScreenProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.primaryDark,
   },
   scrollView: {
     flex: 1,
@@ -165,6 +181,32 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     alignItems: 'center',
     paddingBottom: 40,
+  },
+  orbTop: {
+    position: 'absolute',
+    top: -80,
+    right: -60,
+    width: 220,
+    height: 220,
+    borderRadius: radius.full,
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+  },
+  orbBottom: {
+    position: 'absolute',
+    bottom: 120,
+    left: -90,
+    width: 280,
+    height: 280,
+    borderRadius: radius.full,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  shine: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '45%',
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
   },
   title: {
     fontSize: 100,
@@ -225,6 +267,12 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body,
     fontSize: 16,
     fontWeight: '600',
+  },
+  loadingBox: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: colors.primary,
   },
 });
 
