@@ -56,7 +56,7 @@ Onglet bottom tab : route **`Orga`**, libellé **Orga**. Titre header liste : «
 | Sous-onglet | Écran | Titre header | Source |
 |-------------|-------|--------------|--------|
 | CahierInfirmerie | `screens/Health/CahierInfirmerie` | Cahier d'infirmerie | **`ListeEcranLayout`** ; accordéons ; recherche + filtre jour ; **`CahierInfirmerieFormModal`** (feuille **`background`**) |
-| DossierSanitaire | `screens/Health/DossierSanitaire` | Dossiers sanitaires | **`ListeEcranLayout`** ; recherche enfant + Dropdown filtre contenu ; cartes pressables → **`DossierEnfantModal`** (consultation + édition par section) |
+| DossierSanitaire | `screens/Health/DossierSanitaire` | Dossiers sanitaires | **`ListeEcranLayout`** ; recherche enfant + Dropdown filtre contenu ; cartes pressables → **`DossierEnfantModal`** (consultation seule) |
 
 ## Écrans autonomes
 
@@ -81,7 +81,7 @@ Onglet bottom tab : route **`Orga`**, libellé **Orga**. Titre header liste : «
 - **`ActiviteFormulaireModal`** / **`ActiviteEnfantsParticipantsModal`** / **`ActiviteConflitSortieModal`** : CRUD activité, enfants participants activité interne, résolution conflit sortie (directeur).
 - **`SortieEnfantsParticipantsModal`** : enfants participants sortie (`PUT …/enfants`, tout membre séjour) ; défaut groupes prévus, édition sur tous les enfants inscrits.
 - **`CahierInfirmerieFormModal`** : entrée cahier d'infirmerie ; feuille **`background`** ; date/heure séparées (`datetimepicker`).
-- **`DossierEnfantModal`** : dossier sanitaire enfant (bottom sheet) ; 4 sections ; sous-modale édition par section si directeur/adjoint/AS ; réutilise **`LigneInfoFiche`**.
+- **`DossierEnfantModal`** : dossier sanitaire enfant (bottom sheet, consultation seule) ; 4 sections ; tél./e-mail cliquables ; réutilise **`LigneInfoFiche`**.
 - **`ChangePasswordModal`** : modification mot de passe (depuis **`Profil`**).
 - **`PhotoProfilRecadrageModal`** : recadrage photo profil (masque circulaire, pinch/pan Reanimated, Valider/Annuler).
 - **`PhotoProfilZoomModal`** : agrandissement photo profil (pinch / double-tap / pan ; fermeture fond ou croix).

@@ -10,7 +10,7 @@
 
 **Sorties (onglet liste)** : accordéons avec gestion enfants participants (`PUT …/enfants`), filtres date/groupes (valeurs présentes uniquement).
 
-**Sanitaire** : top-tabs **Cahier d'infirmerie** (CRUD, liste accordéons) + **Dossiers sanitaires** (liste + modale dossier enfant, édition par section selon rôle).
+**Sanitaire** : top-tabs **Cahier d'infirmerie** (CRUD, liste accordéons) + **Dossiers sanitaires** (liste + modale dossier enfant, consultation seule).
 
 **Mon profil** : écran Stack **`Profil`** (édition infos, mot de passe, photo API) ; avatar **`Header`** / **`Home`** via Redux ; refresh photo au pull-to-refresh.
 
@@ -23,6 +23,11 @@
 Reste mineur : composant orphelin `DropdownAnim.tsx`, assets `LogosGroupes/` non référencés, spike refresh token en prod (HTTPS).
 
 ## Journal
+
+### 2026-06-28 (Dossiers sanitaires — consultation seule mobile)
+- **`DossierEnfantModal`** : retrait édition par section, sous-modale formulaire et icônes crayon ; consultation uniquement (4 sections, tél./e-mail cliquables) ; `GET …/enfants/{id}/dossier`.
+- **Supprimés** : **`peutModifierDossierEnfant.ts`**, **`referencesAlimentaires.service.ts`**, `updateDossierEnfant` (service), type **`UpdateDossierEnfantRequest`** ; édition dossier réservée à l'app web.
+- **`DossierSanitaire.tsx`** : retrait `tokenUtilisateur` et synchronisation locale post-enregistrement.
 
 ### 2026-06-28 (Dossiers sanitaires — recherche enfant)
 - **`DossierSanitaire.tsx`** : **`MultiSelect`** groupes remplacé par **`TextInput`** recherche enfant (placeholder « Rechercher un enfant… ») ; filtrage insensible casse/accents sur **`libelleEnfantDuSejour`** ; combinable avec **`Dropdown`** filtre contenu et sous-filtre moment Traitements ; groupes toujours affichés sur chaque carte.

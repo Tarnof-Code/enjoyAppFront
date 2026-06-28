@@ -28,8 +28,7 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | Types activité | `GET /sejours/{id}/types-activite` | `Activites` (formulaire) |
 | Réf. activités | `GET …/moments`, `…/lieux` (usage ACTIVITE) | `Activites` |
 | Sanitaire | `GET /sejours/{id}/dossiers-enfants` | `DossierSanitaire` (liste), `Children` (contacts parents dans modal ; chargement silencieux si indisponible) |
-| Dossier enfant | `GET/PUT /sejours/{id}/enfants/{enfantId}/dossier` | **`DossierEnfantModal`** (consultation + édition par section) |
-| Réf. alimentaires | `GET /references-alimentaires?type=` | **`DossierEnfantModal`** (allergènes, régimes — édition section médical) |
+| Dossier enfant | `GET /sejours/{id}/enfants/{enfantId}/dossier` | **`DossierEnfantModal`** (consultation seule ; édition via web) |
 | Cahier infirmerie | `GET/POST /sejours/{id}/cahier-infirmerie`, `PUT/DELETE …/{entreeId}` | `CahierInfirmerie` (accordéons + CRUD modale) |
 
 > **`SejourDTO`** : en plus de `directeur` / `equipe`, porte `triListesEnfants?` et `triListesEquipe?` (`CritereTriListeApi` : `NOM` | `PRENOM`) — réglage partagé web, lecture seule mobile ; tri et libellés via `helpers/triListesSejour.ts`.
@@ -53,8 +52,7 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | `planningGrille.service.ts` | Grilles planning (liste, détail, PUT cellules, PATCH ma-presence) |
 | `moment.service.ts`, `lieu.service.ts`, `horaire.service.ts` | Référentiels planning |
 | `activite.service.ts`, `activitePrestataire.service.ts`, `typeActivite.service.ts` | Activités internes (CRUD), sorties prestataires (liste, GET détail, PUT enfants, PUT `nonParticipations`), types d'activité |
-| `dossierEnfant.service.ts` | Fiches sanitaires agrégées ; dossier enfant (`getDossiersSanitairesBySejour`, `getDossierEnfant`, `updateDossierEnfant`) |
-| `referencesAlimentaires.service.ts` | Référentiels allergènes et régimes alimentaires (`GET /references-alimentaires`) |
+| `dossierEnfant.service.ts` | Fiches sanitaires agrégées ; dossier enfant (`getDossiersSanitairesBySejour`, `getDossierEnfant`) |
 | `cahierInfirmerie.service.ts` | Cahier d'infirmerie (lister, créer, modifier, supprimer entrées) |
 
 ## Hooks (`hooks/`)
@@ -99,8 +97,7 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | `chambreOccupantsUtils.ts` | Éligibilité occupants, validation modification chambre, fusion liste locale après affectation |
 | `enumererJoursSejour.ts` | Liste des jours ISO entre date début/fin séjour |
 | `peutGererMembresEquipeSejour.ts` | Directeur ou adjoint (droits édition structure planning) |
-| `peutModifierDossierEnfant.ts` | Directeur, adjoint ou AS (édition dossier enfant — aligné web) |
-| `regexValidation.ts` | Validation email et téléphone (formulaire dossier enfant) |
+| `regexValidation.ts` | Validation email et téléphone (helper réutilisable) |
 | `planningGrilleUtils.ts` | Affichage/validation cellules planning, fenêtre jours, permissions par ligne (`peutModifierCellulePlanning`, `ligneEstCelleDeUtilisateur`), résumés, **`libelleMembreDansCelluleEquipe`** |
 | `activiteUtils.ts` | Calendrier activités : droits, indexation par animateur/jour, cartes cellule, filtres groupes âge/niveau, défauts formulaire, enfants participants activité ; **`couleurFondCalendrierPourTypeActivite`** (fond carte par `typeActivite.id`, HSL 36 teintes, aligné web) ; sorties : **`enfantsEffectifsSortie`**, **`idsEnfantsSelectionInitialeSortie`**, **`idsEnfantsDejaAffectesAutreEvenement`** |
 | `activitePrestataireCalendrier.ts` | Fusion activités/sorties en cellule, conflits hiérarchiques, `nonParticipations`, filtres lignes calendrier |
@@ -117,7 +114,7 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | `SortieEnfantsParticipantsModal.tsx` | Sélection enfants participants d'une sortie (`PUT …/enfants`) |
 | `ActiviteConflitSortieModal.tsx` | Résolution conflit activité / sortie à l'enregistrement (directeur) |
 | `CahierInfirmerieFormModal.tsx` | Création/édition entrée cahier d'infirmerie (date/heure séparées, soins, appels, soigneur) |
-| `DossierEnfantModal.tsx` | Consultation dossier sanitaire enfant + édition par section (directeur/adjoint/AS) |
+| `DossierEnfantModal.tsx` | Consultation dossier sanitaire enfant (bottom sheet, 4 sections, lecture seule) |
 | `ChangePasswordModal.tsx` | Modification mot de passe (depuis **`Profil`**) |
 | `AvatarProfil.tsx` | Avatar circulaire (photo ou initiales) — **`Animators`**, **`FichePersonneModal`** |
 | `PhotoProfilRecadrageModal.tsx` | Recadrage photo profil (cercle, Valider/Annuler) |

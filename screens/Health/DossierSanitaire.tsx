@@ -206,7 +206,6 @@ function Ligne({
 
 export default function DossierSanitaire() {
   const sejour = useAppSelector((state) => state.sejour.sejourCourant);
-  const tokenUtilisateur = useAppSelector((state) => state.auth.tokenId);
   const sejourId = sejour?.id;
   const [lignes, setLignes] = useState<EnfantDossierSanitaireLigneDto[]>([]);
   const [ligneSelectionnee, setLigneSelectionnee] = useState<EnfantDossierSanitaireLigneDto | null>(
@@ -242,15 +241,6 @@ export default function DossierSanitaire() {
     ),
     sejour,
   );
-
-  const handleDossierMisAJour = (enfantId: number, dossier: DossierEnfantDto) => {
-    setLignes((prev) =>
-      prev.map((l) => (l.enfantId === enfantId ? { ...l, dossier } : l)),
-    );
-    setLigneSelectionnee((prev) =>
-      prev?.enfantId === enfantId ? { ...prev, dossier } : prev,
-    );
-  };
 
   if (!sejourId) {
     return (
@@ -360,9 +350,7 @@ export default function DossierSanitaire() {
           visible={ligneSelectionnee != null}
           sejour={sejour}
           ligne={ligneSelectionnee}
-          tokenUtilisateur={tokenUtilisateur}
           onFermer={() => setLigneSelectionnee(null)}
-          onDossierMisAJour={handleDossierMisAJour}
         />
       ) : null}
     </>
