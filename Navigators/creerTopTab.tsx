@@ -20,6 +20,8 @@ export interface OngletConfig<ParamList extends ParamListBase> {
 interface TopTabOptions<ParamList extends ParamListBase> {
   headerIcon: string;
   onglets: OngletConfig<ParamList>[];
+  /** Barre d’onglets plus basse (icône + libellé). */
+  barreOngletsCompacte?: boolean;
 }
 
 /**
@@ -30,6 +32,7 @@ interface TopTabOptions<ParamList extends ParamListBase> {
 export function creerTopTab<ParamList extends ParamListBase>({
   headerIcon,
   onglets,
+  barreOngletsCompacte = false,
 }: TopTabOptions<ParamList>): React.ComponentType {
   const Tab = createMaterialTopTabNavigator<ParamList>();
   const titreParOnglet = new Map(onglets.map((o) => [o.name, o.title]));
@@ -45,10 +48,23 @@ export function creerTopTab<ParamList extends ParamListBase>({
           screenOptions={{
             tabBarActiveTintColor: colors.primary,
             tabBarInactiveTintColor: colors.disabled,
-            tabBarLabelStyle: {
-              fontSize: 11,
-              textTransform: 'none',
-            },
+            ...(barreOngletsCompacte
+              ? {
+                  tabBarStyle: { height: 50 },
+                  tabBarItemStyle: { minHeight: 50, paddingVertical: 0 },
+                  tabBarLabelStyle: {
+                    fontSize: 10,
+                    textTransform: 'none',
+                    marginTop: 0,
+                    marginBottom: 2,
+                  },
+                }
+              : {
+                  tabBarLabelStyle: {
+                    fontSize: 11,
+                    textTransform: 'none',
+                  },
+                }),
           }}
           screenListeners={{
             state: (e) => {

@@ -11,19 +11,20 @@ const couleur = (focused: boolean) => (focused ? colors.primary : colors.disable
 
 export default creerTopTab<SanitaireTabParamList>({
   headerIcon: 'notes-medical',
+  barreOngletsCompacte: true,
   onglets: [
     {
       name: 'CahierInfirmerie',
       title: "Cahier d'infirmerie",
       component: CahierInfirmerie,
-      icon: (f) => <FontAwesome5 size={22} name="book-medical" color={couleur(f)} />,
+      icon: (f) => <FontAwesome5 size={20} name="book-medical" color={couleur(f)} />,
     },
     {
       name: 'DossierSanitaire',
       title: 'Dossiers sanitaires',
       component: DossierSanitaire,
       icon: (f) => (
-        <MaterialCommunityIcons size={25} name="clipboard-pulse-outline" color={couleur(f)} />
+        <MaterialCommunityIcons size={20} name="clipboard-pulse-outline" color={couleur(f)} />
       ),
     },
   ],

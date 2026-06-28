@@ -40,7 +40,7 @@ App.tsx
 | Activites | `screens/Activities/Activites` | **Planning** | Grille calendrier animateur×jours (colonne animateurs **76 px**, en-tête dates **`EnteteJoursGrille` `compact`**, 1/3/5 j., paysage, filtres animateurs/groupes) ; `GET /activites` + `GET /activites-prestataires` + moments/lieux/types/groupes ; CRUD modales ; fusion sorties ; conflits directeur ; libellés **`libelleMembreDansCelluleEquipe`** ; jour initial = aujourd'hui (si séjour) ou 1er jour |
 | Sorties | `screens/Activities/Sorties` | Sorties | `GET /activites-prestataires` + groupes/activites/moments (modale) ; accordéons **`ListeAccordion`** (nom, date, moment → détail) ; filtres date/groupes (existants uniquement) ; **`PUT …/enfants`** via **`SortieEnfantsParticipantsModal`** |
 
-Barre top-tabs **Activités** : icônes seules (Planning = `calendar-blank`, Sorties = `bus`) ; libellés texte masqués (`afficherLibelle: false`).
+Barre top-tabs **compacte** (`creerTopTab` **`barreOngletsCompacte: true`**) : hauteur **50 px**, libellés **10 px**, icônes **20 px** — Listes (Équipe/Enfants/Groupes/Chambres), Activités (Planning/Sorties), Sanitaire (Cahier/Dossiers).
 
 ## Orga (`OrganisationNavigator`)
 
@@ -48,7 +48,7 @@ Onglet bottom tab : route **`Orga`**, libellé **Orga**. Titre header liste : «
 
 | Écran | Composant | Navigation |
 |-------|-----------|------------|
-| GrillesList | `screens/Organisation/Organisation` | **`ListeEcranLayout`** — liste plannings tri alpha, recherche titre (bouton ✕) ; tap → détail |
+| GrillesList | `screens/Organisation/Organisation` | **`ListeEcranLayout`** — liste plannings tri alpha ; bandeau recherche blanc fixe (bordure basse, ombre) + champ fond gris ; bouton ✕ ; tap → détail |
 | GrilleDetail | `screens/Organisation/GrilleDetail` | **`EcranListeFond`** ; section haute blanche (consigne + toolbar) ; matrice 1/3/5 j. ; en-tête dates fixe ; `PlanningCelluleModal` |
 
 ## Onglets Sanitaire (`TopTabSanitaire`)
@@ -66,7 +66,7 @@ Onglet bottom tab : route **`Orga`**, libellé **Orga**. Titre header liste : «
 
 ## Composants partagés
 
-- **`Header`** : dégradé bleu marque ; icône + titre script blancs ; avatar profil (Redux) → **`Profil`**.
+- **`Header`** : dégradé bleu marque ; icône **24** + titre script **28 px** ; avatar profil **44 px** (anneau glass fin) → **`Profil`** ; hauteur compacte (**52 px** contenu + safe area).
 - **`EcranListeFond`** / **`ListeEcranLayout`** : fond listes **`colors.background`** ; **`ListeAvecFiltresFixes`** (filtres fixes, liste derrière) ; export **`styleCarteListe`**.
 - **`GlassPanel`** : panneau givré réutilisable (`expo-blur` / overlay) — accueil, modal séjour.
 - **`ReunionContenuTipTap`** : rendu TipTap réunion (accueil compact + modale plein écran).
@@ -91,7 +91,7 @@ Onglet bottom tab : route **`Orga`**, libellé **Orga**. Titre header liste : «
 - **Pull-to-refresh** sur tous les écrans de données (hook `useChargementRafraichissable` ou logique dédiée). Inclut **`rafraichirPhotoProfil`** (avatar **`Header`** / **`Home`**). Écrans avec personnes : inclure **`useRafraichirSejourCourant`** dans le `executer` pour synchroniser le tri listes (`triListesEnfants` / `triListesEquipe`).
 - **Tri et libellés personnes** (`helpers/triListesSejour.ts`) : ordre et affichage « Nom Prénom » ou « Prénom Nom » selon réglage séjour (lecture seule, aligné web).
 - **Fond listes** (**`EcranListeFond`**, **`ListeEcranLayout`**) : **`colors.background`** uniforme (filtres + zone liste) ; cartes blanches + ombre ; accordéons idem. **Accueil / Login** : dégradé + orbes (hors pattern listes).
-- **Recherche + filtre liste** (modèle `Animators` / `Children`) : barre dans bande filtres fixe (`ListeAvecFiltresFixes`) ; `TextInput` + normalisation + **MultiSelect** groupes + chips. **`DossierSanitaire`** : MultiSelect + Dropdown (ligne 1) ; moment Traitements (ligne 2). **`CahierInfirmerie`** : recherche + filtre jour. **`Bedrooms`** : Dropdowns + chip Places dispo ; **`ListeAvecFiltresFixes`** (FAB sibling). **Orga liste** : recherche titre seule.
+- **Recherche + filtre liste** (modèle `Animators` / `Children`) : barre dans bande filtres fixe (`ListeAvecFiltresFixes`) ; `TextInput` + normalisation + **MultiSelect** groupes + chips. **`DossierSanitaire`** : MultiSelect + Dropdown (ligne 1) ; moment Traitements (ligne 2). **`CahierInfirmerie`** : recherche + filtre jour. **`Bedrooms`** : Dropdowns + chip Places dispo ; **`ListeAvecFiltresFixes`** (FAB sibling). **Orga liste** : bandeau blanc fixe au-dessus de la liste (recherche titre, champ gris encastré, séparateur visuel).
 - **Planning matrice** (`GrilleDetail`, **`Menus`**, **`Activites`**) : colonne libellés fixe (**108 px** orga/menus ; **76 px** animateurs sur **`Activites`**) ; colonnes jours en `flex: 1` ; en-tête jour = nom + date ; fenêtre 1/3/5 j. via **`useFenetreJoursPlanning`** (flèches/swipe par bonds = taille vue) ; chips 1j/3j/5j compacts + **`BoutonModePaysageGrille`** (à droite, rotation 90° du scroll grille via **`ConteneurGrillePaysage`**, header/toolbar en portrait) ; toolbar `minHeight: 36`, alignement vertical centré ; **`GrilleDetail`** / **`Activites`** : en-tête dates fixe (**`EnteteJoursGrille`**, corps seul scrollable), grille bord à bord ; **`GrilleDetail`** : **‹ Retour** sous le header ; **`Menus`** / **`Activites`** : écran racine onglet.
 - **Accordéons listes** (`Groups`, `Bedrooms`, `Sorties`, **`CahierInfirmerie`** via **`ListeAccordion`**) : plusieurs items ouverts possibles (`Set` d'ids). **`Bedrooms`** : actions CRUD et affectation occupants dans modales dédiées (confirmations `Alert` pour suppression/retrait). **`CahierInfirmerie`** : édition/suppression dans le corps déplié (icônes, droits **`droitsCahierInfirmerie`**).
 - **Bottom sheets formulaire** : feuille **`colors.background`**, champs **`surface`** (chambres, cahier, affectation occupants) ; éviter `Dropdown` dans `ScrollView` gesture-handler — pills / liste dépliable.

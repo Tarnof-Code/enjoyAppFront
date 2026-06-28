@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -164,8 +165,22 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   barreRecherche: {
+    backgroundColor: colors.surface,
     paddingHorizontal: 12,
-    paddingTop: 10,
+    paddingTop: 14,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#383CA7',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.06,
+        shadowRadius: 4,
+      },
+      android: { elevation: 2 },
+      default: {},
+    }),
   },
   rechercheConteneur: {
     position: 'relative',
@@ -177,7 +192,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: colors.border,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.background,
     fontSize: 15,
     color: colors.text,
   },

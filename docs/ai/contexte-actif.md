@@ -18,11 +18,18 @@
 
 **Accueil (`Home`)** : refonte visuelle (dégradé, **`GlassPanel`**, avatar **`AvatarProfil`**) ; CR veille TipTap + modale plein écran ; **sélection séjour sur l’accueil** (plus d’écran **`SejourPicker`**) — sans séjour : invite « Veuillez choisir votre séjour », pas de carte réunion ; onglets bottom restreints à **Home** jusqu’au choix.
 
-**Listes / orga / sanitaire (fond UI)** : fond gris clair uniforme **`colors.background`** via **`EcranListeFond`** + **`ListeEcranLayout`** (filtres fixes, cartes blanches ombre légère) ; modales chambres/cahier/affectation — feuille **`background`**, champs blancs.
+**Listes / orga / sanitaire (fond UI)** : fond gris clair uniforme **`colors.background`** via **`EcranListeFond`** + **`ListeEcranLayout`** (filtres fixes, cartes blanches ombre légère) ; modales chambres/cahier/affectation — feuille **`background`**, champs blancs. **Orga liste** : bandeau recherche blanc dissocié. **Top-tabs** homogènes (**`barreOngletsCompacte`**, **50 px**). **`Header`** compact (avatar **44 px**).
 
 Reste mineur : composant orphelin `DropdownAnim.tsx`, assets `LogosGroupes/` non référencés, spike refresh token en prod (HTTPS).
 
 ## Journal
+
+### 2026-06-28 (Header compact, top-tabs uniformes, recherche orga, icônes app)
+- **`Header`** : avatar **44 px** (ex-56) ; anneau glass **`hairlineWidth`**, padding **2** ; titre **28/32**, icône **24** ; hauteur contenu **52 px**, alignement haut ; micro-ajustements photo (`avatarWrap`).
+- **`creerTopTab`** : option **`barreOngletsCompacte`** — hauteur barre **50 px**, libellés **10 px** ; activée sur **`TopTabLists`**, **`TopTabActivities`**, **`TopTabSanitaire`** ; icônes onglets **20 px** (référence Équipe).
+- **`TopTabActivities`** : libellés texte réaffichés (Planning / Sorties) — plus **`afficherLibelle: false`**.
+- **`Organisation.tsx`** : bandeau recherche **`surface`** (fixe), bordure basse + ombre légère ; champ recherche fond **`background`** (distinct des cartes) ; marges **14/16 px**.
+- **Assets / splash** : script **`scripts/generate-app-icons.cjs`** (logo web → `icon.png`, `adaptive-icon.png`, `favicon.png`) ; splash Expo sur **`assets/icon.png`** ; **`SplashScreen.preventAutoHideAsync`** dans **`App.tsx`** ; suppression PNG legacy (`assets/Icônes/`, `splash.png`, `Gâteau.png`).
 
 ### 2026-06-27 (Fond listes / orga / sanitaire + modales chambres & cahier)
 - **Composants** : **`EcranListeFond`** (fond uni **`colors.background`**, sans dégradé) ; **`ListeEcranLayout`** + **`ListeAvecFiltresFixes`** (bande filtres fixe même teinte, liste scroll derrière, espacement 12 px) ; export **`styleCarteListe`** (ombre cartes).

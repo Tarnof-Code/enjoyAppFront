@@ -22,8 +22,8 @@ interface HeaderProps {
   title: string;
 }
 
-const AVATAR_SIZE = 56;
-const HEADER_CONTENT_MIN = 88;
+const AVATAR_SIZE = 44;
+const HEADER_CONTENT_MIN = 52;
 
 function Header({ iconName, title }: HeaderProps) {
   const insets = useSafeAreaInsets();
@@ -58,14 +58,14 @@ function Header({ iconName, title }: HeaderProps) {
         style={[
           styles.inner,
           {
-            paddingTop: insets.top + spacing.xs,
+            paddingTop: insets.top,
             minHeight: insets.top + HEADER_CONTENT_MIN,
           },
         ]}
       >
         <View style={styles.alignElements}>
           <View style={styles.iconContainer}>
-            <FontAwesome5 name={iconName} size={27} color={colors.surface} />
+            <FontAwesome5 name={iconName} size={24} color={colors.surface} />
           </View>
           <View style={styles.textContainer}>
             <Text style={styles.title} numberOfLines={2}>{title}</Text>
@@ -75,6 +75,7 @@ function Header({ iconName, title }: HeaderProps) {
             accessibilityRole="button"
             accessibilityLabel="Voir mon profil"
             hitSlop={8}
+            style={styles.avatarWrap}
           >
             <GlassPanel borderRadius={radius.full} intensity={45} style={styles.avatarRing}>
               <AvatarProfil
@@ -109,13 +110,13 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
   },
   inner: {
-    justifyContent: 'flex-end',
-    paddingBottom: spacing.sm,
+    justifyContent: 'flex-start',
     paddingHorizontal: spacing.md,
   },
   alignElements: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginTop: -2,
   },
   iconContainer: {
     width: '15%',
@@ -127,12 +128,16 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: fonts.script,
-    fontSize: 30,
-    lineHeight: 36,
+    fontSize: 28,
+    lineHeight: 32,
     color: colors.surface,
   },
+  avatarWrap: {
+    marginTop: -1,
+  },
   avatarRing: {
-    padding: 4,
+    padding: 2,
+    borderWidth: StyleSheet.hairlineWidth,
   },
 });
 

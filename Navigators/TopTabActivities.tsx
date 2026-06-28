@@ -11,22 +11,21 @@ const couleur = (focused: boolean) => (focused ? colors.primary : colors.disable
 
 export default creerTopTab<ActivitiesTabParamList>({
   headerIcon: 'dice',
+  barreOngletsCompacte: true,
   onglets: [
     {
       name: 'Activites',
       title: 'Planning',
       component: Activites,
-      afficherLibelle: false,
       icon: (f) => (
-        <MaterialCommunityIcons size={25} name="calendar-blank" color={couleur(f)} />
+        <MaterialCommunityIcons size={20} name="calendar-blank" color={couleur(f)} />
       ),
     },
     {
       name: 'Sorties',
       title: 'Sorties',
       component: Sorties,
-      afficherLibelle: false,
-      icon: (f) => <MaterialCommunityIcons size={25} name="bus" color={couleur(f)} />,
+      icon: (f) => <MaterialCommunityIcons size={20} name="bus" color={couleur(f)} />,
     },
   ],
 });

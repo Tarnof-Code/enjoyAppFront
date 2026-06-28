@@ -14,32 +14,33 @@ const couleur = (focused: boolean) => (focused ? colors.primary : colors.disable
 
 export default creerTopTab<ListsTabParamList>({
   headerIcon: 'list-ul',
+  barreOngletsCompacte: true,
   onglets: [
     {
       name: 'Animators',
       title: 'Équipe',
       component: Animators,
       icon: (f) => (
-        <MaterialCommunityIcons size={25} name="badge-account-horizontal" color={couleur(f)} />
+        <MaterialCommunityIcons size={20} name="badge-account-horizontal" color={couleur(f)} />
       ),
     },
     {
       name: 'Children',
       title: 'Enfants',
       component: Children,
-      icon: (f) => <MaterialCommunityIcons size={25} name="human-child" color={couleur(f)} />,
+      icon: (f) => <MaterialCommunityIcons size={20} name="human-child" color={couleur(f)} />,
     },
     {
       name: 'Groups',
       title: 'Groupes',
       component: Groups,
-      icon: (f) => <MaterialCommunityIcons size={25} name="account-group" color={couleur(f)} />,
+      icon: (f) => <MaterialCommunityIcons size={20} name="account-group" color={couleur(f)} />,
     },
     {
       name: 'Bedrooms',
       title: 'Chambres',
       component: Bedrooms,
-      icon: (f) => <FontAwesome size={25} name="bed" color={couleur(f)} />,
+      icon: (f) => <FontAwesome size={20} name="bed" color={couleur(f)} />,
     },
   ],
 });

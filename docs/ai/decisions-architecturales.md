@@ -14,7 +14,7 @@ Patterns et choix techniques de l'app mobile. Garder ce fichier comme référenc
 
 - **Tokens centralisés** : `config/theme.ts` (`colors`, `gradients`, `fonts`, `spacing`, `radius`, `fontSizes`).
 - **Source de vérité = app web** : palette mirroir de `enjoyWebApp/src/_variables.scss`.
-- **Accent navigation** : onglet bottom actif, top-tabs et **`Header`** (icône + titre script blancs sur dégradé bleu) ; inactifs **`colors.disabled`**. **`Header`** : dégradé **`primary` → `primaryDark` → `#2a2d8a`** (web = fond plat **`bleu_principal`**).
+- **Accent navigation** : onglet bottom actif, top-tabs et **`Header`** (icône + titre script blancs sur dégradé bleu) ; inactifs **`colors.disabled`**. **`Header`** : dégradé **`primary` → `primaryDark` → `#2a2d8a`** ; compact — avatar **44 px**, anneau glass **`hairlineWidth`**, titre **28 px**, minHeight contenu **52 px** (alignement haut sous safe area).
 
 ## Fond listes & modales formulaire
 
@@ -22,7 +22,7 @@ Patterns et choix techniques de l'app mobile. Garder ce fichier comme référenc
 - **`ListeEcranLayout`** : **`EcranListeFond`** + **`ListeAvecFiltresFixes`** — filtres en overlay fixe (`backgroundColor: colors.background`), **`FlatList`** avec `paddingTop` dynamique (`onLayout`), pull-to-refresh `progressViewOffset` aligné ; export **`styleCarteListe`** et **`ESPACE_FILTRES_LISTE`** (12 px).
 - **Cartes listes** : fond blanc + bordure + ombre légère (`styleCarteListe` ou **`ListeAccordion`**).
 - **Modales bottom sheet chambres / cahier** : feuille **`colors.background`** ; champs, dropdowns et pills inactifs **`colors.surface`** — **`ChambreFormulaireModal`**, **`CahierInfirmerieFormModal`**, **`AffecterOccupantsModal`** (pied actions aussi **`background`**).
-- **Exception orga détail** : **`GrilleDetail`** — section haute (consigne + toolbar) **`colors.surface`** ; reste sur **`EcranListeFond`**.
+- **Exception orga détail** : **`GrilleDetail`** — section haute (consigne + toolbar) **`colors.surface`** ; reste sur **`EcranListeFond`**. **Liste orga** (`Organisation.tsx`) : bandeau recherche fixe **`surface`** + ombre/bordure basse ; champ recherche fond **`background`** (distinct des cartes blanches).
 
 ## Navigation (React Navigation 7)
 
@@ -31,7 +31,7 @@ Patterns et choix techniques de l'app mobile. Garder ce fichier comme référenc
 - **`navigationRef`** (`Navigators/navigationRef.ts`) : ref de navigation root, importée hors navigateur (`Home` déconnexion, `BottomTabNavigator` session expirée) pour éviter les cycles d'import avec les écrans.
 - **Bottom tabs** : `Home` toujours visible ; **`Listes`**, **`Orga`**, `Menus`, `Activités`, `Sanitaire` rendus **uniquement si `sejourCourant`** (`useAppSelector` dans `BottomTab`). Icônes FontAwesome5.
 - **Séjour courant** : choix sur **`Home`** (modal **`GlassPanel`**, liste `sejoursDisponibles`) ; connexion sans séjour (`Login` → `clearSejour`) ; bootstrap peut restaurer le dernier séjour mémorisé ; persistance `enregistrerDernierSejourVisite` au changement sur accueil.
-- **Top tabs** (`creerTopTab`) : `TopTabLists` (Animators, Children, Groups, Bedrooms), `TopTabActivities` (Activites → header **Planning**, Sorties), **`TopTabSanitaire`** (CahierInfirmerie, DossierSanitaire). Titre du `Header` suit l'onglet actif. Option **`afficherLibelle`** (défaut true) ; **Activités** : icônes seules sur Planning/Sorties.
+- **Top tabs** (`creerTopTab`) : `TopTabLists`, `TopTabActivities`, `TopTabSanitaire`. Titre du `Header` suit l'onglet actif. Option **`afficherLibelle`** (défaut true). Option **`barreOngletsCompacte`** (activée sur les trois navigateurs) : hauteur **50 px**, libellés **10 px** ; icônes configurées à **20 px** par onglet. Option **`afficherLibelle: false`** disponible (non utilisée sur Activités depuis 2026-06-28).
 - **Stack Organisation** (`OrganisationNavigator`) : `GrillesList` → `GrilleDetail` (params `grilleId`, `titre`).
 - **Écrans pleine page** (header propre) : `Menus`, `Home`. **Sanitaire** : header via `creerTopTab` (titre Cahier d'infirmerie / Dossiers sanitaires).
 - Types centralisés : `Navigators/types.ts`.

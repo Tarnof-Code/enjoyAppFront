@@ -12,6 +12,8 @@ import { store } from './store';
 
 const theme = createTheme({});
 
+SplashScreen.preventAutoHideAsync();
+
 export default function App() {
   useEffect(() => {
     SplashScreen.hideAsync();
