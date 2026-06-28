@@ -1,12 +1,13 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from 'react-native';
-import { Dropdown, MultiSelect } from 'react-native-element-dropdown';
+import { Dropdown } from 'react-native-element-dropdown';
 import { MaterialIcons } from '@expo/vector-icons';
 
 import { useChargementRafraichissable } from '../../hooks/useChargementRafraichissable';
@@ -97,28 +98,22 @@ function correspondAuFiltre(d: DossierEnfantDto, filtre: Filtre, filtreTraitemen
   return aContenu(d);
 }
 
-function optionsGroupesDepuisLignes(
-  lignes: EnfantDossierSanitaireLigneDto[],
-): { value: string; label: string }[] {
-  const map = new Map<number, string>();
-  for (const l of lignes) {
-    for (const g of l.groupes) {
-      const libelle = g.libelle?.trim();
-      if (libelle) map.set(g.id, libelle);
-    }
-  }
-  return [...map.entries()]
-    .sort((a, b) => a[1].localeCompare(b[1], 'fr', { sensitivity: 'base' }))
-    .map(([id, label]) => ({ value: String(id), label }));
+function normaliser(valeur: string): string {
+  return valeur
+    .normalize('NFD')
+    .replace(/\p{M}/gu, '')
+    .toLowerCase()
+    .trim();
 }
 
-function correspondAuFiltreGroupes(
+function correspondRechercheEnfant(
   ligne: EnfantDossierSanitaireLigneDto,
-  groupesSelectionnes: string[],
+  sejour: SejourDTO | null,
+  terme: string,
 ): boolean {
-  if (groupesSelectionnes.length === 0) return true;
-  const ids = ligne.groupes.map((g) => String(g.id));
-  return groupesSelectionnes.some((id) => ids.includes(id));
+  if (!terme) return true;
+  const cible = normaliser(libelleEnfantDuSejour(ligne, sejour));
+  return cible.includes(terme);
 }
 
 function Ligne({
@@ -219,7 +214,7 @@ export default function DossierSanitaire() {
   );
   const [filtre, setFiltre] = useState<Filtre>('TOUT');
   const [filtreTraitement, setFiltreTraitement] = useState<FiltreTraitement>('TOUS');
-  const [groupesSelectionnes, setGroupesSelectionnes] = useState<string[]>([]);
+  const [recherche, setRecherche] = useState('');
   const rafraichirSejour = useRafraichirSejourCourant();
 
   const executer = useCallback(async () => {
@@ -236,14 +231,14 @@ export default function DossierSanitaire() {
     'Impossible de charger les fiches sanitaires.',
   );
 
-  const optionsGroupes = useMemo(() => optionsGroupesDepuisLignes(lignes), [lignes]);
+  const termeRecherche = normaliser(recherche);
 
   const visibles = trierEnfantsDuSejour(
     lignes.filter(
       (l) =>
         l.dossier &&
         correspondAuFiltre(l.dossier, filtre, filtreTraitement) &&
-        correspondAuFiltreGroupes(l, groupesSelectionnes),
+        correspondRechercheEnfant(l, sejour, termeRecherche),
     ),
     sejour,
   );
@@ -291,39 +286,28 @@ export default function DossierSanitaire() {
         filtres={
         <View style={styles.barreFiltre}>
           <View style={styles.ligneFiltres}>
-            {optionsGroupes.length > 0 ? (
-              <MultiSelect
-                style={styles.dropdown}
-                containerStyle={styles.dropdownContainer}
-                placeholderStyle={styles.dropdownTexte}
-                selectedTextStyle={styles.dropdownTexte}
-                itemTextStyle={styles.dropdownItemText}
-                activeColor={colors.primarySoft}
-                data={optionsGroupes}
-                labelField="label"
-                valueField="value"
-                value={groupesSelectionnes}
-                onChange={setGroupesSelectionnes}
-                placeholder={
-                  groupesSelectionnes.length > 0
-                    ? `${groupesSelectionnes.length} groupe${groupesSelectionnes.length > 1 ? 's' : ''}`
-                    : 'Groupes'
-                }
-                visibleSelectedItem={false}
-                renderItem={(item, selected) => (
-                  <View style={styles.dropdownItem}>
-                    <MaterialIcons
-                      name={selected ? 'check-box' : 'check-box-outline-blank'}
-                      size={20}
-                      color={selected ? colors.primary : colors.muted}
-                    />
-                    <Text style={styles.dropdownItemText}>{item.label}</Text>
-                  </View>
-                )}
+            <View style={styles.rechercheConteneur}>
+              <TextInput
+                style={styles.recherche}
+                value={recherche}
+                onChangeText={setRecherche}
+                placeholder="Rechercher un enfant…"
+                placeholderTextColor={colors.muted}
+                autoCorrect={false}
               />
-            ) : null}
+              {recherche.length > 0 ? (
+                <Pressable
+                  style={styles.rechercheEffacer}
+                  onPress={() => setRecherche('')}
+                  hitSlop={8}
+                  accessibilityLabel="Effacer la recherche"
+                >
+                  <MaterialIcons name="close" size={20} color={colors.muted} />
+                </Pressable>
+              ) : null}
+            </View>
             <Dropdown
-              style={styles.dropdown}
+              style={styles.dropdownFiltre}
               containerStyle={styles.dropdownContainer}
               placeholderStyle={styles.dropdownTexte}
               selectedTextStyle={styles.dropdownTexte}
@@ -399,11 +383,37 @@ const styles = StyleSheet.create({
   },
   ligneFiltres: {
     flexDirection: 'row',
+    alignItems: 'center',
     gap: spacing.sm,
   },
-  dropdown: {
-    flex: 1,
-    minHeight: 42,
+  rechercheConteneur: {
+    flex: 3,
+    minWidth: 0,
+    position: 'relative',
+  },
+  recherche: {
+    width: '100%',
+    minHeight: 44,
+    paddingHorizontal: spacing.md,
+    paddingRight: 40,
+    borderRadius: radius.sm,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    fontSize: fontSizes.sm,
+    color: colors.text,
+  },
+  rechercheEffacer: {
+    position: 'absolute',
+    right: 10,
+    top: 0,
+    bottom: 0,
+    justifyContent: 'center',
+  },
+  dropdownFiltre: {
+    flex: 2,
+    minWidth: 0,
+    minHeight: 44,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
     borderRadius: radius.sm,
@@ -431,13 +441,6 @@ const styles = StyleSheet.create({
   dropdownItemText: {
     fontSize: fontSizes.sm,
     color: colors.text,
-  },
-  dropdownItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
   },
   card: {
     backgroundColor: colors.surface,

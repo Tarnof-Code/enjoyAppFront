@@ -24,6 +24,9 @@ Reste mineur : composant orphelin `DropdownAnim.tsx`, assets `LogosGroupes/` non
 
 ## Journal
 
+### 2026-06-28 (Dossiers sanitaires — recherche enfant)
+- **`DossierSanitaire.tsx`** : **`MultiSelect`** groupes remplacé par **`TextInput`** recherche enfant (placeholder « Rechercher un enfant… ») ; filtrage insensible casse/accents sur **`libelleEnfantDuSejour`** ; combinable avec **`Dropdown`** filtre contenu et sous-filtre moment Traitements ; groupes toujours affichés sur chaque carte.
+
 ### 2026-06-28 (Modale dossier sanitaire — consultation et édition)
 - **`DossierEnfantModal`** : tap carte **`DossierSanitaire`** → bottom sheet dossier complet (contacts, médical, traitements, autres) ; rechargement frais via `GET …/enfants/{id}/dossier` ; tél./e-mail cliquables.
 - **Édition par section** (icône crayon) si **`peutModifierDossierEnfant`** : directeur, adjoint ou AS ; sous-modale formulaire par section ; `PUT …/enfants/{id}/dossier` ; allergènes/régimes via **`referencesAlimentaires.service`** ; validation email/tél. **`regexValidation`**.
