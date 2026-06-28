@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
+  Pressable,
   StyleSheet,
   Text,
   View,
@@ -10,6 +11,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 
 import { useChargementRafraichissable } from '../../hooks/useChargementRafraichissable';
 import ListeEcranLayout, { styleCarteListe } from '../../Components/ListeEcranLayout';
+import DossierEnfantModal from '../../Components/DossierEnfantModal';
 import { useRafraichirSejourCourant } from '../../hooks/useRafraichirSejourCourant';
 import { dossierEnfantService } from '../../services/dossierEnfant.service';
 import type { DossierEnfantDto, EnfantDossierSanitaireLigneDto, SejourDTO } from '../../types/api';
@@ -123,10 +125,12 @@ function Ligne({
   item,
   sejour,
   momentTraitement,
+  onPress,
 }: {
   item: EnfantDossierSanitaireLigneDto;
   sejour: SejourDTO | null;
   momentTraitement?: FiltreTraitement;
+  onPress: () => void;
 }) {
   const d = item.dossier!;
   const groupes = item.groupes.map((g) => g.libelle).filter(Boolean);
@@ -134,7 +138,12 @@ function Ligne({
   const regimes = d.regimesEtPreferences.map((r) => r.libelle).filter(Boolean);
 
   return (
-    <View style={styles.card}>
+    <Pressable
+      style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={`Ouvrir le dossier sanitaire de ${libelleEnfantDuSejour(item, sejour)}`}
+    >
       <View style={styles.cardHeader}>
         <Text style={styles.nom}>{libelleEnfantDuSejour(item, sejour)}</Text>
         {groupes.length > 0 ? <Text style={styles.groupes}>{groupes.join(', ')}</Text> : null}
@@ -196,14 +205,18 @@ function Ligne({
           <Text style={styles.ligne}>{d.autresInformations}</Text>
         </View>
       ) : null}
-    </View>
+    </Pressable>
   );
 }
 
 export default function DossierSanitaire() {
   const sejour = useAppSelector((state) => state.sejour.sejourCourant);
+  const tokenUtilisateur = useAppSelector((state) => state.auth.tokenId);
   const sejourId = sejour?.id;
   const [lignes, setLignes] = useState<EnfantDossierSanitaireLigneDto[]>([]);
+  const [ligneSelectionnee, setLigneSelectionnee] = useState<EnfantDossierSanitaireLigneDto | null>(
+    null,
+  );
   const [filtre, setFiltre] = useState<Filtre>('TOUT');
   const [filtreTraitement, setFiltreTraitement] = useState<FiltreTraitement>('TOUS');
   const [groupesSelectionnes, setGroupesSelectionnes] = useState<string[]>([]);
@@ -235,6 +248,15 @@ export default function DossierSanitaire() {
     sejour,
   );
 
+  const handleDossierMisAJour = (enfantId: number, dossier: DossierEnfantDto) => {
+    setLignes((prev) =>
+      prev.map((l) => (l.enfantId === enfantId ? { ...l, dossier } : l)),
+    );
+    setLigneSelectionnee((prev) =>
+      prev?.enfantId === enfantId ? { ...prev, dossier } : prev,
+    );
+  };
+
   if (!sejourId) {
     return (
       <View style={styles.center}>
@@ -260,12 +282,13 @@ export default function DossierSanitaire() {
   }
 
   return (
-    <ListeEcranLayout
-      data={visibles}
-      keyExtractor={(item) => String(item.enfantId)}
-      refreshing={refreshing}
-      onRefresh={refresh}
-      filtres={
+    <>
+      <ListeEcranLayout
+        data={visibles}
+        keyExtractor={(item) => String(item.enfantId)}
+        refreshing={refreshing}
+        onRefresh={refresh}
+        filtres={
         <View style={styles.barreFiltre}>
           <View style={styles.ligneFiltres}>
             {optionsGroupes.length > 0 ? (
@@ -340,12 +363,25 @@ export default function DossierSanitaire() {
           item={item}
           sejour={sejour}
           momentTraitement={filtre === 'TRAITEMENTS' ? filtreTraitement : undefined}
+          onPress={() => setLigneSelectionnee(item)}
         />
       )}
       ListEmptyComponent={
         <Text style={styles.empty}>Aucune information sanitaire pour ce filtre.</Text>
       }
     />
+
+      {sejour ? (
+        <DossierEnfantModal
+          visible={ligneSelectionnee != null}
+          sejour={sejour}
+          ligne={ligneSelectionnee}
+          tokenUtilisateur={tokenUtilisateur}
+          onFermer={() => setLigneSelectionnee(null)}
+          onDossierMisAJour={handleDossierMisAJour}
+        />
+      ) : null}
+    </>
   );
 }
 
@@ -411,6 +447,9 @@ const styles = StyleSheet.create({
     padding: 14,
     marginBottom: 10,
     ...styleCarteListe,
+  },
+  cardPressed: {
+    backgroundColor: colors.background,
   },
   cardHeader: {
     flexDirection: 'row',

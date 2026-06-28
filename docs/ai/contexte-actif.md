@@ -10,7 +10,7 @@
 
 **Sorties (onglet liste)** : accordéons avec gestion enfants participants (`PUT …/enfants`), filtres date/groupes (valeurs présentes uniquement).
 
-**Sanitaire** : top-tabs **Cahier d'infirmerie** (CRUD, liste accordéons) + **Dossiers sanitaires** (lecture, filtres groupes + contenu + moment).
+**Sanitaire** : top-tabs **Cahier d'infirmerie** (CRUD, liste accordéons) + **Dossiers sanitaires** (liste + modale dossier enfant, édition par section selon rôle).
 
 **Mon profil** : écran Stack **`Profil`** (édition infos, mot de passe, photo API) ; avatar **`Header`** / **`Home`** via Redux ; refresh photo au pull-to-refresh.
 
@@ -23,6 +23,11 @@
 Reste mineur : composant orphelin `DropdownAnim.tsx`, assets `LogosGroupes/` non référencés, spike refresh token en prod (HTTPS).
 
 ## Journal
+
+### 2026-06-28 (Modale dossier sanitaire — consultation et édition)
+- **`DossierEnfantModal`** : tap carte **`DossierSanitaire`** → bottom sheet dossier complet (contacts, médical, traitements, autres) ; rechargement frais via `GET …/enfants/{id}/dossier` ; tél./e-mail cliquables.
+- **Édition par section** (icône crayon) si **`peutModifierDossierEnfant`** : directeur, adjoint ou AS ; sous-modale formulaire par section ; `PUT …/enfants/{id}/dossier` ; allergènes/régimes via **`referencesAlimentaires.service`** ; validation email/tél. **`regexValidation`**.
+- **Services / types** : **`dossierEnfant.service`** étendu (`getDossierEnfant`, `updateDossierEnfant`) ; type **`UpdateDossierEnfantRequest`** ; liste locale synchronisée après enregistrement.
 
 ### 2026-06-28 (Header compact, top-tabs uniformes, recherche orga, icônes app)
 - **`Header`** : avatar **44 px** (ex-56) ; anneau glass **`hairlineWidth`**, padding **2** ; titre **28/32**, icône **24** ; hauteur contenu **52 px**, alignement haut ; micro-ajustements photo (`avatarWrap`).

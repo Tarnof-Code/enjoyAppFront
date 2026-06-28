@@ -117,7 +117,8 @@ Patterns et choix techniques de l'app mobile. Garder ce fichier comme référenc
 
 - **Navigation** : onglet bottom **Sanitaire** → **`TopTabSanitaire`** — **CahierInfirmerie** (icône book-medical) + **DossierSanitaire** (icône clipboard).
 - **Cahier** (`CahierInfirmerie.tsx`) : `GET/POST/PUT/DELETE …/cahier-infirmerie` ; **`ListeEcranLayout`** (fond **`background`**, filtres fixes) ; accordéons **`ListeAccordion`** ; recherche + filtre jour ; FAB « + » ; **`CahierInfirmerieFormModal`** (feuille grise) ; droits **`droitsCahierInfirmerie`**.
-- **Dossier sanitaire** (`DossierSanitaire.tsx`) : lecture seule `GET …/dossiers-enfants` ; **`ListeEcranLayout`** ; **MultiSelect** groupes + **`Dropdown`** filtre contenu ; sous-filtre moment Traitements ; cartes **`styleCarteListe`** ; tri/libellé enfants selon `triListesEnfants`.
+- **Dossier sanitaire** (`DossierSanitaire.tsx`) : liste `GET …/dossiers-enfants` ; **`ListeEcranLayout`** ; **MultiSelect** groupes + **`Dropdown`** filtre contenu ; sous-filtre moment Traitements ; cartes **`styleCarteListe`** pressables → **`DossierEnfantModal`** ; tri/libellé enfants selon `triListesEnfants`.
+- **`DossierEnfantModal`** : bottom sheet consultation dossier enfant ; sections Contacts / Médical / Traitements / Autres ; édition par section via sous-modale si **`peutModifierDossierEnfant`** (directeur, adjoint, AS — aligné web) ; `GET/PUT …/enfants/{enfantId}/dossier` ; référentiels allergènes/régimes `GET /references-alimentaires` ; réutilise **`LigneInfoFiche`**.
 - **Libellés soins/appels** : **`constants/cahierInfirmerieLabels.ts`**. Pas d'historique ni impression mobile.
 
 ## Profil utilisateur

@@ -425,6 +425,15 @@ export interface DossierEnfantDto {
   aPrendreEnSortie: string | null;
 }
 
+/** Payload PUT /sejours/{sejourId}/enfants/{enfantId}/dossier */
+export type UpdateDossierEnfantRequest = Omit<
+  DossierEnfantDto,
+  'id' | 'enfantId' | 'allergenes' | 'regimesEtPreferences'
+> & {
+  allergeneIds?: number[] | null;
+  regimePreferenceIds?: number[] | null;
+};
+
 export interface EnfantDossierSanitaireLigneDto {
   enfantId: number;
   prenom: string;

@@ -1,4 +1,8 @@
-import type { EnfantDossierSanitaireLigneDto } from '../types/api';
+import type {
+  DossierEnfantDto,
+  EnfantDossierSanitaireLigneDto,
+  UpdateDossierEnfantRequest,
+} from '../types/api';
 import { adaptAxiosError } from '../helpers/axiosError';
 import Axios from './httpClient';
 
@@ -18,6 +22,52 @@ export async function getDossiersSanitairesBySejour(
   }
 }
 
+export async function getDossierEnfant(
+  sejourId: number,
+  enfantId: number,
+): Promise<DossierEnfantDto> {
+  try {
+    const response = await Axios.get<DossierEnfantDto>(
+      `/sejours/${sejourId}/enfants/${enfantId}/dossier`,
+    );
+    return {
+      ...response.data,
+      allergenes: response.data.allergenes ?? [],
+      regimesEtPreferences: response.data.regimesEtPreferences ?? [],
+    };
+  } catch (error: unknown) {
+    adaptAxiosError(error, {
+      defaultMessage: 'Erreur lors de la récupération du dossier',
+      logContext: 'dossierEnfant getDossierEnfant',
+    });
+  }
+}
+
+export async function updateDossierEnfant(
+  sejourId: number,
+  enfantId: number,
+  request: UpdateDossierEnfantRequest,
+): Promise<DossierEnfantDto> {
+  try {
+    const response = await Axios.put<DossierEnfantDto>(
+      `/sejours/${sejourId}/enfants/${enfantId}/dossier`,
+      request,
+    );
+    return {
+      ...response.data,
+      allergenes: response.data.allergenes ?? [],
+      regimesEtPreferences: response.data.regimesEtPreferences ?? [],
+    };
+  } catch (error: unknown) {
+    adaptAxiosError(error, {
+      defaultMessage: 'Erreur lors de la modification du dossier',
+      logContext: 'dossierEnfant updateDossierEnfant',
+    });
+  }
+}
+
 export const dossierEnfantService = {
   getDossiersSanitairesBySejour,
+  getDossierEnfant,
+  updateDossierEnfant,
 };
