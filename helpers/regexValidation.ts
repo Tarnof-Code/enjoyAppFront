@@ -1,3 +1,5 @@
+import { isValidPassword } from './passwordPolicy';
+
 const validateEmail = (email: string): boolean => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
@@ -8,7 +10,10 @@ const validatePhone = (phone: string): boolean => {
   return phoneRegex.test(phone);
 };
 
+const validatePassword = isValidPassword;
+
 export const regexValidation = {
   validateEmail,
   validatePhone,
+  validatePassword,
 };

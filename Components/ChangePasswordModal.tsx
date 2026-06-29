@@ -12,6 +12,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 
 import { getApiErrorMessage, getUserFacingErrorMessage } from '../helpers/axiosError';
+import { isValidPassword, PASSWORD_MESSAGE } from '../helpers/passwordPolicy';
 import { utilisateurService } from '../services/utilisateur.service';
 import { colors, fontSizes, radius, spacing } from '../config/theme';
 
@@ -20,8 +21,6 @@ interface ChangePasswordModalProps {
   tokenId: string;
   onClose: () => void;
 }
-
-const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&*!]).{4,}$/;
 
 function ChangePasswordModal({ visible, tokenId, onClose }: ChangePasswordModalProps) {
   const [ancien, setAncien] = useState('');
@@ -50,10 +49,8 @@ function ChangePasswordModal({ visible, tokenId, onClose }: ChangePasswordModalP
       setError('Veuillez remplir tous les champs.');
       return;
     }
-    if (!PASSWORD_REGEX.test(nouveau)) {
-      setError(
-        'Le mot de passe doit contenir au moins une minuscule, une majuscule, un caractère spécial (@#$%^&*!) et au moins 4 caractères.',
-      );
+    if (!isValidPassword(nouveau)) {
+      setError(PASSWORD_MESSAGE);
       return;
     }
     if (nouveau !== confirmation) {

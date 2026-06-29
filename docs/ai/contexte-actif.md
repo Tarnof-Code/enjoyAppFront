@@ -24,6 +24,11 @@ Reste mineur : composant orphelin `DropdownAnim.tsx`, assets `LogosGroupes/` non
 
 ## Journal
 
+### 2026-06-29 (Politique mot de passe — alignement API)
+- **`helpers/passwordPolicy.ts`** : regex + message alignés sur enjoyApi **`PasswordPolicy`** (symbole/ponctuation élargi, pas seulement `@#$%^&*!` ; min. 4 car., sans espace).
+- **`ChangePasswordModal`** : validation via **`isValidPassword`** / **`PASSWORD_MESSAGE`** (retrait regex locale).
+- **`regexValidation.ts`** : export **`validatePassword`** (alias **`isValidPassword`**) pour réutilisation (ex. futurs formulaires).
+
 ### 2026-06-28 (Dossiers sanitaires — consultation seule mobile)
 - **`DossierEnfantModal`** : retrait édition par section, sous-modale formulaire et icônes crayon ; consultation uniquement (4 sections, tél./e-mail cliquables) ; `GET …/enfants/{id}/dossier`.
 - **Supprimés** : **`peutModifierDossierEnfant.ts`**, **`referencesAlimentaires.service.ts`**, `updateDossierEnfant` (service), type **`UpdateDossierEnfantRequest`** ; édition dossier réservée à l'app web.

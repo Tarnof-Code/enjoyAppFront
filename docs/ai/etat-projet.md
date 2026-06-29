@@ -97,7 +97,8 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | `chambreOccupantsUtils.ts` | Éligibilité occupants, validation modification chambre, fusion liste locale après affectation |
 | `enumererJoursSejour.ts` | Liste des jours ISO entre date début/fin séjour |
 | `peutGererMembresEquipeSejour.ts` | Directeur ou adjoint (droits édition structure planning) |
-| `regexValidation.ts` | Validation email et téléphone (helper réutilisable) |
+| `passwordPolicy.ts` | Politique mot de passe alignée API — **`PASSWORD_REGEX`**, **`PASSWORD_MESSAGE`**, **`isValidPassword`** |
+| `regexValidation.ts` | Validation email, téléphone et mot de passe (**`validatePassword`** → **`passwordPolicy`**) |
 | `planningGrilleUtils.ts` | Affichage/validation cellules planning, fenêtre jours, permissions par ligne (`peutModifierCellulePlanning`, `ligneEstCelleDeUtilisateur`), résumés, **`libelleMembreDansCelluleEquipe`** |
 | `activiteUtils.ts` | Calendrier activités : droits, indexation par animateur/jour, cartes cellule, filtres groupes âge/niveau, défauts formulaire, enfants participants activité ; **`couleurFondCalendrierPourTypeActivite`** (fond carte par `typeActivite.id`, HSL 36 teintes, aligné web) ; sorties : **`enfantsEffectifsSortie`**, **`idsEnfantsSelectionInitialeSortie`**, **`idsEnfantsDejaAffectesAutreEvenement`** |
 | `activitePrestataireCalendrier.ts` | Fusion activités/sorties en cellule, conflits hiérarchiques, `nonParticipations`, filtres lignes calendrier |
