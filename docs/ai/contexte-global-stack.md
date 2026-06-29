@@ -16,10 +16,11 @@ Application **mobile** Enjoy (Expo / React Native) destinée aux **animateurs** 
 - **`Navigators/`** : `BottomTabNavigator.tsx` (Stack `Login` → `BottomTab` + bootstrap session ; onglets conditionnels), `navigationRef.ts`, `TopTab*`, `types.ts`.
 - **`screens/`** : `FirstScreens/` (`Login`, `Home`), `Lists/`, `Plannings/`, `Activities/`, `Health/`, `Infos/`.
 - **`services/`** : `httpClient.ts` (axios + intercepteurs auth), `account.service.ts`, `accountStorage.ts`, `tokenStorage.ts`, `sejour.service.ts`, `sejour-reunion.service.ts`, `utilisateur.service.ts`.
-- **`store/`** : Redux Toolkit — `authSlice`, `sejourSlice`, `animNameSlice`, `overlaySlice`, `hooks.ts`, `index.ts`.
-- **`config/`** : `env.ts` (`API_BASE_URL`, `EXPO_PUBLIC_API_URL`), `api.ts` (Google Sheets — en cours de retrait).
+- **`store/`** : Redux Toolkit — `authSlice`, `sejourSlice`, `animNameSlice`, `hooks.ts`, `index.ts`.
+- **`config/`** : `env.ts` (`API_BASE_URL` depuis `extra.apiUrl`), `loadEnv.cjs` (chargement `.env.local` / `.env.prod`), `theme.ts`.
+- **`.env/`** : `.env.example` versionné ; `.env.local` et `.env.prod` locaux (Git ignoré). **`scripts/expo-env.cjs`** : point d'entrée des scripts npm `start` / `start:prod`.
 - **`helpers/`** : `axiosError.ts`, `dernierSejour.ts`, `photoProfil.ts`, `reunionVeille.ts`, `reunionTipTapTexte.ts`.
-- **`types/`** : `api.d.ts` (DTOs alignés sur le web), `sheets.ts` (modèle tableur legacy).
+- **`types/`** : `api.d.ts` (DTOs alignés sur le web).
 - **`Components/`** : composants partagés (`Header`, dropdowns, `CheckList`, `BirthdayOverlay`…).
 
 Les règles obligatoires courtes (langue, lint, périmètre, commits) restent dans [`.cursor/rules/`](../../.cursor/rules/).

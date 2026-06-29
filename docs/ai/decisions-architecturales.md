@@ -6,6 +6,7 @@ Patterns et choix techniques de l'app mobile. Garder ce fichier comme référenc
 
 - **Expo SDK 54 / RN 0.81 / React 19 / TypeScript** ; `tsc --noEmit` via `npm run typecheck`.
 - Paquets : **npm** + `legacy-peer-deps=true` (`.npmrc`). Ne pas introduire `pnpm`/`yarn`.
+- **Variables d'environnement** : dossier **`.env/`** — seul **`.env/.env.example`** versionné ; copier vers **`.env.local`** (API locale) et **`.env.prod`** (API prod). **`config/loadEnv.cjs`** parse et injecte dans `process.env` (local puis prod si mode prod). **`scripts/expo-env.cjs`** lance Expo avec **`ENJOY_ENV=local|prod`** ; scripts **`npm run start`** (= local), **`start:prod`**, **`start:clear`**, **`start:prod:clear`**. Clé principale : **`EXPO_PUBLIC_API_URL`** (ex. `http://10.0.2.2:8080/api/v1` émulateur Android, IP LAN pour appareil physique).
 - **Modules natifs Expo** : installer avec **`npx expo install <pkg>`** pour coller au SDK ; **`@react-native-community/datetimepicker`** **8.4.4** (SDK 54 — pas 9.x) ; **`expo-blur`** **~15.0.8** (SDK 54, panneaux givre **`GlassPanel`**).
 - **React 19 Compiler** : éviter `useMemo` / `useCallback` manuels sauf nécessité mesurée.
 - **Principes de code** (`.cursor/rules/20-simplicite-code.mdc`) : KISS/DRY/YAGNI + SRP, séparation des préoccupations (`screens/` UI, `services/` API, `helpers/` logique pure), composition, fail fast.
@@ -64,7 +65,7 @@ Patterns et choix techniques de l'app mobile. Garder ce fichier comme référenc
 - **Source unique** : API Enjoy (`/api/v1`). Google Sheets retiré (`config/api.ts`, `types/sheets.ts` supprimés).
 - Types DTO dans `types/api.d.ts`, alignés sur `enjoyWebApp/src/types/api.d.ts`.
 - Dates API : **`helpers/dateApi.ts`** — `parseDateDepuisValeurApi` / `dayjsDepuisValeurApi` (ISO, chaîne numérique, epoch **secondes** si &lt; 10¹⁰ sinon ms, aligné web) ; `jourISOdepuisValeurApi` pour jour `YYYY-MM-DD` et tableaux Jackson.
-- Config runtime : `config/env.ts` / `app.config.js` (`EXPO_PUBLIC_API_URL`).
+- Config runtime : **`app.config.js`** (charge **`.env`** via **`loadEnjoyEnv`**, expose **`extra.apiUrl`** + **`extra.enjoyEnv`**) → **`config/env.ts`** (`API_BASE_URL`, fallback localhost).
 
 ## Composants UI réutilisables
 

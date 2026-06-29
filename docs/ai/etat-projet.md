@@ -55,6 +55,17 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | `dossierEnfant.service.ts` | Fiches sanitaires agrégées ; dossier enfant (`getDossiersSanitairesBySejour`, `getDossierEnfant`) |
 | `cahierInfirmerie.service.ts` | Cahier d'infirmerie (lister, créer, modifier, supprimer entrées) |
 
+## Config (`config/` + `.env/`)
+
+| Fichier | Rôle |
+|---------|------|
+| `config/env.ts` | **`API_BASE_URL`** depuis `Constants.expoConfig.extra.apiUrl` (fallback `EXPO_PUBLIC_API_URL` / localhost) |
+| `config/loadEnv.cjs` | Parse **`.env/.env.local`** puis **`.env/.env.prod`** si mode prod |
+| `config/theme.ts` | Tokens couleurs, espacements, polices |
+| `app.config.js` | Charge env via **`loadEnjoyEnv`**, expose **`extra.apiUrl`** et **`extra.enjoyEnv`** |
+| `scripts/expo-env.cjs` | Lance Expo avec **`ENJOY_ENV=local|prod`** (scripts npm `start`, `start:prod`, etc.) |
+| `.env/.env.example` | Modèle versionné — copier vers `.env.local` / `.env.prod` (non commités) |
+
 ## Hooks (`hooks/`)
 
 | Fichier | Rôle |

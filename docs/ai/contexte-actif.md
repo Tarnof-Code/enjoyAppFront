@@ -24,6 +24,12 @@ Reste mineur : composant orphelin `DropdownAnim.tsx`, assets `LogosGroupes/` non
 
 ## Journal
 
+### 2026-06-30 (Variables d'environnement — alignement enjoyWebApp)
+- **Dossier `.env/`** : seul **`.env/.env.example`** versionné ; fichiers locaux **`.env.local`** (dev) et **`.env.prod`** (prod) ignorés par Git.
+- **`config/loadEnv.cjs`** : charge `.env.local`, puis `.env.prod` si mode prod (même logique que enjoyWebApp).
+- **`scripts/expo-env.cjs`** : wrapper `npx expo start` avec **`ENJOY_ENV=local|prod`** ; scripts npm **`start`**, **`start:local`**, **`start:prod`**, variantes **`--clear`**, **`android`**, **`ios`**, **`web`**.
+- **`app.config.js`** : appelle **`loadEnjoyEnv`** avant export ; expose **`extra.apiUrl`** (`EXPO_PUBLIC_API_URL`) et **`extra.enjoyEnv`** ; consommé par **`config/env.ts`** (`API_BASE_URL`).
+
 ### 2026-06-29 (Politique mot de passe — alignement API)
 - **`helpers/passwordPolicy.ts`** : regex + message alignés sur enjoyApi **`PasswordPolicy`** (symbole/ponctuation élargi, pas seulement `@#$%^&*!` ; min. 4 car., sans espace).
 - **`ChangePasswordModal`** : validation via **`isValidPassword`** / **`PASSWORD_MESSAGE`** (retrait regex locale).

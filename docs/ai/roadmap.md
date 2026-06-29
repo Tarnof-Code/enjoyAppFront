@@ -29,6 +29,7 @@ Suivi synthétique. Plan détaillé : [`.cursor/plans/migration-api-mobile.plan.
 - [x] **Fond UI listes / orga / sanitaire** : **`EcranListeFond`**, **`ListeEcranLayout`** (filtres fixes, fond uni **`background`**) ; modales chambre/cahier/affectation (feuille grise, champs blancs) ; **`GrilleDetail`** section haute blanche.
 - [x] **Sanitaire — dossier enfant modale** : tap carte **`DossierSanitaire`** → **`DossierEnfantModal`** (consultation seule, `GET …/dossier` ; édition réservée au web).
 - [x] **UI navigation** : **`Header`** compact ; barres top-tabs homogènes (**`barreOngletsCompacte`**) ; bande recherche Organisation dissociée ; icônes app régénérées (`scripts/generate-app-icons.cjs`, splash sur `icon.png`).
+- [x] **Variables d'environnement** : dossier **`.env/`** (`.env.example` versionné), **`loadEnv.cjs`**, **`expo-env.cjs`**, scripts **`start`/`start:prod`**, **`app.config.js`** → **`config/env.ts`**.
 
 ## Reste (mineur)
 

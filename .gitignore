@@ -16,10 +16,9 @@ web-build/
 # Cursor (plans de travail non versionnés)
 .cursor/plans/
 
-# Variables d'environnement
-.env
-.env.local
-.env.*.local
+# Dossier .env — seul .env.example est versionné
+.env/*
+!.env/.env.example
 
 # Fichiers Markdown (tous les fichiers .md)
 *.md
