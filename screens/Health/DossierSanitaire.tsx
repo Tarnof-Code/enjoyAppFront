@@ -13,7 +13,6 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useChargementRafraichissable } from '../../hooks/useChargementRafraichissable';
 import ListeEcranLayout, { styleCarteListe } from '../../Components/ListeEcranLayout';
 import DossierEnfantModal from '../../Components/DossierEnfantModal';
-import { useRafraichirSejourCourant } from '../../hooks/useRafraichirSejourCourant';
 import { dossierEnfantService } from '../../services/dossierEnfant.service';
 import type { DossierEnfantDto, EnfantDossierSanitaireLigneDto, SejourDTO } from '../../types/api';
 import { useAppSelector } from '../../store/hooks';
@@ -214,16 +213,10 @@ export default function DossierSanitaire() {
   const [filtre, setFiltre] = useState<Filtre>('TOUT');
   const [filtreTraitement, setFiltreTraitement] = useState<FiltreTraitement>('TOUS');
   const [recherche, setRecherche] = useState('');
-  const rafraichirSejour = useRafraichirSejourCourant();
-
   const executer = useCallback(async () => {
     if (sejourId == null) return;
-    const [, lignesSanitaire] = await Promise.all([
-      rafraichirSejour(),
-      dossierEnfantService.getDossiersSanitairesBySejour(sejourId),
-    ]);
-    setLignes(lignesSanitaire);
-  }, [sejourId, rafraichirSejour]);
+    setLignes(await dossierEnfantService.getDossiersSanitairesBySejour(sejourId));
+  }, [sejourId]);
 
   const { loading, refreshing, error, refresh } = useChargementRafraichissable(
     executer,

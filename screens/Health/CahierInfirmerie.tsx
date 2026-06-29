@@ -14,7 +14,6 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/fr';
 
 import { useChargementRafraichissable } from '../../hooks/useChargementRafraichissable';
-import { useRafraichirSejourCourant } from '../../hooks/useRafraichirSejourCourant';
 import { cahierInfirmerieService } from '../../services/cahierInfirmerie.service';
 import { enfantService } from '../../services/enfant.service';
 import { useAppSelector } from '../../store/hooks';
@@ -113,7 +112,6 @@ export default function CahierInfirmerie() {
   const tokenUtilisateur = useAppSelector((state) => state.auth.tokenId);
   const prenomConnecte = useAppSelector((state) => state.auth.prenom);
   const roleGlobal = useAppSelector((state) => state.auth.role);
-  const rafraichirSejour = useRafraichirSejourCourant();
 
   const [entrees, setEntrees] = useState<CahierInfirmerieEntreeDto[]>([]);
   const [enfants, setEnfants] = useState<EnfantDto[]>([]);
@@ -128,14 +126,13 @@ export default function CahierInfirmerie() {
 
   const executer = useCallback(async () => {
     if (sejourId == null) return;
-    const [, listeEntrees, listeEnfants] = await Promise.all([
-      rafraichirSejour(),
+    const [listeEntrees, listeEnfants] = await Promise.all([
       cahierInfirmerieService.listerEntrees(sejourId),
       enfantService.getEnfantsBySejour(sejourId).catch(() => [] as EnfantDto[]),
     ]);
     setEntrees(listeEntrees);
     setEnfants(listeEnfants);
-  }, [sejourId, rafraichirSejour]);
+  }, [sejourId]);
 
   const { loading, refreshing, error, refresh } = useChargementRafraichissable(
     executer,

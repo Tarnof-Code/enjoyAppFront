@@ -16,7 +16,6 @@ import EcranListeFond from '../../Components/EcranListeFond';
 import { ListeAccordion, listeAccordionStyles } from '../../Components/ListeAccordion';
 import { ListeAvecFiltresFixes } from '../../Components/ListeEcranLayout';
 import { useChargementRafraichissable } from '../../hooks/useChargementRafraichissable';
-import { useRafraichirSejourCourant } from '../../hooks/useRafraichirSejourCourant';
 import {
   equipePourChambres,
   fusionnerChambreRetourneeDansListe,
@@ -270,14 +269,11 @@ export default function Bedrooms() {
   const [affecterChambre, setAffecterChambre] = useState<ChambreDto | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
-  const rafraichirSejour = useRafraichirSejourCourant();
-
   const equipe = equipePourChambres(sejour?.equipe);
 
   const executer = useCallback(async () => {
     if (sejourId == null) return;
-    const [, listeChambres, listeGroupes, listeEnfants] = await Promise.all([
-      rafraichirSejour(),
+    const [listeChambres, listeGroupes, listeEnfants] = await Promise.all([
       chambreService.getChambresBySejour(sejourId),
       groupeService.getGroupesBySejour(sejourId),
       enfantService.getEnfantsBySejour(sejourId),
@@ -285,7 +281,7 @@ export default function Bedrooms() {
     setChambres(listeChambres);
     setGroupes(listeGroupes);
     setEnfants(listeEnfants);
-  }, [sejourId, rafraichirSejour]);
+  }, [sejourId]);
 
   const { loading, refreshing, error, refresh } = useChargementRafraichissable(
     executer,

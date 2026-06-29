@@ -1,23 +1,13 @@
 import { useCallback } from 'react';
 
-import { sejourService } from '../services/sejour.service';
-import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { setSejourCourant } from '../store/sejourSlice';
+import { rafraichirSejourCourant } from '../helpers/rafraichirSejourCourant';
 
 /**
  * Recharge le séjour courant depuis l'API et met à jour le store.
  *
- * À inclure dans le `executer` des écrans afin que le pull-to-refresh prenne
- * en compte les réglages partagés du séjour (ex. tri des listes enfants / équipe),
- * et pas seulement les données propres à l'écran.
+ * À utiliser hors `useChargementRafraichissable` (ex. pull-to-refresh manuel).
+ * Le hook de chargement rafraîchit déjà le séjour au tirer-pour-actualiser.
  */
 export function useRafraichirSejourCourant(): () => Promise<void> {
-  const dispatch = useAppDispatch();
-  const sejourId = useAppSelector((state) => state.sejour.sejourCourant?.id);
-
-  return useCallback(async () => {
-    if (sejourId == null) return;
-    const sejour = await sejourService.getSejourById(sejourId);
-    dispatch(setSejourCourant(sejour));
-  }, [sejourId, dispatch]);
+  return useCallback(() => rafraichirSejourCourant(), []);
 }

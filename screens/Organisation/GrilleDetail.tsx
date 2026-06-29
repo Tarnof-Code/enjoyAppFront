@@ -25,7 +25,6 @@ import PlanningCelluleModal, {
 import { useChargementRafraichissable } from '../../hooks/useChargementRafraichissable';
 import { useFenetreJoursPlanning } from '../../hooks/useFenetreJoursPlanning';
 import { useModePaysageGrille } from '../../hooks/useModePaysageGrille';
-import { useRafraichirSejourCourant } from '../../hooks/useRafraichirSejourCourant';
 import { enumererJoursSejour } from '../../helpers/enumererJoursSejour';
 import { peutGererMembresEquipeSejour } from '../../helpers/peutGererMembresEquipeSejour';
 import {
@@ -91,12 +90,9 @@ function GrilleDetailContent({ route, navigation, modePaysage, basculerModePaysa
   const [cellLigne, setCellLigne] = useState<PlanningLigneDto | null>(null);
   const [cellJour, setCellJour] = useState<string | null>(null);
 
-  const rafraichirSejour = useRafraichirSejourCourant();
-
   const executer = useCallback(async () => {
     if (sejourId == null) return;
-    const [, detail, momentsArr, lieuxArr, groupesArr, horairesArr] = await Promise.all([
-      rafraichirSejour(),
+    const [detail, momentsArr, lieuxArr, groupesArr, horairesArr] = await Promise.all([
       planningGrilleService.getPlanningGrilleById(sejourId, grilleId),
       momentService.getMomentsBySejour(sejourId).catch(() => []),
       lieuService.getLieuxBySejour(sejourId).catch(() => []),
@@ -108,7 +104,7 @@ function GrilleDetailContent({ route, navigation, modePaysage, basculerModePaysa
     setLieux(lieuxArr);
     setGroupes(groupesArr);
     setHoraires(horairesArr);
-  }, [sejourId, grilleId, rafraichirSejour]);
+  }, [sejourId, grilleId]);
 
   const { loading, refreshing, error, refresh } = useChargementRafraichissable(
     executer,

@@ -72,7 +72,6 @@ import { getUserFacingErrorMessage } from '../../helpers/axiosError';
 import { useChargementRafraichissable } from '../../hooks/useChargementRafraichissable';
 import { useFenetreJoursPlanning } from '../../hooks/useFenetreJoursPlanning';
 import { useModePaysageGrille } from '../../hooks/useModePaysageGrille';
-import { useRafraichirSejourCourant } from '../../hooks/useRafraichirSejourCourant';
 import { activiteService } from '../../services/activite.service';
 import { activitePrestataireService } from '../../services/activitePrestataire.service';
 import { groupeService } from '../../services/groupe.service';
@@ -142,8 +141,6 @@ function ActivitesContent({
   const [animateursSelectionnes, setAnimateursSelectionnes] = useState<string[]>([]);
   const [groupesSelectionnes, setGroupesSelectionnes] = useState<string[]>([]);
 
-  const rafraichirSejour = useRafraichirSejourCourant();
-
   const executer = useCallback(async () => {
     if (sejourId == null) return;
     const [
@@ -160,7 +157,6 @@ function ActivitesContent({
       lieuService.getLieuxBySejour(sejourId).catch(() => []),
       momentService.getMomentsBySejour(sejourId).catch(() => []),
       typeActiviteService.getTypesActiviteBySejour(sejourId).catch(() => []),
-      rafraichirSejour(),
     ]);
     if (activitesResult.status === 'rejected') {
       throw activitesResult.reason;
@@ -171,7 +167,7 @@ function ActivitesContent({
     if (lieuxResult.status === 'fulfilled') setLieux(lieuxResult.value);
     if (momentsResult.status === 'fulfilled') setMoments(momentsResult.value);
     if (typesResult.status === 'fulfilled') setTypesActivite(typesResult.value);
-  }, [sejourId, rafraichirSejour]);
+  }, [sejourId]);
 
   const { loading, refreshing, error, refresh } = useChargementRafraichissable(
     executer,

@@ -21,7 +21,7 @@ App.tsx
 ```
 
 - **Bootstrap** : session valide → **`BottomTab`** ; restauration profil + **optionnel** dernier séjour mémorisé ; sinon **`Login`**.
-- **Connexion** : `clearSejour` → **`BottomTab` / Home** sans séjour (onglet Home seul, pas de carte réunion).
+- **Connexion** : `clearSejour` → **`BottomTab` / Home** sans séjour (onglet Home seul, pas de carte réunion). **Admin** : reçoit tous les séjours de l'API mais doit en choisir un sur **`Home`** (badge rôle « Admin » une fois sélectionné).
 - **Session expirée / déconnexion** : reset store + `navigationRef` (`Navigators/navigationRef.ts`) → `Login`.
 
 ## Onglets Listes (`TopTabLists`)
@@ -89,7 +89,7 @@ Onglet bottom tab : route **`Orga`**, libellé **Orga**. Titre header liste : «
 
 ## UX transverse
 
-- **Pull-to-refresh** sur tous les écrans de données (hook `useChargementRafraichissable` ou logique dédiée). Inclut **`rafraichirPhotoProfil`** (avatar **`Header`** / **`Home`**). Écrans avec personnes : inclure **`useRafraichirSejourCourant`** dans le `executer` pour synchroniser le tri listes (`triListesEnfants` / `triListesEquipe`).
+- **Pull-to-refresh** sur tous les écrans de données (hook `useChargementRafraichissable` ou logique dédiée). Au refresh : **`rafraichirPhotoProfil`** (avatar **`Header`** / **`Home`**) + **`rafraichirSejourCourant`** (critères tri listes `triListesEnfants` / `triListesEquipe`). Les `executer` des écrans ne rechargent **pas** le séjour au montage initial (évite boucles de re-rendu) ; deps stables (primitives, pas objet `sejour` entier).
 - **Tri et libellés personnes** (`helpers/triListesSejour.ts`) : ordre et affichage « Nom Prénom » ou « Prénom Nom » selon réglage séjour (lecture seule, aligné web).
 - **Fond listes** (**`EcranListeFond`**, **`ListeEcranLayout`**) : **`colors.background`** uniforme (filtres + zone liste) ; cartes blanches + ombre ; accordéons idem. **Accueil / Login** : dégradé + orbes (hors pattern listes).
 - **Recherche + filtre liste** (modèle `Animators` / `Children`) : barre dans bande filtres fixe (`ListeAvecFiltresFixes`) ; `TextInput` + normalisation + **MultiSelect** groupes + chips. **`DossierSanitaire`** : recherche enfant + Dropdown (ligne 1) ; moment Traitements (ligne 2). **`CahierInfirmerie`** : recherche + filtre jour. **`Bedrooms`** : Dropdowns + chip Places dispo ; **`ListeAvecFiltresFixes`** (FAB sibling). **Orga liste** : bandeau blanc fixe au-dessus de la liste (recherche titre, champ gris encastré, séparateur visuel).

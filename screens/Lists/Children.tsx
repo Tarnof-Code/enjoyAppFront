@@ -13,7 +13,6 @@ import { MaterialIcons } from '@expo/vector-icons';
 import dayjs from 'dayjs';
 
 import { useChargementRafraichissable } from '../../hooks/useChargementRafraichissable';
-import { useRafraichirSejourCourant } from '../../hooks/useRafraichirSejourCourant';
 import { enfantService } from '../../services/enfant.service';
 import { groupeService } from '../../services/groupe.service';
 import { chambreService } from '../../services/chambre.service';
@@ -87,12 +86,9 @@ export default function Children() {
   const [groupesSelectionnes, setGroupesSelectionnes] = useState<string[]>([]);
   const [filtreGenre, setFiltreGenre] = useState<string>(FILTRE_TOUT);
   const [enfantSelectionne, setEnfantSelectionne] = useState<EnfantDto | null>(null);
-  const rafraichirSejour = useRafraichirSejourCourant();
-
   const executer = useCallback(async () => {
     if (sejourId == null) return;
-    const [, listeEnfants, listeGroupes, listeChambres, lignesDossiers] = await Promise.all([
-      rafraichirSejour(),
+    const [listeEnfants, listeGroupes, listeChambres, lignesDossiers] = await Promise.all([
       enfantService.getEnfantsBySejour(sejourId),
       groupeService.getGroupesBySejour(sejourId),
       chambreService.getChambresBySejour(sejourId),
@@ -106,7 +102,7 @@ export default function Children() {
     setGroupes(listeGroupes);
     setChambres(listeChambres);
     setDossiersParEnfant(dossiers);
-  }, [sejourId, rafraichirSejour]);
+  }, [sejourId]);
 
   const { loading, refreshing, error, refresh } = useChargementRafraichissable(
     executer,

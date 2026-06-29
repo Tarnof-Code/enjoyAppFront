@@ -10,7 +10,6 @@ import {
 import { ListeAccordion, listeAccordionStyles } from '../../Components/ListeAccordion';
 import ListeEcranLayout from '../../Components/ListeEcranLayout';
 import { useChargementRafraichissable } from '../../hooks/useChargementRafraichissable';
-import { useRafraichirSejourCourant } from '../../hooks/useRafraichirSejourCourant';
 import { groupeService } from '../../services/groupe.service';
 import type { GroupeDto, SejourDTO, TypeGroupe } from '../../types/api';
 import { useAppSelector } from '../../store/hooks';
@@ -125,16 +124,10 @@ export default function Groups() {
   const [groupes, setGroupes] = useState<GroupeDto[]>([]);
   const [ouverts, setOuverts] = useState<Set<number>>(() => new Set());
   const [filtreType, setFiltreType] = useState<string>(FILTRE_TOUT);
-  const rafraichirSejour = useRafraichirSejourCourant();
-
   const executer = useCallback(async () => {
     if (sejourId == null) return;
-    const [, listeGroupes] = await Promise.all([
-      rafraichirSejour(),
-      groupeService.getGroupesBySejour(sejourId),
-    ]);
-    setGroupes(listeGroupes);
-  }, [sejourId, rafraichirSejour]);
+    setGroupes(await groupeService.getGroupesBySejour(sejourId));
+  }, [sejourId]);
 
   const { loading, refreshing, error, refresh } = useChargementRafraichissable(
     executer,

@@ -22,7 +22,7 @@ import AvatarProfil from '../../Components/AvatarProfil';
 import ListeEcranLayout, { styleCarteListe } from '../../Components/ListeEcranLayout';
 import { colors } from '../../config/theme';
 import { usePhotosProfilEquipe } from '../../hooks/usePhotosProfilEquipe';
-import type { ChambreDto, GroupeDto } from '../../types/api';
+import type { ChambreDto, GroupeDto, ProfilUtilisateurDTO } from '../../types/api';
 import { ROLES_SEJOUR, libelleRoleSejour, libelleRoleSejourCourt } from '../../helpers/roleSejour';
 import { libelleEquipeDuSejour, trierEquipeDuSejour } from '../../helpers/triListesSejour';
 
@@ -39,6 +39,7 @@ interface TeamRow {
 
 const FILTRE_TOUT = 'TOUT';
 const FILTRE_DIRECTION = 'DIRECTION';
+const EQUIPE_VIDE: ProfilUtilisateurDTO[] = [];
 
 function normaliser(valeur: string): string {
   return valeur
@@ -117,7 +118,7 @@ export default function Animators() {
   }, [sejourId, dispatch, chargerAffectations]);
 
   const directeur = sejour?.directeur;
-  const membres = sejour?.equipe ?? [];
+  const membres = useMemo(() => sejour?.equipe ?? EQUIPE_VIDE, [sejour?.equipe]);
   const directeurTokenId = directeur?.tokenId;
 
   useEffect(() => {

@@ -30,6 +30,11 @@ Reste mineur : composant orphelin `DropdownAnim.tsx`, assets `LogosGroupes/` non
 - **`scripts/expo-env.cjs`** : wrapper `npx expo start` avec **`ENJOY_ENV=local|prod`** ; scripts npm **`start`**, **`start:local`**, **`start:prod`**, variantes **`--clear`**, **`android`**, **`ios`**, **`web`**.
 - **`app.config.js`** : appelle **`loadEnjoyEnv`** avant export ; expose **`extra.apiUrl`** (`EXPO_PUBLIC_API_URL`) et **`extra.enjoyEnv`** ; consommé par **`config/env.ts`** (`API_BASE_URL`).
 
+### 2026-06-29 (Correction boucles de re-rendu — effets React)
+- **Symptôme** : `Maximum update depth exceeded` au montage d’écrans séjour (ex. connexion admin puis choix de séjour).
+- **Causes** : dépendances instables dans `useEffect` / `useChargementRafraichissable` — objet `sejour` entier dans `executer` (**`Menus`**) ; `sejour?.equipe ?? []` recréant un tableau vide à chaque render (**`Animators`**) ; cascade `setSejourCourant` au chargement initial de plusieurs écrans appelant **`rafraichirSejour()`** en parallèle.
+- **Correctifs** : **`helpers/rafraichirSejourCourant.ts`** (store impératif) ; refresh séjour centralisé dans **`useChargementRafraichissable`** (pull-to-refresh uniquement, avec photo profil) ; retrait de **`rafraichirSejour()`** des `executer` initiaux (Activités, listes, sanitaire, orga) ; **`Menus`** — deps `sejourId` + `dateDebut`/`dateFin` ; **`Animators`** — constante **`EQUIPE_VIDE`** + `useMemo` sur `equipe`.
+
 ### 2026-06-29 (Politique mot de passe — alignement API)
 - **`helpers/passwordPolicy.ts`** : regex + message alignés sur enjoyApi **`PasswordPolicy`** (symbole/ponctuation élargi, pas seulement `@#$%^&*!` ; min. 4 car., sans espace).
 - **`ChangePasswordModal`** : validation via **`isValidPassword`** / **`PASSWORD_MESSAGE`** (retrait regex locale).
@@ -91,7 +96,7 @@ Reste mineur : composant orphelin `DropdownAnim.tsx`, assets `LogosGroupes/` non
 ### 2026-06-27 (Écran Mon profil — photo, édition, mot de passe)
 - **Navigation** : route Stack **`Profil`** (`Navigators/types.ts`) ; accès depuis avatar **`Header`** et photo **`Home`** via **`navigationRef`**.
 - **Écran** **`screens/Profil/Profil.tsx`** : sections infos / contact / compte ; édition champ par champ (aligné web : **`buildUpdateUserRequest`**, **`canEditEmail`**) ; badge rôle **`libelleRoleBadgeProfil`** ; changement mot de passe **`ChangePasswordModal`**.
-- **Photo profil** : API (**`utilisateur.service`** — GET/POST/DELETE photo, **`updateUser`**, **`changePassword`**) ; état global **`auth.photoProfilUri`** + **`photoProfilRevision`** ; chargement **`usePhotoProfilLoader`** (BottomTab) ; rafraîchissement pull-to-refresh via **`rafraichirPhotoProfil`** dans **`useChargementRafraichissable`** et écrans dédiés (**`Home`**, **`Animators`**).
+- **Photo profil** : API (**`utilisateur.service`** — GET/POST/DELETE photo, **`updateUser`**, **`changePassword`**) ; état global **`auth.photoProfilUri`** + **`photoProfilRevision`** ; chargement **`usePhotoProfilLoader`** (BottomTab) ; rafraîchissement pull-to-refresh via **`rafraichirPhotoProfil`** + **`rafraichirSejourCourant`** dans **`useChargementRafraichissable`** et écrans dédiés (**`Home`**, **`Animators`**).
 - **Modales photo** : **`PhotoProfilRecadrageModal`** (cercle, pinch/pan Reanimated, Valider/Annuler, export **`expo-image-manipulator`**) ; **`PhotoProfilZoomModal`** (agrandissement pinch/double-tap).
 - **Header** : fin du mapping photos locales **`PhotosAnims/`** ; avatar API ou initiales depuis le store.
 
@@ -175,7 +180,7 @@ Reste mineur : composant orphelin `DropdownAnim.tsx`, assets `LogosGroupes/` non
 
 ### 2026-06-25 (suite 3)
 - **Tri des listes de personnes** (réglage partagé API, lecture seule mobile) : champs `triListesEnfants` / `triListesEquipe` sur `SejourDTO` (`CritereTriListeApi` : `NOM` | `PRENOM`) ; helpers `helpers/trierUtilisateurs.ts` (comparateurs locale `fr`) + `helpers/triListesSejour.ts` (tri + libellé « Nom Prénom » ou « Prénom Nom »).
-- **Hook `useRafraichirSejourCourant`** : recharge le séjour courant dans le store au pull-to-refresh (pour prendre en compte un changement de tri côté web) ; inclus dans le `executer` de **Équipe, Enfants, Groupes, Chambres, Sanitaire, Activités, GrilleDetail**.
+- **Hook `useRafraichirSejourCourant`** : recharge le séjour courant dans le store au pull-to-refresh (pour prendre en compte un changement de tri côté web) ; *depuis 2026-06-29* : centralisé dans **`useChargementRafraichissable`** + **`helpers/rafraichirSejourCourant.ts`**, plus dans le `executer` initial.
 - **Écrans concernés** : tri + libellé harmonisés — enfants (`trierEnfantsDuSejour`, `libelleEnfantDuSejour`) sur Enfants, Groupes (accordéons), Chambres (occupants enfants), Sanitaire ; équipe (`trierEquipeDuSejour`, `libelleEquipeDuSejour`) sur Équipe, Chambres (occupants équipe), Activités (animateurs), GrilleDetail (membres).
 
 ### 2026-06-25 (suite 2)
@@ -208,7 +213,7 @@ Reste mineur : composant orphelin `DropdownAnim.tsx`, assets `LogosGroupes/` non
 - **Migration API complète** : suppression onglets Infos utiles et Plannings ; Listes (Équipe, Enfants, Groupes, Chambres), Menus, Organisation (liste grilles + détail jour par jour), Activités/Sorties, Sanitaire (écran unique) alimentés par l'API.
 - **Nettoyage Sheets** : suppression `config/api.ts`, `types/sheets.ts`, `overlaySlice`, clé `googleApiKey` dans `app.config.js`.
 - **Navigation** : fabrique `Navigators/creerTopTab.tsx` ; titres de header dynamiques par sous-onglet (Listes : Équipe/Enfants/Groupes/Chambres ; Activités : **Planning**/Sorties).
-- **Pull-to-refresh** : hook `hooks/useChargementRafraichissable.ts` + `RefreshControl` sur tous les écrans API et l'accueil (`Home` recharge CR veille + liste séjours).
+- **Pull-to-refresh** : hook **`useChargementRafraichissable`** (+ photo profil et séjour courant au refresh) + `RefreshControl` sur tous les écrans API et l'accueil (`Home` recharge CR veille + liste séjours).
 - **Règles Cursor** : `.cursor/rules/30-app-web.mdc` et `40-api.mdc` pour consulter enjoyWebApp / enjoyApi.
 
 ### 2026-06-21

@@ -70,10 +70,10 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 
 | Fichier | Rôle |
 |---------|------|
-| `useChargementRafraichissable.ts` | Chargement initial + pull-to-refresh (+ **`rafraichirPhotoProfil`** au refresh) |
+| `useChargementRafraichissable.ts` | Chargement initial + pull-to-refresh (+ **`rafraichirPhotoProfil`** et **`rafraichirSejourCourant`** au refresh) |
 | `usePhotoProfilLoader.ts` | Charge **`photoProfilUri`** dans Redux (montage BottomTab + focus) |
 | `usePhotosProfilEquipe.ts` | Photos profil membres équipe (`photoProfilUrl` → data URI ; réutilise Redux si connecté) |
-| `useRafraichirSejourCourant.ts` | Recharge `sejourCourant` (critères tri listes) au refresh |
+| `useRafraichirSejourCourant.ts` | Wrapper hook → **`rafraichirSejourCourant`** (refresh manuel, ex. **`Animators`**) |
 | `useFenetreJoursPlanning.ts` | Fenêtre glissante 1/3/5 jours ; navigation par bonds (= taille vue) ; partagé **`GrilleDetail`**, **`Menus`** et **`Activites`** |
 | `useModePaysageGrille.ts` | Bascule état paysage visuel du tableau (sans rotation appareil) |
 
@@ -96,6 +96,7 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | `reunionVeille.ts`, `reunionTipTapTexte.ts` | CR réunion J−1 (`Home`) — **`trouverReunionVeille`**, **`formatTitreCompteRenduAccueil`**, **`estContenuTipTapVide`** |
 | `photoProfil.ts` | Blob photo profil → data URI |
 | `rafraichirPhotoProfil.ts` | **`chargerPhotoProfilDansStore`**, **`rafraichirPhotoProfil`** (store Redux) |
+| `rafraichirSejourCourant.ts` | **`rafraichirSejourCourant`** — recharge `sejourCourant` depuis l'API (store impératif) |
 | `photoProfilRecadrage.ts` | Recadrage pinch/pan → rectangle crop + export JPEG |
 | `buildUpdateUserRequest.ts` | Body PUT `/utilisateurs` (aligné web) |
 | `canEditEmail.ts` | Droits édition email profil |
@@ -139,8 +140,8 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 
 - **`tokenId`** : identifiant public utilisateur (claim `sub` du JWT).
 - **Bootstrap** : restauration session au démarrage → profil + **optionnel** dernier séjour mémorisé → **`BottomTab`** (ou **`Login`**).
-- **Séjour courant** : sélection sur **`Home`** ; connexion explicite sans séjour ; onglets applicatifs masqués tant que `sejourCourant` est null.
+- **Séjour courant** : sélection sur **`Home`** ; connexion explicite sans séjour ; onglets applicatifs masqués tant que `sejourCourant` est null. **Admin** : liste complète des séjours via API, choix manuel obligatoire sur **`Home`**.
 - **Single-flight** : un seul refresh token concurrent.
 - **Compte rendu de la veille** : dernière réunion à J−1 sur `Home` ; titre **`formatTitreCompteRenduAccueil`** ; contenu **`ReunionContenuTipTapJson`** rendu par **`ReunionContenuTipTap`** (plus d'extraction texte brut seule).
-- **Pull-to-refresh** : tirer vers le bas pour recharger (`useChargementRafraichissable` ou logique dédiée `Home`) ; inclut le **rafraîchissement photo profil** (`rafraichirPhotoProfil`).
+- **Pull-to-refresh** : tirer vers le bas pour recharger (`useChargementRafraichissable` ou logique dédiée `Home`) ; inclut **photo profil** (`rafraichirPhotoProfil`) et **séjour courant** (`rafraichirSejourCourant`) au refresh des écrans API.
 - **`CritereTriListeApi`** : `NOM` ou `PRENOM` — ordre d'affichage des listes enfants/équipe, configuré côté web, appliqué côté mobile à l'affichage et au tri.

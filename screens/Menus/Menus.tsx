@@ -54,14 +54,16 @@ function MenusContent({
 }) {
   const sejour = useAppSelector((state) => state.sejour.sejourCourant);
   const sejourId = sejour?.id;
+  const dateDebut = sejour?.dateDebut;
+  const dateFin = sejour?.dateFin;
   const [menus, setMenus] = useState<MenuRepasDto[]>([]);
 
   const executer = useCallback(async () => {
-    if (sejourId == null || sejour == null) return;
-    const dateDebut = dayjs(sejour.dateDebut).format('YYYY-MM-DD');
-    const dateFin = dayjs(sejour.dateFin).format('YYYY-MM-DD');
-    setMenus(await menuService.getMenusBySejour(sejourId, dateDebut, dateFin));
-  }, [sejourId, sejour]);
+    if (sejourId == null || !dateDebut || !dateFin) return;
+    const debut = dayjs(dateDebut).format('YYYY-MM-DD');
+    const fin = dayjs(dateFin).format('YYYY-MM-DD');
+    setMenus(await menuService.getMenusBySejour(sejourId, debut, fin));
+  }, [sejourId, dateDebut, dateFin]);
 
   const { loading, refreshing, error, refresh } = useChargementRafraichissable(
     executer,
@@ -69,9 +71,9 @@ function MenusContent({
   );
 
   const jours = useMemo(() => {
-    if (!sejour) return [];
-    return enumererJoursSejour(sejour.dateDebut, sejour.dateFin);
-  }, [sejour]);
+    if (!dateDebut || !dateFin) return [];
+    return enumererJoursSejour(dateDebut, dateFin);
+  }, [dateDebut, dateFin]);
 
   const aujourdhui = aujourdhuiYmd();
   const jourFocus = useMemo(() => jourFocusDefautMenus(jours, aujourdhui), [jours, aujourdhui]);
