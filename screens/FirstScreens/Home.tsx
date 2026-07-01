@@ -27,7 +27,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { getUserFacingErrorMessage } from '../../helpers/axiosError';
 import { rafraichirPhotoProfil } from '../../helpers/rafraichirPhotoProfil';
 import { enregistrerDernierSejourVisite } from '../../helpers/dernierSejour';
-import { dateVeilleCalendaire, formatTitreCompteRenduAccueil, trouverReunionVeille } from '../../helpers/reunionVeille';
+import { formatTitreCompteRenduAccueil, trouverDerniereReunion } from '../../helpers/reunionAccueil';
 import { estContenuTipTapVide } from '../../helpers/reunionTipTapTexte';
 import { formatPeriodeSejour, formatPeriodeSejourCourte } from '../../helpers/sejourPeriode';
 import { libelleRoleBadgeProfil } from '../../helpers/libelleRoleProfil';
@@ -102,19 +102,18 @@ function Home() {
 
     try {
       const reunions = await sejourReunionService.listerReunions(sejour.id);
-      const reunionVeille = trouverReunionVeille(reunions);
-      const veille = dateVeilleCalendaire();
+      const derniereReunion = trouverDerniereReunion(reunions);
 
-      if (!reunionVeille) {
+      if (!derniereReunion) {
         setCrTitre('Réunion');
         setCrOrdreDuJour('');
         setCrContenu(null);
         setCrVide(true);
       } else {
         setCrVide(false);
-        setCrTitre(formatTitreCompteRenduAccueil(veille));
-        setCrOrdreDuJour(reunionVeille.ordreDuJour?.trim() ?? '');
-        setCrContenu(reunionVeille.contenu);
+        setCrTitre(formatTitreCompteRenduAccueil(derniereReunion.date));
+        setCrOrdreDuJour(derniereReunion.ordreDuJour?.trim() ?? '');
+        setCrContenu(derniereReunion.contenu);
       }
     } catch (err) {
       setError(getUserFacingErrorMessage(err, 'Impossible de charger l’accueil.'));
@@ -333,7 +332,7 @@ function Home() {
             >
               {error ? <Text style={styles.error}>{error}</Text> : null}
               {!error && crVide ? (
-                <Text style={styles.emptyCr}>Pas de réunion pour hier.</Text>
+                <Text style={styles.emptyCr}>Aucune réunion.</Text>
               ) : null}
               {!error && !crVide && crOrdreDuJour ? (
                 <View style={styles.odjBloc}>

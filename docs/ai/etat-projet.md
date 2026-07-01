@@ -15,7 +15,7 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | Auth | `POST /auth/connexion`, `/refresh-token`, `/logout` | Connexion, session |
 | Profil | `GET /utilisateurs/profil?tokenId=`, `PUT /utilisateurs`, `PATCH /utilisateurs/mot-de-passe`, `GET/POST/DELETE /utilisateurs/{tokenId}/photo-profil` | Bootstrap, **`Profil`**, **`Home`**, **`Header`**, **`Animators`** (directeur + photos équipe via `photoProfilUrl`) |
 | Séjours | `GET /sejours/utilisateur/{tokenId}`, `GET /sejours/{id}` | **`Home`** (liste + choix modal, persistance dernier séjour), refresh séjour (`useRafraichirSejourCourant` sur listes, Sanitaire, Activités, GrilleDetail) |
-| Réunions | `GET /sejours/{sejourId}/reunions` | `Home` (CR veille) |
+| Réunions | `GET /sejours/{sejourId}/reunions` | `Home` (dernière réunion) |
 | Enfants | `GET /sejours/{id}/enfants` | `Children` |
 | Chambres | `GET/POST /sejours/{id}/chambres`, `GET/PUT/DELETE …/{chambreId}`, `POST/DELETE …/occupants/enfants[/{enfantId}]`, `POST/DELETE …/occupants/equipe[/{membreTokenId}]` | `Bedrooms` (lecture + CRUD + occupants), `Animators`, `Children` (modal chambre occupant) |
 | Groupes | `GET /sejours/{id}/groupes` | `Groups`, `Bedrooms` (filtre), `Animators`, `Children` (filtre + modal), résolution libellés (Activités, Sorties, GrilleDetail) |
@@ -43,7 +43,7 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | `account.service.ts` | Login, logout, profil, restoreSession |
 | `accountStorage.ts` / `tokenStorage.ts` | SecureStore |
 | `sejour.service.ts` | Séjours utilisateur et détail |
-| `sejour-reunion.service.ts` | Réunions (CR veille) |
+| `sejour-reunion.service.ts` | Réunions (dernière réunion accueil) |
 | `utilisateur.service.ts` | Profil, **`updateUser`**, **`changePassword`**, photo profil (GET data URI, upload, remplacer, supprimer) |
 | `enfant.service.ts` | Enfants du séjour |
 | `groupe.service.ts` | Groupes |
@@ -93,7 +93,7 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | `menuRepas.ts` | Types repas, ordre, indexation jour×type, résumé cellule grille, jour focus défaut, couleurs affichage |
 | `dernierSejour.ts` | Dernier séjour visité (SecureStore) |
 | `sejourPeriode.ts` | Formatage périodes séjour |
-| `reunionVeille.ts`, `reunionTipTapTexte.ts` | CR réunion J−1 (`Home`) — **`trouverReunionVeille`**, **`formatTitreCompteRenduAccueil`**, **`estContenuTipTapVide`** |
+| `reunionAccueil.ts`, `reunionTipTapTexte.ts` | Dernière réunion accueil (`Home`) — **`trouverDerniereReunion`**, **`formatTitreCompteRenduAccueil`**, **`estContenuTipTapVide`** |
 | `photoProfil.ts` | Blob photo profil → data URI |
 | `rafraichirPhotoProfil.ts` | **`chargerPhotoProfilDansStore`**, **`rafraichirPhotoProfil`** (store Redux) |
 | `rafraichirSejourCourant.ts` | **`rafraichirSejourCourant`** — recharge `sejourCourant` depuis l'API (store impératif) |
@@ -134,7 +134,7 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | `PhotoProfilZoomModal.tsx` | Agrandissement photo profil (pinch / double-tap / pan ; fermeture fond ou croix) |
 | `GlassPanel.tsx` | Panneau givré (`expo-blur` iOS, overlay Android) — **`Home`**, modal séjour |
 | `ReunionContenuTipTap.tsx` | Rendu natif JSON TipTap réunion (mode **`compact`** sur accueil) |
-| `CompteRenduPleinEcranModal.tsx` | Lecture plein écran CR veille (ordre du jour + TipTap) |
+| `CompteRenduPleinEcranModal.tsx` | Lecture plein écran dernière réunion (ordre du jour + TipTap) |
 
 ## Glossaire
 
@@ -142,6 +142,6 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 - **Bootstrap** : restauration session au démarrage → profil + **optionnel** dernier séjour mémorisé → **`BottomTab`** (ou **`Login`**).
 - **Séjour courant** : sélection sur **`Home`** ; connexion explicite sans séjour ; onglets applicatifs masqués tant que `sejourCourant` est null. **Admin** : liste complète des séjours via API, choix manuel obligatoire sur **`Home`**.
 - **Single-flight** : un seul refresh token concurrent.
-- **Compte rendu de la veille** : dernière réunion à J−1 sur `Home` ; titre **`formatTitreCompteRenduAccueil`** ; contenu **`ReunionContenuTipTapJson`** rendu par **`ReunionContenuTipTap`** (plus d'extraction texte brut seule).
+- **Dernière réunion (accueil)** : réunion la plus récente du séjour sur `Home` (tri date ↓ puis `id` ↓) ; titre **`formatTitreCompteRenduAccueil`** ; contenu **`ReunionContenuTipTapJson`** rendu par **`ReunionContenuTipTap`**.
 - **Pull-to-refresh** : tirer vers le bas pour recharger (`useChargementRafraichissable` ou logique dédiée `Home`) ; inclut **photo profil** (`rafraichirPhotoProfil`) et **séjour courant** (`rafraichirSejourCourant`) au refresh des écrans API.
 - **`CritereTriListeApi`** : `NOM` ou `PRENOM` — ordre d'affichage des listes enfants/équipe, configuré côté web, appliqué côté mobile à l'affichage et au tri.

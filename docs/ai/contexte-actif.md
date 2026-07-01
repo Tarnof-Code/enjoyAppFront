@@ -16,13 +16,18 @@
 
 **Liste Équipe** : cartes et modale détail avec **photo de profil API** (`AvatarProfil`, **`usePhotosProfilEquipe`**) ; zoom **`PhotoProfilZoomModal`** (fermeture fond ou croix).
 
-**Accueil (`Home`)** : refonte visuelle (dégradé, **`GlassPanel`**, avatar **`AvatarProfil`**) ; CR veille TipTap + modale plein écran ; **sélection séjour sur l’accueil** (plus d’écran **`SejourPicker`**) — sans séjour : invite « Veuillez choisir votre séjour », pas de carte réunion ; onglets bottom restreints à **Home** jusqu’au choix.
+**Accueil (`Home`)** : refonte visuelle (dégradé, **`GlassPanel`**, avatar **`AvatarProfil`**) ; **dernière réunion** TipTap + modale plein écran ; **sélection séjour sur l’accueil** (plus d’écran **`SejourPicker`**) — sans séjour : invite « Veuillez choisir votre séjour », pas de carte réunion ; onglets bottom restreints à **Home** jusqu’au choix.
 
 **Listes / orga / sanitaire (fond UI)** : fond gris clair uniforme **`colors.background`** via **`EcranListeFond`** + **`ListeEcranLayout`** (filtres fixes, cartes blanches ombre légère) ; modales chambres/cahier/affectation — feuille **`background`**, champs blancs. **Orga liste** : bandeau recherche blanc dissocié. **Top-tabs** homogènes (**`barreOngletsCompacte`**, **50 px**). **`Header`** compact (avatar **44 px**).
 
 Reste mineur : composant orphelin `DropdownAnim.tsx`, assets `LogosGroupes/` non référencés, spike refresh token en prod (HTTPS).
 
 ## Journal
+
+### 2026-07-01 (Accueil — dernière réunion)
+- **`Home.tsx`** : carte réunion affiche la **dernière réunion** du séjour (date décroissante, puis `id` décroissant) — plus de filtre J−1.
+- **Helper** : **`reunionAccueil.ts`** — **`trouverDerniereReunion`**, **`formatTitreCompteRenduAccueil`** (titre basé sur la date de la réunion) ; suppression **`reunionVeille.ts`** (`dateVeilleCalendaire`, `trouverReunionVeille`).
+- **Messages vides** : « Aucune réunion. » (liste vide) ; « Réunion vide. » (réunion sans ordre du jour ni contenu) inchangé.
 
 ### 2026-06-30 (Variables d'environnement — alignement enjoyWebApp)
 - **Dossier `.env/`** : seul **`.env/.env.example`** versionné ; fichiers locaux **`.env.local`** (dev) et **`.env.prod`** (prod) ignorés par Git.

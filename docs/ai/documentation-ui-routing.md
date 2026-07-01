@@ -61,7 +61,7 @@ Onglet bottom tab : route **`Orga`**, libellé **Orga**. Titre header liste : «
 ## Écrans autonomes
 
 - **`Menus`** : grille calendrier repas × jours (`screens/Menus/Menus.tsx`) — fenêtre 1/3/5 j., swipe + flèches (bonds = taille vue), **Aujourd'hui**, bouton **paysage tableau** ; ouverture centrée sur aujourd'hui (si dans le séjour) ou 1er jour ; pull-to-refresh ; lecture seule.
-- **`Home`** : fond dégradé + orbes ; titre Enjoy ; **sélecteur séjour** — sans séjour : « Veuillez choisir votre séjour » + modal liste ; avec séjour : nom + période (modal si plusieurs) ; avatar **`AvatarProfil`** + prénom → **`Profil`** ; badge date ; **carte réunion** **`GlassPanel`** uniquement si séjour choisi — titre centré « Réunion du … », ordre du jour, **`ReunionContenuTipTap`** (`compact`), expand → **`CompteRenduPleinEcranModal`** ; pull-to-refresh dans la carte ; déconnexion coin haut droit ; modales fermées si écran non focus.
+- **`Home`** : fond dégradé + orbes ; titre Enjoy ; **sélecteur séjour** — sans séjour : « Veuillez choisir votre séjour » + modal liste ; avec séjour : nom + période (modal si plusieurs) ; avatar **`AvatarProfil`** + prénom → **`Profil`** ; badge date ; **carte réunion** **`GlassPanel`** uniquement si séjour choisi — **dernière réunion** (titre « Réunion du … », ordre du jour, **`ReunionContenuTipTap`** `compact`, expand → **`CompteRenduPleinEcranModal`**) ; vide = « Aucune réunion. » / « Réunion vide. » ; pull-to-refresh dans la carte ; déconnexion coin haut droit ; modales fermées si écran non focus.
 - **`Profil`** : écran Mon profil (Stack, hors onglets) — sections infos / contact / compte ; édition champ par champ ; badge rôle ; photo (choix, recadrage cercle, zoom, suppression) ; **`ChangePasswordModal`**.
 
 ## Composants partagés
@@ -70,7 +70,7 @@ Onglet bottom tab : route **`Orga`**, libellé **Orga**. Titre header liste : «
 - **`EcranListeFond`** / **`ListeEcranLayout`** : fond listes **`colors.background`** ; **`ListeAvecFiltresFixes`** (filtres fixes, liste derrière) ; export **`styleCarteListe`**.
 - **`GlassPanel`** : panneau givré réutilisable (`expo-blur` / overlay) — accueil, modal séjour.
 - **`ReunionContenuTipTap`** : rendu TipTap réunion (accueil compact + modale plein écran).
-- **`CompteRenduPleinEcranModal`** : lecture CR veille plein écran depuis **`Home`**.
+- **`CompteRenduPleinEcranModal`** : lecture dernière réunion plein écran depuis **`Home`**.
 - **`FichePersonneModal`** : modal fiche personne + `LigneInfoFiche` (Équipe avec **`photoUri`** + zoom, Enfants sans photo).
 - **`AvatarProfil`** : avatar circulaire photo ou initiales (cartes/modale Équipe).
 - **`ListeAccordion`** : coque accordéon (ombre légère) + `listeAccordionStyles` ; `Groups`, `Bedrooms`, `Sorties`, **`CahierInfirmerie`**.
