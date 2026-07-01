@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -27,7 +27,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { getUserFacingErrorMessage } from '../../helpers/axiosError';
 import { rafraichirPhotoProfil } from '../../helpers/rafraichirPhotoProfil';
 import { enregistrerDernierSejourVisite } from '../../helpers/dernierSejour';
-import { formatTitreCompteRenduAccueil, trouverDerniereReunion } from '../../helpers/reunionAccueil';
+import { formatTitreCompteRenduAccueil, formatDateReunionListe, trierReunionsPlusRecentVersAncien, trouverDerniereReunion } from '../../helpers/reunionAccueil';
 import { estContenuTipTapVide } from '../../helpers/reunionTipTapTexte';
 import { formatPeriodeSejour, formatPeriodeSejourCourte } from '../../helpers/sejourPeriode';
 import { libelleRoleBadgeProfil } from '../../helpers/libelleRoleProfil';
@@ -35,7 +35,7 @@ import { navigationRef } from '../../Navigators/navigationRef';
 import { accountService } from '../../services/account.service';
 import { sejourService } from '../../services/sejour.service';
 import { sejourReunionService } from '../../services/sejour-reunion.service';
-import type { ReunionContenuTipTapJson, SejourDTO } from '../../types/api';
+import type { ReunionContenuTipTapJson, ReunionDto, SejourDTO } from '../../types/api';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { setName as setAnimName } from '../../store/animNameSlice';
 import { clearUser } from '../../store/authSlice';
@@ -60,8 +60,12 @@ function Home() {
   const sejoursDisponibles = useAppSelector((state) => state.sejour.sejoursDisponibles);
 
   const [menuOuvert, setMenuOuvert] = useState(false);
+  const [listeReunionsOuverte, setListeReunionsOuverte] = useState(false);
   const [crPleinEcranOuvert, setCrPleinEcranOuvert] = useState(false);
   const [sejourEnCoursId, setSejourEnCoursId] = useState<number | null>(null);
+  const [reunions, setReunions] = useState<ReunionDto[]>([]);
+  const [reunionSelectionneeId, setReunionSelectionneeId] = useState<number | null>(null);
+  const reunionSelectionneeIdRef = useRef<number | null>(null);
 
   const handleLogout = async () => {
     await accountService.logout();
@@ -82,15 +86,43 @@ function Home() {
   useEffect(() => {
     if (!isFocused) {
       setMenuOuvert(false);
+      setListeReunionsOuverte(false);
       setCrPleinEcranOuvert(false);
     }
   }, [isFocused]);
 
-  const loadAccueil = useCallback(async (estRafraichissement = false) => {
-    if (!sejour?.id) {
+  useEffect(() => {
+    reunionSelectionneeIdRef.current = reunionSelectionneeId;
+  }, [reunionSelectionneeId]);
+
+  useEffect(() => {
+    setReunionSelectionneeId(null);
+    reunionSelectionneeIdRef.current = null;
+    setReunions([]);
+  }, [sejour?.id]);
+
+  const appliquerReunionAuCr = useCallback((reunion: ReunionDto | null) => {
+    if (!reunion) {
+      reunionSelectionneeIdRef.current = null;
+      setReunionSelectionneeId(null);
       setCrTitre('Réunion');
       setCrOrdreDuJour('');
       setCrContenu(null);
+      setCrVide(true);
+      return;
+    }
+    reunionSelectionneeIdRef.current = reunion.id;
+    setReunionSelectionneeId(reunion.id);
+    setCrVide(false);
+    setCrTitre(formatTitreCompteRenduAccueil(reunion.date));
+    setCrOrdreDuJour(reunion.ordreDuJour?.trim() ?? '');
+    setCrContenu(reunion.contenu);
+  }, []);
+
+  const loadAccueil = useCallback(async (estRafraichissement = false) => {
+    if (!sejour?.id) {
+      setReunions([]);
+      appliquerReunionAuCr(null);
       setCrVide(false);
       setError(null);
       if (!estRafraichissement) setLoading(false);
@@ -101,26 +133,19 @@ function Home() {
     setError(null);
 
     try {
-      const reunions = await sejourReunionService.listerReunions(sejour.id);
-      const derniereReunion = trouverDerniereReunion(reunions);
+      const listeBrute = await sejourReunionService.listerReunions(sejour.id);
+      const liste = trierReunionsPlusRecentVersAncien(listeBrute);
+      setReunions(liste);
 
-      if (!derniereReunion) {
-        setCrTitre('Réunion');
-        setCrOrdreDuJour('');
-        setCrContenu(null);
-        setCrVide(true);
-      } else {
-        setCrVide(false);
-        setCrTitre(formatTitreCompteRenduAccueil(derniereReunion.date));
-        setCrOrdreDuJour(derniereReunion.ordreDuJour?.trim() ?? '');
-        setCrContenu(derniereReunion.contenu);
-      }
+      const idCourant = reunionSelectionneeIdRef.current;
+      const courante = idCourant != null ? liste.find((r) => r.id === idCourant) : undefined;
+      appliquerReunionAuCr(courante ?? trouverDerniereReunion(liste));
     } catch (err) {
       setError(getUserFacingErrorMessage(err, 'Impossible de charger l’accueil.'));
     } finally {
       if (!estRafraichissement) setLoading(false);
     }
-  }, [sejour?.id]);
+  }, [sejour?.id, appliquerReunionAuCr]);
 
   useEffect(() => {
     void loadAccueil();
@@ -172,6 +197,15 @@ function Home() {
     }
   };
 
+  const handleChoisirReunion = (reunion: ReunionDto) => {
+    if (reunion.id === reunionSelectionneeId) {
+      setListeReunionsOuverte(false);
+      return;
+    }
+    appliquerReunionAuCr(reunion);
+    setListeReunionsOuverte(false);
+  };
+
   const plusieursSejours = sejoursDisponibles.length > 1;
   const peutChoisirSejour = sejoursDisponibles.length > 0;
   const selecteurSejourActif = peutChoisirSejour && (sejour == null || plusieursSejours);
@@ -192,6 +226,7 @@ function Home() {
   const periodeSejour = sejour != null ? formatPeriodeSejourCourte(sejour) : null;
   const libelleRoleSurSejour =
     sejour != null ? libelleRoleBadgeProfil(tokenId, genre, role, sejour) : null;
+  const peutChoisirReunion = reunions.length > 0;
   const peutOuvrirCrGrand =
     !crVide && (crOrdreDuJour.length > 0 || !estContenuTipTapVide(crContenu));
 
@@ -300,9 +335,21 @@ function Home() {
             contentStyle={styles.reportCardInner}
           >
             <View style={styles.reportCardHeader}>
-              <View style={styles.crHeaderRow}>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.crHeaderRow,
+                  pressed && peutChoisirReunion && styles.dropdownPressed,
+                ]}
+                onPress={() => setListeReunionsOuverte(true)}
+                disabled={!peutChoisirReunion}
+                accessibilityRole="button"
+                accessibilityLabel="Choisir une réunion"
+              >
                 <Text style={styles.crTitle} numberOfLines={2}>{crTitre}</Text>
-              </View>
+                {peutChoisirReunion ? (
+                  <Ionicons name="chevron-down" size={16} color={colors.ink} style={styles.crTitleChevron} />
+                ) : null}
+              </Pressable>
               {peutOuvrirCrGrand ? (
                 <Pressable
                   onPress={() => setCrPleinEcranOuvert(true)}
@@ -390,6 +437,60 @@ function Home() {
                       {sejourEnCoursId === item.id ? (
                         <ActivityIndicator color={colors.primary} />
                       ) : actif ? (
+                        <View style={styles.sejourOptionCheck}>
+                          <Ionicons name="checkmark" size={16} color={colors.surface} />
+                        </View>
+                      ) : null}
+                    </Pressable>
+                  );
+                }}
+              />
+            </GlassPanel>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      <Modal
+        visible={listeReunionsOuverte && isFocused}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setListeReunionsOuverte(false)}
+      >
+        <Pressable style={styles.modalOverlay} onPress={() => setListeReunionsOuverte(false)}>
+          <Pressable onPress={() => {}} style={styles.modalCardWrap}>
+            <GlassPanel
+              intensity={60}
+              overlayOpacity={0.2}
+              style={styles.modalGlass}
+              contentStyle={styles.modalCardContent}
+            >
+              <Text style={styles.modalTitle}>Choisir une réunion</Text>
+              <FlatList
+                data={reunions}
+                keyExtractor={(item) => String(item.id)}
+                renderItem={({ item }) => {
+                  const actif = item.id === reunionSelectionneeId;
+                  const odj = item.ordreDuJour?.trim() ?? '';
+                  return (
+                    <Pressable
+                      style={({ pressed }) => [
+                        styles.reunionOption,
+                        actif && styles.reunionOptionActif,
+                        pressed && styles.reunionOptionPressed,
+                      ]}
+                      onPress={() => handleChoisirReunion(item)}
+                    >
+                      <View style={styles.reunionOptionTexte}>
+                        <Text style={[styles.reunionOptionDate, actif && styles.reunionOptionDateActif]}>
+                          {formatDateReunionListe(item.date)}
+                        </Text>
+                        {odj ? (
+                          <Text style={styles.reunionOptionOdj} numberOfLines={2}>
+                            {odj}
+                          </Text>
+                        ) : null}
+                      </View>
+                      {actif ? (
                         <View style={styles.sejourOptionCheck}>
                           <Ionicons name="checkmark" size={16} color={colors.surface} />
                         </View>
@@ -551,6 +652,10 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   crHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.xs,
     paddingHorizontal: 36,
     marginBottom: spacing.sm,
   },
@@ -561,6 +666,10 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     color: colors.ink,
     textAlign: 'center',
+    flexShrink: 1,
+  },
+  crTitleChevron: {
+    marginTop: 1,
   },
   crExpandBtn: {
     position: 'absolute',
@@ -680,6 +789,45 @@ const styles = StyleSheet.create({
     backgroundColor: colors.danger,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  reunionOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 14,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.sm,
+    borderWidth: 1,
+    borderColor: colors.border,
+    marginBottom: 10,
+    backgroundColor: colors.surface,
+  },
+  reunionOptionActif: {
+    borderColor: colors.danger,
+    backgroundColor: colors.primarySoft,
+  },
+  reunionOptionPressed: {
+    opacity: 0.85,
+  },
+  reunionOptionTexte: {
+    flex: 1,
+    marginRight: spacing.md,
+  },
+  reunionOptionDate: {
+    fontFamily: fonts.body,
+    fontSize: fontSizes.md,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  reunionOptionDateActif: {
+    color: colors.primary,
+  },
+  reunionOptionOdj: {
+    fontFamily: fonts.body,
+    fontSize: fontSizes.xs,
+    color: colors.muted,
+    marginTop: spacing.xs,
+    lineHeight: 16,
   },
   loadingText: {
     marginTop: spacing.md,
