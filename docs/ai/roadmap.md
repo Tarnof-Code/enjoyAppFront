@@ -30,6 +30,7 @@ Suivi synthétique. Plan détaillé : [`.cursor/plans/migration-api-mobile.plan.
 - [x] **Sanitaire — dossier enfant modale** : tap carte **`DossierSanitaire`** → **`DossierEnfantModal`** (consultation seule, `GET …/dossier` ; édition réservée au web).
 - [x] **UI navigation** : **`Header`** compact ; barres top-tabs homogènes (**`barreOngletsCompacte`**) ; bande recherche Organisation dissociée ; icônes app régénérées (`scripts/generate-app-icons.cjs`, splash sur `icon.png`).
 - [x] **Variables d'environnement** : dossier **`.env/`** (`.env.example` versionné), **`loadEnv.cjs`**, **`expo-env.cjs`**, scripts **`start`/`start:prod`**, **`app.config.js`** → **`config/env.ts`**.
+- [x] **Build APK Android (EAS)** : org **`just-enjoy-app`**, profil **`preview`** (APK internal, **`ENJOY_ENV=prod`**), script **`npm run build:apk`**.
 
 ## Reste (mineur)
 

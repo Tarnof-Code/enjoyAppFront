@@ -62,8 +62,11 @@ Inventaire factuel. Pour les patterns, voir [decisions-architecturales.md](decis
 | `config/env.ts` | **`API_BASE_URL`** depuis `Constants.expoConfig.extra.apiUrl` (fallback `EXPO_PUBLIC_API_URL` / localhost) |
 | `config/loadEnv.cjs` | Parse **`.env/.env.local`** puis **`.env/.env.prod`** si mode prod |
 | `config/theme.ts` | Tokens couleurs, espacements, polices |
-| `app.config.js` | Charge env via **`loadEnjoyEnv`**, expose **`extra.apiUrl`** et **`extra.enjoyEnv`** |
+| `app.config.js` | Charge env via **`loadEnjoyEnv`**, expose **`extra.apiUrl`** et **`extra.enjoyEnv`** (fusionne **`app.json` → `extra`**, ex. **`eas.projectId`**) |
+| `app.json` | Manifeste Expo statique — **`owner`** org EAS **`just-enjoy-app`**, **`extra.eas.projectId`**, valeurs **`extra.apiUrl`** / **`enjoyEnv`** en secours |
+| `eas.json` | Profils EAS Build — **`preview`** : APK Android, distribution internal, **`ENJOY_ENV=prod`** |
 | `scripts/expo-env.cjs` | Lance Expo avec **`ENJOY_ENV=local|prod`** (scripts npm `start`, `start:prod`, etc.) |
+| `package.json` | Script **`build:apk`** → `eas build --platform android --profile preview` |
 | `.env/.env.example` | Modèle versionné — copier vers `.env.local` / `.env.prod` (non commités) |
 
 ## Hooks (`hooks/`)

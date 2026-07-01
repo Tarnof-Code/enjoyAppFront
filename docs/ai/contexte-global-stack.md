@@ -19,6 +19,7 @@ Application **mobile** Enjoy (Expo / React Native) destinée aux **animateurs** 
 - **`store/`** : Redux Toolkit — `authSlice`, `sejourSlice`, `animNameSlice`, `hooks.ts`, `index.ts`.
 - **`config/`** : `env.ts` (`API_BASE_URL` depuis `extra.apiUrl`), `loadEnv.cjs` (chargement `.env.local` / `.env.prod`), `theme.ts`.
 - **`.env/`** : `.env.example` versionné ; `.env.local` et `.env.prod` locaux (Git ignoré). **`scripts/expo-env.cjs`** : point d'entrée des scripts npm `start` / `start:prod`.
+- **`eas.json`** / **`app.json`** : builds cloud EAS (org **`just-enjoy-app`**, **`extra.eas.projectId`**) ; profil **`preview`** → APK Android internal avec **`ENJOY_ENV=prod`** ; script **`npm run build:apk`**.
 - **`helpers/`** : `axiosError.ts`, `dernierSejour.ts`, `photoProfil.ts`, `reunionAccueil.ts`, `reunionTipTapTexte.ts`.
 - **`types/`** : `api.d.ts` (DTOs alignés sur le web).
 - **`Components/`** : composants partagés (`Header`, dropdowns, `CheckList`, `BirthdayOverlay`…).

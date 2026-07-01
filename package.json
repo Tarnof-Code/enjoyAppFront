@@ -12,6 +12,7 @@
     "ios": "node scripts/expo-env.cjs local -- --ios",
     "web": "node scripts/expo-env.cjs local -- --web",
     "prebuild": "expo prebuild",
+    "build:apk": "npx eas-cli build --platform android --profile preview",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

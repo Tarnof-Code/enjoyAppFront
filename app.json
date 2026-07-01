@@ -2,7 +2,7 @@
   "expo": {
     "name": "Enjoy",
     "slug": "enjoyFront",
-    "owner": "enjoyapp_by_tarnof_2022",
+    "owner": "just-enjoy-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -43,6 +43,13 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "apiUrl": "http://192.168.1.178:8080/api/v1",
+      "enjoyEnv": "local",
+      "eas": {
+        "projectId": "4e934ac6-945b-4523-87b4-2f64717f2f13"
+      }
     }
   }
 }

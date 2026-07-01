@@ -24,6 +24,11 @@ Reste mineur : composant orphelin `DropdownAnim.tsx`, assets `LogosGroupes/` non
 
 ## Journal
 
+### 2026-07-01 (EAS — build APK Android preview)
+- **`app.json`** : org Expo **`just-enjoy-app`** (ex-`enjoyapp_by_tarnof_2022`) ; **`extra.eas.projectId`** lié au projet EAS ; **`extra.apiUrl`** / **`extra.enjoyEnv`** en secours dans le manifeste (surchargés au runtime par **`app.config.js`** + fichiers **`.env/`**).
+- **`eas.json`** profil **`preview`** : distribution **internal**, Android **`buildType: apk`**, variable build **`ENJOY_ENV=prod`** (charge **`.env.prod`** sur EAS Build).
+- **`package.json`** : script **`npm run build:apk`** → `eas build --platform android --profile preview`.
+
 ### 2026-07-01 (Accueil — dernière réunion + choix réunion)
 - **`Home.tsx`** : carte réunion affiche la **dernière réunion** du séjour par défaut (date ↓ puis `id` ↓) — plus de filtre J−1 ; **tap sur le titre** (« Réunion du … ») → modale **Choisir une réunion** (liste triée : date + ordre du jour si présent, coche sur la sélection) ; sélection conservée au pull-to-refresh si la réunion existe encore ; reset au changement de séjour.
 - **Helper** : **`reunionAccueil.ts`** — **`trouverDerniereReunion`**, **`trierReunionsPlusRecentVersAncien`**, **`formatTitreCompteRenduAccueil`**, **`formatDateReunionListe`** ; suppression **`reunionVeille.ts`**.
